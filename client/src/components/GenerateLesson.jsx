@@ -45,7 +45,7 @@ export default function GenerateLesson() {
               <h2 className="section-heading">Lesson Objective</h2>
               <p>{lesson.objective}</p>
             </div>
-            <div className="lesson-block">
+            <div className="lesson-block alternate">
               <h2
                 className="section-heading glance-toggle"
                 onClick={() => setShowGlance(!showGlance)}
