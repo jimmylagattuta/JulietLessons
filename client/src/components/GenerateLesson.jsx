@@ -7,7 +7,7 @@ export default function GenerateLesson({ onGenerate, lessonGenerationState, onSw
       <div className="generate-lesson-wrapper">
         <h2 className="generate-lesson-title">Instant Lesson Generator</h2>
         <p className="generate-lesson-description">
-          Click below to auto-generate a complete lesson based on your filters.
+          Click below to auto-generate a complete lesson.
         </p>
 
         <button
@@ -15,7 +15,7 @@ export default function GenerateLesson({ onGenerate, lessonGenerationState, onSw
           onClick={onGenerate}
           disabled={lessonGenerationState === 'generating'}
         >
-          Generate Lesson Plan
+          Generate Random Lesson
         </button>
 
         {lessonGenerationState === 'generating' && (
