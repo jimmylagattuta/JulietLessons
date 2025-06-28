@@ -4,6 +4,7 @@ import './GenerateLesson.css';
 export default function GenerateLesson() {
   const [lesson, setLesson] = useState(null);
   const [generating, setGenerating] = useState(false);
+  const [showGlance, setShowGlance] = useState(false);
 
   const handleGenerate = () => {
     setGenerating(true);
@@ -38,19 +39,26 @@ export default function GenerateLesson() {
         {lesson ? (
           <div className="lesson-details">
             <div className="lesson-block">
-              <h1 className="lesson-title">{lesson.title}</h1>
+              <h1 className="lesson-title showman">{lesson.title}</h1>
             </div>
             <div className="lesson-block">
               <h2 className="section-heading">Lesson Objective</h2>
               <p>{lesson.objective}</p>
             </div>
             <div className="lesson-block">
-              <h2 className="section-heading">At a Glance</h2>
-              <ul>
-                {lesson.at_a_glance.map((item, index) => (
-                  <li key={index}>{item}</li>
-                ))}
-              </ul>
+              <h2
+                className="section-heading glance-toggle"
+                onClick={() => setShowGlance(!showGlance)}
+              >
+                At a Glance {showGlance ? '▲' : '▼'}
+              </h2>
+              {showGlance && (
+                <ul>
+                  {lesson.at_a_glance.map((item, index) => (
+                    <li key={index}>{item}</li>
+                  ))}
+                </ul>
+              )}
             </div>
           </div>
         ) : (
