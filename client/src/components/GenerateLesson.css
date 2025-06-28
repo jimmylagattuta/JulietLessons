@@ -74,9 +74,13 @@
 .lesson-details {
   max-width: 800px;
   margin: 0 auto;
+}
+
+.lesson-block {
   background: rgba(255, 255, 255, 0.95);
   padding: 2rem;
   border-radius: 8px;
+  margin-bottom: 2rem;
 }
 
 .lesson-title {

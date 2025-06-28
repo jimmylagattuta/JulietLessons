@@ -28,43 +28,44 @@ export default function GenerateLesson() {
 
   return (
     <div className="lesson-page">
-    <aside className="lesson-sidebar">Sidebar</aside>
-    <div
-        className="lesson-content full-width"
+      <aside className="lesson-sidebar">Sidebar</aside>
+      <div
+        className="lesson-content"
         style={{
-        backgroundImage: 'url(https://res.cloudinary.com/djtsuktwb/image/upload/v1751151866/iStock-487619256_gfou89.jpg)'
+          backgroundImage: 'url(https://res.cloudinary.com/djtsuktwb/image/upload/v1751151866/iStock-487619256_gfou89.jpg)'
         }}
-    >
+      >
         {lesson ? (
-        <div className="lesson-details">
-            <h1 className="lesson-title">{lesson.title}</h1>
-            <section>
-            <h2 className="section-heading">Lesson Objective</h2>
-            <p>{lesson.objective}</p>
-            </section>
-            <section>
-            <h2 className="section-heading">At a Glance</h2>
-            <ul>
+          <div className="lesson-details">
+            <div className="lesson-block">
+              <h1 className="lesson-title">{lesson.title}</h1>
+            </div>
+            <div className="lesson-block">
+              <h2 className="section-heading">Lesson Objective</h2>
+              <p>{lesson.objective}</p>
+            </div>
+            <div className="lesson-block">
+              <h2 className="section-heading">At a Glance</h2>
+              <ul>
                 {lesson.at_a_glance.map((item, index) => (
-                <li key={index}>{item}</li>
+                  <li key={index}>{item}</li>
                 ))}
-            </ul>
-            </section>
-        </div>
+              </ul>
+            </div>
+          </div>
         ) : (
-        <div className="generate-box">
+          <div className="generate-box">
             <h2 className="generate-title">Instant Lesson Generator</h2>
             <button
-            className="generate-button"
-            onClick={handleGenerate}
-            disabled={generating}
+              className="generate-button"
+              onClick={handleGenerate}
+              disabled={generating}
             >
-            {generating ? 'Generating...' : 'Generate Random Lesson'}
+              {generating ? 'Generating...' : 'Generate Random Lesson'}
             </button>
-        </div>
+          </div>
         )}
+      </div>
     </div>
-    </div>
-
   );
 }
