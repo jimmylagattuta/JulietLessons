@@ -59,14 +59,14 @@
 }
 
 .lesson-block {
-  background: rgba(255, 255, 255, 0.95);
+  background: #ffffff;
   padding: 2rem;
   border-radius: 8px;
   margin-bottom: 2rem;
 }
 
 .lesson-block.alternate {
-  background: rgba(245, 245, 245, 0.95);
+  background: #f1f5f9;
 }
 
 .lesson-title {
