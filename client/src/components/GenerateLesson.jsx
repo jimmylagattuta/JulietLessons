@@ -1,40 +1,69 @@
-import React from 'react';
+import React, { useState } from 'react';
 import './GenerateLesson.css';
 
-export default function GenerateLesson({ onGenerate, lessonGenerationState, onSwitch }) {
+export default function GenerateLesson() {
+  const [lesson, setLesson] = useState(null);
+  const [generating, setGenerating] = useState(false);
+
+  const handleGenerate = () => {
+    setGenerating(true);
+    setTimeout(() => {
+      setLesson({
+        title: "Posing a Scene to Give it Life",
+        objective: "Players will be able to have purposeful blocking in a scene when a script is provided.",
+        at_a_glance: [
+          "PRODUCT OR DELIVERABLE MADE OR PERFORMED: Blocking In A Performance",
+          "MAJOR PRINCIPALS: Emotions and reactions lead to placement on stage and the actions make.",
+          "SKILLS LEARNED: Blocking, Poses, Listening, Gestures.",
+          "Warm Up: Emotional What Are you Doing?",
+          "Bridge - Partner Sculpture From Prompt",
+          "Main Activity - Tableaux - Photo Copier",
+          "Main Activity - Tableaux - Norman Rockwell (Various)",
+          "End Of Lesson - Performance Of Script - We Got A Problem - Using (EM, PL, PO, GE) Blocking Process"
+        ]
+      });
+      setGenerating(false);
+    }, 1000);
+  };
+
   return (
-    <main className="generate-lesson-container">
-      <div className="generate-lesson-wrapper">
-        <h2 className="generate-lesson-title">Instant Lesson Generator</h2>
-        <p className="generate-lesson-description">
-          Click below to auto-generate a complete lesson.
-        </p>
-
-        <button
-          className="generate-button"
-          onClick={onGenerate}
-          disabled={lessonGenerationState === 'generating'}
-        >
-          Generate Random Lesson
-        </button>
-
-        {lessonGenerationState === 'generating' && (
-          <p className="generating-text">Generating lesson...</p>
-        )}
-
-        {lessonGenerationState === 'complete' && (
-          <div className="generate-complete-box">
-            Lesson generated! Go to{' '}
-            <span
-              className="generate-complete-link"
-              onClick={() => onSwitch('lessons')}
+    <div className="lesson-page">
+      <aside className="lesson-sidebar">Sidebar</aside>
+      <div
+        className="lesson-content"
+        style={{
+          backgroundImage: 'url(https://res.cloudinary.com/djtsuktwb/image/upload/v1751151866/iStock-487619256_gfou89.jpg)'
+        }}
+      >
+        {lesson ? (
+          <div className="lesson-details">
+            <h1 className="lesson-title">{lesson.title}</h1>
+            <section>
+              <h2 className="section-heading">Lesson Objective</h2>
+              <p>{lesson.objective}</p>
+            </section>
+            <section>
+              <h2 className="section-heading">At a Glance</h2>
+              <ul>
+                {lesson.at_a_glance.map((item, index) => (
+                  <li key={index}>{item}</li>
+                ))}
+              </ul>
+            </section>
+          </div>
+        ) : (
+          <div className="generate-box">
+            <h2 className="generate-title">Instant Lesson Generator</h2>
+            <button
+              className="generate-button"
+              onClick={handleGenerate}
+              disabled={generating}
             >
-              Lesson Planning
-            </span>{' '}
-            to view it.
+              {generating ? 'Generating...' : 'Generate Random Lesson'}
+            </button>
           </div>
         )}
       </div>
-    </main>
+    </div>
   );
 }
