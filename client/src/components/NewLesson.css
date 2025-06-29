@@ -33,7 +33,7 @@
   font-size: 3rem;
   background: none;
   border: none;
-  color: #8bbbab;
+  color: rgba(139, 187, 171, 0.5);
   line-height: 1;
   transition: color 0.2s ease;
   pointer-events: none; /* so header onclick still fires */
@@ -47,7 +47,6 @@
 }
 
 /* hover anywhere in header lights up both */
-.new-lesson-header:hover .new-lesson-add,
-.new-lesson-header:hover .new-lesson-title {
+.new-lesson-header:hover .new-lesson-add {
   color: #10b981;
 }
