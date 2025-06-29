@@ -1,0 +1,13 @@
+.new-lesson-page {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;        /* fill parent */
+  padding: 2rem;
+}
+
+.new-lesson-title {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #334155;
+}

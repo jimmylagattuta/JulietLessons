@@ -78,6 +78,7 @@ import { ApiService } from './services/api';
 import { AuthService } from './services/auth';
 import { StripeService } from './services/stripe';
 import GenerateLesson from './components/GenerateLesson';
+import NewLesson from './components/NewLesson';
 
 // Types
 import {
@@ -1126,7 +1127,15 @@ function App() {0
               </div>
             </button>
 
-
+            <button
+              onClick={() => setActiveTab('newLesson')}
+              className={activeTab === 'newLesson'
+                ? 'pb-4 px-1 border-b-2 border-blue-500 text-blue-600'
+                : 'pb-4 px-1 border-b-2 border-transparent text-gray-500 hover:border-gray-300'}
+            >
+              <Plus className="w-4 h-4" /> 
+              <span>New Lesson</span>
+            </button>
 
             <button
               onClick={() => setActiveTab('lessons')}
@@ -1221,6 +1230,13 @@ function App() {0
           />
         )}
 
+        {activeTab === 'newLesson' && (
+          <div className="flex-1 overflow-y-auto p-6">
+            <NewLesson
+              onSwitch={setActiveTab}
+            />
+          </div>
+        )}
 
         {activeTab === 'lessons' && (
           <div className="flex-1 flex">
