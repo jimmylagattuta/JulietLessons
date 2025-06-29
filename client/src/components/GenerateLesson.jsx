@@ -7,6 +7,7 @@ export default function GenerateLesson() {
   const [generating, setGenerating] = useState(false);
   const [showGlance, setShowGlance] = useState(false);
   const [showWarmUps, setShowWarmUps] = useState(false);
+  const [showBridge, setShowBridge] = useState(false);
 
   const handleGenerate = () => {
     setGenerating(true);
@@ -30,13 +31,7 @@ export default function GenerateLesson() {
   return (
     <div className="lesson-page">
       <aside className="lesson-sidebar">Sidebar</aside>
-      <div
-        className="lesson-content"
-        style={{
-          backgroundImage:
-            'url(https://res.cloudinary.com/djtsuktwb/image/upload/v1751151866/iStock-487619256_gfou89.jpg)'
-        }}
-      >
+      <div className="lesson-content">
         {lesson ? (
           <div className="lesson-details">
             <div className="lesson-block">
@@ -49,10 +44,7 @@ export default function GenerateLesson() {
             </div>
 
             <div className="lesson-block alternate">
-              <h2
-                className="section-heading glance-toggle"
-                onClick={() => setShowGlance(!showGlance)}
-              >
+              <h2 className="section-heading glance-toggle" onClick={() => setShowGlance(!showGlance)}>
                 At a Glance {showGlance ? '▲' : '▼'}
               </h2>
               {showGlance && (
@@ -66,10 +58,7 @@ export default function GenerateLesson() {
 
             {warmUps.length > 0 && (
               <div className="lesson-block">
-                <h2
-                  className="section-heading glance-toggle"
-                  onClick={() => setShowWarmUps(!showWarmUps)}
-                >
+                <h2 className="section-heading glance-toggle" onClick={() => setShowWarmUps(!showWarmUps)}>
                   Warm Ups — {totalWarmUpTime} min {showWarmUps ? '▲' : '▼'}
                 </h2>
 
@@ -84,30 +73,26 @@ export default function GenerateLesson() {
                   </ul>
                 )}
 
-                {warmUps.map((wp, i) =>
-                  wp.file_url ? (
-                    <div className="pdf-button-wrapper" key={`pdf-${i}`}>
-                      <a
-                        href={wp.file_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="pdf-button"
-                      >
+                {warmUps.map((wp, i) => (
+                  wp.file_urls && wp.file_urls.length > 0 && wp.file_urls.map((url, j) => (
+                    <div className="pdf-button-wrapper" key={`warmup-pdf-${i}-${j}`}>
+                      <a href={url} target="_blank" rel="noopener noreferrer" className="pdf-button">
                         <span className="pdf-icon">📄</span>
                         <span className="pdf-title">{wp.title}</span>
                         View PDF
                       </a>
                     </div>
-                  ) : null
-                )}
+                  ))
+                ))}
               </div>
             )}
 
-           {bridgeParts.length > 0 && (
+            {bridgeParts.length > 0 && (
               <div className="lesson-block">
                 <h2 className="section-heading glance-toggle" onClick={() => setShowBridge(!showBridge)}>
-                  Bridge Activities (Pre-Main Activity) — {totalBridgeTime} min {showBridge ? '▲' : '▼'}
+                  Bridge Activities — {totalBridgeTime} min {showBridge ? '▲' : '▼'}
                 </h2>
+
                 {showBridge && (
                   <ul className="lesson-parts-list">
                     {bridgeParts.map((bp, i) => (
@@ -118,28 +103,25 @@ export default function GenerateLesson() {
                     ))}
                   </ul>
                 )}
-                {bridgeParts.map((bp, i) =>
-                  bp.file_url ? (
-                    <div className="pdf-button-wrapper" key={`bridge-pdf-${i}`}>
-                      <a href={bp.file_url} target="_blank" rel="noopener noreferrer" className="pdf-button">
+
+                {bridgeParts.map((bp, i) => (
+                  bp.file_urls && bp.file_urls.length > 0 && bp.file_urls.map((url, j) => (
+                    <div className="pdf-button-wrapper" key={`bridge-pdf-${i}-${j}`}>
+                      <a href={url} target="_blank" rel="noopener noreferrer" className="pdf-button">
                         <span className="pdf-icon">📄</span>
                         <span className="pdf-title">{bp.title}</span>
                         View PDF
                       </a>
                     </div>
-                  ) : null
-                )}
+                  ))
+                ))}
               </div>
             )}
           </div>
         ) : (
           <div className="generate-box">
             <h2 className="generate-title">Instant Lesson Generator</h2>
-            <button
-              className="generate-button"
-              onClick={handleGenerate}
-              disabled={generating}
-            >
+            <button className="generate-button" onClick={handleGenerate} disabled={generating}>
               {generating ? 'Generating...' : 'Generate Random Lesson'}
             </button>
           </div>
