@@ -7,6 +7,7 @@ export default function GenerateLesson() {
   const [showGlance, setShowGlance] = useState(false);
   const [showWarmUps, setShowWarmUps] = useState(false);
   const [showBridge, setShowBridge] = useState(false);
+  const [showMain, setShowMain] = useState(false);
 
   const handleGenerate = () => {
     setGenerating(true);
