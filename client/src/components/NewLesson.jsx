@@ -6,6 +6,7 @@ export default function NewLesson() {
   const [title, setTitle] = useState('')
   const [objective, setObjective] = useState('')
   const [atAGlance, setAtAGlance] = useState([''])
+  const [saving, setSaving] = useState(false)
 
   const handleHeaderClick = () => {
     setShowForm(true)
@@ -20,19 +21,35 @@ export default function NewLesson() {
     setAtAGlance(items)
   }
 
-  const handleSave = mode => {
+  const handleSave = async mode => {
     const cleaned = atAGlance.filter(item => item.trim() !== '')
-    const payload = { title, objective, at_a_glance: cleaned }
-    console.log('Would save lesson:', payload)
+    const payload = { lesson: { title, objective, at_a_glance: cleaned } }
 
-    if (mode === 'again') {
-      // reset form for another
-      setTitle('')
-      setObjective('')
-      setAtAGlance([''])
-      setShowForm(false)
+    setSaving(true)
+    try {
+      const resp = await fetch('/api/lessons', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+      if (!resp.ok) throw new Error(`Status ${resp.status}`)
+      const data = await resp.json()
+      console.log('Saved lesson:', data)
+
+      if (mode === 'again') {
+        // reset form for another
+        setTitle('')
+        setObjective('')
+        setAtAGlance([''])
+        setShowForm(false)
+      }
+      // if mode === 'view', you could route to a details page
+    } catch (err) {
+      console.error('Save failed:', err)
+      alert('Failed to save. See console for details.')
+    } finally {
+      setSaving(false)
     }
-    // for 'view' you might navigate or just leave open
   }
 
   return (
@@ -46,7 +63,6 @@ export default function NewLesson() {
           tabIndex={showForm ? undefined : 0}
           onKeyPress={e => !showForm && e.key === 'Enter' && handleHeaderClick()}
         >
-          {/* only show + when form is closed */}
           {!showForm && (
             <button className="new-lesson-add" type="button">+</button>
           )}
@@ -95,14 +111,16 @@ export default function NewLesson() {
               <button
                 className="btn-save-view"
                 onClick={() => handleSave('view')}
+                disabled={saving}
               >
-                Save and View
+                {saving ? 'Saving…' : 'Save and View'}
               </button>
               <button
                 className="btn-save-again"
                 onClick={() => handleSave('again')}
+                disabled={saving}
               >
-                Save and Create Again
+                {saving ? 'Saving…' : 'Save and Create Again'}
               </button>
             </div>
           </div>
