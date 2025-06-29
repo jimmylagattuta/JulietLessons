@@ -5,20 +5,24 @@ export default function GenerateLesson() {
   const [lesson, setLesson] = useState(null);
   const [generating, setGenerating] = useState(false);
   const [showGlance, setShowGlance] = useState(false);
+  const [showWarmUps, setShowWarmUps] = useState(true);
 
   const handleGenerate = () => {
     setGenerating(true);
     fetch('/api/lessons/random')
-      .then(response => response.json())
+      .then(r => r.json())
       .then(data => {
         setLesson(data);
         setGenerating(false);
       })
-      .catch(error => {
-        console.error('Error fetching lesson:', error);
+      .catch(err => {
+        console.error('Error fetching lesson:', err);
         setGenerating(false);
       });
   };
+
+  const warmUps = lesson?.lesson_parts?.filter(lp => lp.section_type === 'warm_up') || [];
+  const totalWarmUpTime = warmUps.reduce((sum, lp) => sum + (lp.time || 0), 0);
 
   return (
     <div className="lesson-page">
@@ -31,13 +35,40 @@ export default function GenerateLesson() {
       >
         {lesson ? (
           <div className="lesson-details">
+            {/* Title Block */}
             <div className="lesson-block">
               <h1 className="lesson-title showman">{lesson.title}</h1>
             </div>
-            <div className="lesson-block">
+
+            {/* Objective Block */}
+            <div className="lesson-block alternate">
               <h2 className="section-heading">Lesson Objective</h2>
               <p>{lesson.objective}</p>
             </div>
+
+            {/* Warm Ups Block */}
+            {warmUps.length > 0 && (
+              <div className="lesson-block">
+                <h2
+                  className="section-heading glance-toggle"
+                  onClick={() => setShowWarmUps(!showWarmUps)}
+                >
+                  Warm Ups — {totalWarmUpTime} min {showWarmUps ? '▲' : '▼'}
+                </h2>
+                {showWarmUps && (
+                  <ul className="lesson-parts-list">
+                    {warmUps.map((wp, i) => (
+                      <li key={i}>
+                        <strong>Part {wp.position}:</strong> {wp.title}
+                        {wp.body && <p className="part-body">{wp.body}</p>}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            )}
+
+            {/* At a Glance Block */}
             <div className="lesson-block alternate">
               <h2
                 className="section-heading glance-toggle"
@@ -46,9 +77,9 @@ export default function GenerateLesson() {
                 At a Glance {showGlance ? '▲' : '▼'}
               </h2>
               {showGlance && (
-                <ul>
-                  {lesson.at_a_glance.map((item, index) => (
-                    <li key={index}>{item}</li>
+                <ul className="lesson-parts-list">
+                  {lesson.at_a_glance.map((item, idx) => (
+                    <li key={idx}>{item}</li>
                   ))}
                 </ul>
               )}
