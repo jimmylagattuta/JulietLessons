@@ -9,6 +9,7 @@ export default function GenerateLesson() {
   const [showBridge, setShowBridge] = useState(false);
   const [showMain, setShowMain] = useState(false);
   const [showEnd, setShowEnd] = useState(false);
+  const [showScripts, setShowScripts] = useState(false);
 
   const handleGenerate = () => {
     setGenerating(true);
@@ -28,6 +29,7 @@ export default function GenerateLesson() {
   const bridgeParts = lesson?.lesson_parts?.filter(lp => lp.section_type === 'bridge_activity') || [];
   const mainActivities = lesson?.lesson_parts?.filter(lp => lp.section_type === 'main_activity') || [];
   const endActivities = lesson?.lesson_parts?.filter(lp => lp.section_type === 'end_of_lesson') || [];
+  const scripts = lesson?.lesson_parts?.filter(lp => lp.section_type === 'script') || [];
 
   const totalWarmUpTime = warmUps.reduce((sum, lp) => sum + (lp.time || 0), 0);
   const totalBridgeTime = bridgeParts.reduce((sum, lp) => sum + (lp.time || 0), 0);
@@ -181,7 +183,36 @@ export default function GenerateLesson() {
                 ))}
               </div>
             )}
+            {scripts.length > 0 && (
+              <div className="lesson-block">
+                <h2 className="section-heading glance-toggle" onClick={() => setShowScripts(!showScripts)}>
+                  Scripts {showScripts ? '▲' : '▼'}
+                </h2>
 
+                {showScripts && (
+                  <ul className="lesson-parts-list">
+                    {scripts.map((sp, i) => (
+                      <li key={i}>
+                        <strong>{sp.title}</strong>
+                        {sp.body && <p className="part-body">{sp.body}</p>}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+
+                {scripts.map((sp, i) => (
+                  sp.file_infos && sp.file_infos.length > 0 && sp.file_infos.map((file, j) => (
+                    <div className="pdf-button-wrapper" key={`script-pdf-${i}-${j}`}>
+                      <a href={file.url} target="_blank" rel="noopener noreferrer" className="pdf-button">
+                        <span className="pdf-icon">📄</span>
+                        <span className="pdf-title">SCRIPT{" - "}{file.filename}</span>
+                        View PDF
+                      </a>
+                    </div>
+                  ))
+                ))}
+              </div>
+            )}
           </div>
         ) : (
           <div className="generate-box">
