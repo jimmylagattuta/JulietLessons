@@ -23,7 +23,9 @@ export default function GenerateLesson() {
   };
 
   const warmUps = lesson?.lesson_parts?.filter(lp => lp.section_type === 'warm_up') || [];
+  const bridgeParts = lesson?.lesson_parts?.filter(lp => lp.section_type === 'bridge_activity') || [];
   const totalWarmUpTime = warmUps.reduce((sum, lp) => sum + (lp.time || 0), 0);
+  const totalBridgeTime = bridgeParts.reduce((sum, lp) => sum + (lp.time || 0), 0);
 
   return (
     <div className="lesson-page">
@@ -93,6 +95,35 @@ export default function GenerateLesson() {
                       >
                         <span className="pdf-icon">📄</span>
                         <span className="pdf-title">{wp.title}</span>
+                        View PDF
+                      </a>
+                    </div>
+                  ) : null
+                )}
+              </div>
+            )}
+
+           {bridgeParts.length > 0 && (
+              <div className="lesson-block">
+                <h2 className="section-heading glance-toggle" onClick={() => setShowBridge(!showBridge)}>
+                  Bridge Activities (Pre-Main Activity) — {totalBridgeTime} min {showBridge ? '▲' : '▼'}
+                </h2>
+                {showBridge && (
+                  <ul className="lesson-parts-list">
+                    {bridgeParts.map((bp, i) => (
+                      <li key={i}>
+                        <strong>Part {bp.position}:</strong> {bp.title}
+                        {bp.body && <p className="part-body">{bp.body}</p>}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {bridgeParts.map((bp, i) =>
+                  bp.file_url ? (
+                    <div className="pdf-button-wrapper" key={`bridge-pdf-${i}`}>
+                      <a href={bp.file_url} target="_blank" rel="noopener noreferrer" className="pdf-button">
+                        <span className="pdf-icon">📄</span>
+                        <span className="pdf-title">{bp.title}</span>
                         View PDF
                       </a>
                     </div>

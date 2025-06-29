@@ -1,7 +1,7 @@
 class LessonPart < ApplicationRecord
   belongs_to :lesson
-  has_one_attached :file
-
+  has_many_attached :files
+  
   enum section_type: {
     warm_up: 0,
     bridge_activity: 1,

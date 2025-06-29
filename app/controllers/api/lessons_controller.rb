@@ -1,8 +1,8 @@
 class Api::LessonsController < ApplicationController
   def random
-    lesson = Lesson.includes(lesson_parts: { file_attachment: :blob }).order('RANDOM()').first
+    lesson = Lesson.includes(lesson_parts: { files_attachments: :blob }).order('RANDOM()').first
     render json: lesson, include: {
-      lesson_parts: { methods: :file_url }
+      lesson_parts: { methods: :file_urls }
     }
   end
 end
