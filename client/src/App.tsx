@@ -1072,7 +1072,7 @@ function App() {0
                 <Activity className="w-6 h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">JulietLessons EDITED BY JAMES LAGS</h1>
+                <h1 className="text-2xl font-bold text-gray-900 dark:text-white">JulietLessons EDITED BY JAMES</h1>
                 <p className="text-sm text-gray-600 dark:text-gray-400">Lesson planning and activity management</p>
               </div>
             </div>
