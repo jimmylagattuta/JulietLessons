@@ -30,7 +30,8 @@ export default function GenerateLesson() {
       <div
         className="lesson-content"
         style={{
-          backgroundImage: 'url(https://res.cloudinary.com/djtsuktwb/image/upload/v1751151866/iStock-487619256_gfou89.jpg)'
+          backgroundImage:
+            'url(https://res.cloudinary.com/djtsuktwb/image/upload/v1751151866/iStock-487619256_gfou89.jpg)'
         }}
       >
         {lesson ? (
@@ -45,7 +46,7 @@ export default function GenerateLesson() {
               <h2 className="section-heading">Lesson Objective</h2>
               <p>{lesson.objective}</p>
             </div>
-          
+
             {/* At a Glance Block */}
             <div className="lesson-block alternate">
               <h2
@@ -78,13 +79,25 @@ export default function GenerateLesson() {
                       <li key={i}>
                         <strong>Part {wp.position}:</strong> {wp.title}
                         {wp.body && <p className="part-body">{wp.body}</p>}
+                        {wp.file_url && (
+                          <div className="pdf-button-wrapper">
+                            <a
+                              href={wp.file_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="pdf-button"
+                            >
+                              <span className="pdf-icon">📄</span>
+                              View PDF
+                            </a>
+                          </div>
+                        )}
                       </li>
                     ))}
                   </ul>
                 )}
               </div>
             )}
-
           </div>
         ) : (
           <div className="generate-box">

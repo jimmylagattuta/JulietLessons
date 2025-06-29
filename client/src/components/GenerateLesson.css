@@ -17,7 +17,8 @@
 .lesson-content {
   flex: 1;
   position: relative;
-  background: url('https://res.cloudinary.com/djtsuktwb/image/upload/v1751151866/iStock-487619256_gfou89.jpg') no-repeat center center fixed;
+  background: url('https://res.cloudinary.com/djtsuktwb/image/upload/v1751151866/iStock-487619256_gfou89.jpg')
+    no-repeat center center fixed;
   background-size: cover;
   overflow-y: auto;
   padding: 2rem;
@@ -112,4 +113,30 @@
   margin-top: 0.5rem;
   font-style: italic;
   color: #374151;
+}
+
+/* PDF Button Styles */
+.pdf-button-wrapper {
+  margin-top: 0.5rem;
+}
+
+.pdf-button {
+  display: inline-flex;
+  align-items: center;
+  background: #4f772d;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: background 0.2s;
+}
+
+.pdf-button:hover {
+  background: #3e6123;
+}
+
+.pdf-icon {
+  margin-right: 0.5rem;
+  font-size: 1.2rem;
 }
