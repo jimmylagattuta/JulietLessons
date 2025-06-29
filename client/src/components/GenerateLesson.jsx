@@ -5,7 +5,7 @@ export default function GenerateLesson() {
   const [lesson, setLesson] = useState(null);
   const [generating, setGenerating] = useState(false);
   const [showGlance, setShowGlance] = useState(false);
-  const [showWarmUps, setShowWarmUps] = useState(true);
+  const [showWarmUps, setShowWarmUps] = useState(false);
 
   const handleGenerate = () => {
     setGenerating(true);
@@ -45,6 +45,23 @@ export default function GenerateLesson() {
               <h2 className="section-heading">Lesson Objective</h2>
               <p>{lesson.objective}</p>
             </div>
+          
+            {/* At a Glance Block */}
+            <div className="lesson-block alternate">
+              <h2
+                className="section-heading glance-toggle"
+                onClick={() => setShowGlance(!showGlance)}
+              >
+                At a Glance {showGlance ? '▲' : '▼'}
+              </h2>
+              {showGlance && (
+                <ul className="lesson-parts-list">
+                  {lesson.at_a_glance.map((item, idx) => (
+                    <li key={idx}>{item}</li>
+                  ))}
+                </ul>
+              )}
+            </div>
 
             {/* Warm Ups Block */}
             {warmUps.length > 0 && (
@@ -68,22 +85,6 @@ export default function GenerateLesson() {
               </div>
             )}
 
-            {/* At a Glance Block */}
-            <div className="lesson-block alternate">
-              <h2
-                className="section-heading glance-toggle"
-                onClick={() => setShowGlance(!showGlance)}
-              >
-                At a Glance {showGlance ? '▲' : '▼'}
-              </h2>
-              {showGlance && (
-                <ul className="lesson-parts-list">
-                  {lesson.at_a_glance.map((item, idx) => (
-                    <li key={idx}>{item}</li>
-                  ))}
-                </ul>
-              )}
-            </div>
           </div>
         ) : (
           <div className="generate-box">
