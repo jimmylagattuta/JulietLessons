@@ -15,11 +15,12 @@
 }
 
 .new-lesson-page {
-  display: flex;
-  align-items: center;
+  flex: 1;
+  align-items: flex-start;
   justify-content: center;
-  height: 100%;        /* fill parent */
-  padding: 2rem;
+  position: relative;
+  padding: 4rem 2rem 2rem 2rem;
+  box-sizing: border-box;
 }
 
 .new-lesson-title {
