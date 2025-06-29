@@ -24,8 +24,11 @@ export default function GenerateLesson() {
 
   const warmUps = lesson?.lesson_parts?.filter(lp => lp.section_type === 'warm_up') || [];
   const bridgeParts = lesson?.lesson_parts?.filter(lp => lp.section_type === 'bridge_activity') || [];
+  const mainActivities = lesson?.lesson_parts?.filter(lp => lp.section_type === 'main_activity') || [];
+
   const totalWarmUpTime = warmUps.reduce((sum, lp) => sum + (lp.time || 0), 0);
   const totalBridgeTime = bridgeParts.reduce((sum, lp) => sum + (lp.time || 0), 0);
+  const totalMainTime = mainActivities.reduce((sum, lp) => sum + (lp.time || 0), 0;
 
   return (
     <div className="lesson-page">
@@ -116,6 +119,37 @@ export default function GenerateLesson() {
                 ))}
               </div>
             )}
+
+            {mainActivities.length > 0 && (
+                <div className="lesson-block">
+                    <h2 className="section-heading glance-toggle" onClick={() => setShowMain(!showMain)}>
+                    Main Activities — {totalMainTime} min {showMain ? '▲' : '▼'}
+                    </h2>
+
+                    {showMain && (
+                    <ul className="lesson-parts-list">
+                        {mainActivities.map((mp, i) => (
+                        <li key={i}>
+                            <strong>Part {mp.position}:</strong> {mp.title}
+                            {mp.body && <p className="part-body">{mp.body}</p>}
+                        </li>
+                        ))}
+                    </ul>
+                    )}
+
+                    {mainActivities.map((mp, i) => (
+                    mp.file_infos && mp.file_infos.length > 0 && mp.file_infos.map((file, j) => (
+                        <div className="pdf-button-wrapper" key={`main-pdf-${i}-${j}`}>
+                        <a href={file.url} target="_blank" rel="noopener noreferrer" className="pdf-button">
+                            <span className="pdf-icon">📄</span>
+                            <span className="pdf-title">{file.filename}</span>
+                            View PDF
+                        </a>
+                        </div>
+                    ))
+                    ))}
+                </div>
+                )}
           </div>
         ) : (
           <div className="generate-box">
