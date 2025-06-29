@@ -28,7 +28,7 @@ export default function GenerateLesson() {
 
   const totalWarmUpTime = warmUps.reduce((sum, lp) => sum + (lp.time || 0), 0);
   const totalBridgeTime = bridgeParts.reduce((sum, lp) => sum + (lp.time || 0), 0);
-  const totalMainTime = mainActivities.reduce((sum, lp) => sum + (lp.time || 0), 0;
+  const totalMainTime = mainActivities.reduce((sum, lp) => sum + (lp.time || 0), 0);
 
   return (
     <div className="lesson-page">
