@@ -1,3 +1,4 @@
+// GenerateLesson.js
 import React, { useState } from 'react';
 import './GenerateLesson.css';
 
@@ -73,25 +74,31 @@ export default function GenerateLesson() {
                 >
                   Warm Ups — {totalWarmUpTime} min {showWarmUps ? '▲' : '▼'}
                 </h2>
+
+                {/* Render PDF buttons outside of the dropdown */}
+                {warmUps.map((wp, i) =>
+                  wp.file_url ? (
+                    <div className="pdf-button-wrapper" key={`pdf-${i}`}>
+                      <span className="pdf-title">{wp.title}</span>
+                      <a
+                        href={wp.file_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="pdf-button"
+                      >
+                        <span className="pdf-icon">📄</span>
+                        View PDF
+                      </a>
+                    </div>
+                  ) : null
+                )}
+
                 {showWarmUps && (
                   <ul className="lesson-parts-list">
                     {warmUps.map((wp, i) => (
                       <li key={i}>
                         <strong>Part {wp.position}:</strong> {wp.title}
                         {wp.body && <p className="part-body">{wp.body}</p>}
-                        {wp.file_url && (
-                          <div className="pdf-button-wrapper">
-                            <a
-                              href={wp.file_url}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="pdf-button"
-                            >
-                              <span className="pdf-icon">📄</span>
-                              View PDF
-                            </a>
-                          </div>
-                        )}
                       </li>
                     ))}
                   </ul>
