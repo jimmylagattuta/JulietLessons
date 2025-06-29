@@ -26,7 +26,7 @@
   display: flex;
   align-items: baseline;
   gap: 1rem;
-  cursor: pointer;
+  /* only clickable when closed */
 }
 
 .new-lesson-add {
@@ -39,20 +39,18 @@
   pointer-events: none;
 }
 
+.new-lesson-header:hover .new-lesson-add {
+  color: #10b981;
+}
+
+/* title never changes color on hover */
 .new-lesson-title {
   font-size: 2.5rem;
   font-weight: bold;
   color: #334155;
-  transition: color 0.2s ease;
 }
 
-.new-lesson-header:hover .new-lesson-add,
-.new-lesson-header:hover .new-lesson-title {
-  color: #10b981;
-}
-
-
-/* form styling */
+/* form styling (unchanged) */
 .new-lesson-form {
   margin-top: 2rem;
   max-width: 600px;
@@ -89,9 +87,9 @@
   margin-top: 2rem;
 }
 
-/* match site theme gradient buttons */
+/* buttons */
 .btn-save-view,
-.btn-save-new {
+.btn-save-again {
   background: linear-gradient(to right, #9333ea, #6b21a8);
   color: white;
   font-weight: 600;
@@ -103,6 +101,6 @@
 }
 
 .btn-save-view:hover,
-.btn-save-new:hover {
+.btn-save-again:hover {
   background: linear-gradient(to right, #7e22ce, #581c87);
 }

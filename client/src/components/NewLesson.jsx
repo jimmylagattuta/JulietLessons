@@ -14,7 +14,6 @@ export default function NewLesson() {
   const handleAtAGlanceChange = (value, idx) => {
     const items = [...atAGlance]
     items[idx] = value
-    // if user typed into the last box, append a new empty one
     if (idx === items.length - 1 && value.trim() !== '') {
       items.push('')
     }
@@ -23,20 +22,17 @@ export default function NewLesson() {
 
   const handleSave = mode => {
     const cleaned = atAGlance.filter(item => item.trim() !== '')
-    const payload = {
-      title,
-      objective,
-      at_a_glance: cleaned,
-    }
+    const payload = { title, objective, at_a_glance: cleaned }
     console.log('Would save lesson:', payload)
-    if (mode === 'new') {
-      // reset for next
+
+    if (mode === 'again') {
+      // reset form for another
       setTitle('')
       setObjective('')
       setAtAGlance([''])
       setShowForm(false)
     }
-    // if mode === 'view' we might navigate to view page…
+    // for 'view' you might navigate or just leave open
   }
 
   return (
@@ -45,13 +41,18 @@ export default function NewLesson() {
       <div className="new-lesson-page">
         <div
           className="new-lesson-header"
-          onClick={handleHeaderClick}
-          role="button"
-          tabIndex={0}
-          onKeyPress={e => e.key === 'Enter' && handleHeaderClick()}
+          onClick={!showForm ? handleHeaderClick : undefined}
+          role={showForm ? undefined : 'button'}
+          tabIndex={showForm ? undefined : 0}
+          onKeyPress={e => !showForm && e.key === 'Enter' && handleHeaderClick()}
         >
-          <button className="new-lesson-add" type="button">+</button>
-          <h1 className="new-lesson-title">Create a New Lesson</h1>
+          {/* only show + when form is closed */}
+          {!showForm && (
+            <button className="new-lesson-add" type="button">+</button>
+          )}
+          <h1 className="new-lesson-title">
+            {showForm ? 'New Lesson' : 'Create a New Lesson'}
+          </h1>
         </div>
 
         {showForm && (
@@ -98,10 +99,10 @@ export default function NewLesson() {
                 Save and View
               </button>
               <button
-                className="btn-save-new"
-                onClick={() => handleSave('new')}
+                className="btn-save-again"
+                onClick={() => handleSave('again')}
               >
-                Save and Create New
+                Save and Create Again
               </button>
             </div>
           </div>
