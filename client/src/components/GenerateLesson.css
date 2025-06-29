@@ -80,6 +80,10 @@
 
 .lesson-title.showman {
   position: relative;
+  z-index: 1;
+  background: #ffffff;
+  padding: 1rem;
+  border-radius: 8px;
   font-size: 3rem;
   text-align: center;
   font-weight: 800;
@@ -89,22 +93,25 @@
   overflow: hidden;
 }
 
-.lesson-title.showman::after {
+.lesson-title.showman::before {
   content: '';
   position: absolute;
   top: 0;
   left: -50%;
   width: 50%;
   height: 100%;
-  background: linear-gradient(120deg, transparent, rgba(255,255,255,0.4), transparent);
+  background: radial-gradient(circle, rgba(255,255,255,0.6) 0%, transparent 80%);
   transform: skewX(-20deg);
-  animation: flicker 2s infinite;
+  animation: spotlight 4s infinite alternate;
+  z-index: 0;
 }
 
-@keyframes flicker {
+@keyframes spotlight {
   0% { left: -50%; }
   100% { left: 100%; }
 }
+
+
 
 .section-heading {
   font-size: 1.5rem;
