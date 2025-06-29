@@ -21,30 +21,33 @@
   box-sizing: border-box;
 }
 
-/* new header row */
+/* header row */
 .new-lesson-header {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   gap: 1rem;
+  cursor: pointer;
 }
 
-/* plus without background */
 .new-lesson-add {
-  font-size: 2.5rem;
+  font-size: 3rem;
   background: none;
   border: none;
-  color: #334155;
+  color: #8bbbab;
   line-height: 1;
-  cursor: pointer;
   transition: color 0.2s ease;
-}
-
-.new-lesson-add:hover {
-  color: #10b981;
+  pointer-events: none; /* so header onclick still fires */
 }
 
 .new-lesson-title {
   font-size: 2.5rem;
   font-weight: bold;
   color: #334155;
+  transition: color 0.2s ease;
+}
+
+/* hover anywhere in header lights up both */
+.new-lesson-header:hover .new-lesson-add,
+.new-lesson-header:hover .new-lesson-title {
+  color: #10b981;
 }
