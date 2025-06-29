@@ -1,4 +1,3 @@
-// GenerateLesson.js
 import React, { useState } from 'react';
 import './GenerateLesson.css';
 
@@ -74,11 +73,11 @@ export default function GenerateLesson() {
                 )}
 
                 {warmUps.map((wp, i) => (
-                  wp.file_urls && wp.file_urls.length > 0 && wp.file_urls.map((url, j) => (
+                  wp.file_infos && wp.file_infos.length > 0 && wp.file_infos.map((file, j) => (
                     <div className="pdf-button-wrapper" key={`warmup-pdf-${i}-${j}`}>
-                      <a href={url} target="_blank" rel="noopener noreferrer" className="pdf-button">
+                      <a href={file.url} target="_blank" rel="noopener noreferrer" className="pdf-button">
                         <span className="pdf-icon">📄</span>
-                        <span className="pdf-title">{wp.title}</span>
+                        <span className="pdf-title">{file.filename}</span>
                         View PDF
                       </a>
                     </div>
@@ -105,11 +104,11 @@ export default function GenerateLesson() {
                 )}
 
                 {bridgeParts.map((bp, i) => (
-                  bp.file_urls && bp.file_urls.length > 0 && bp.file_urls.map((url, j) => (
+                  bp.file_infos && bp.file_infos.length > 0 && bp.file_infos.map((file, j) => (
                     <div className="pdf-button-wrapper" key={`bridge-pdf-${i}-${j}`}>
-                      <a href={url} target="_blank" rel="noopener noreferrer" className="pdf-button">
+                      <a href={file.url} target="_blank" rel="noopener noreferrer" className="pdf-button">
                         <span className="pdf-icon">📄</span>
-                        <span className="pdf-title">{bp.title}</span>
+                        <span className="pdf-title">{file.filename}</span>
                         View PDF
                       </a>
                     </div>

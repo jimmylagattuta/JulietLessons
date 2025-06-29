@@ -1,7 +1,7 @@
 class LessonPart < ApplicationRecord
   belongs_to :lesson
   has_many_attached :files
-  
+
   enum section_type: {
     warm_up: 0,
     bridge_activity: 1,
@@ -10,7 +10,12 @@ class LessonPart < ApplicationRecord
     script: 4
   }
 
-  def file_urls
-    files.map { |file| Rails.application.routes.url_helpers.rails_blob_url(file, only_path: true) }
+  def file_infos
+    files.map do |file|
+      {
+        url: Rails.application.routes.url_helpers.rails_blob_url(file, only_path: true),
+        filename: file.filename.to_s
+      }
+    end
   end
 end
