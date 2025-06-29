@@ -41,3 +41,5 @@ group :development, :test do
 end
 
 
+
+gem "aws-sdk-s3", "~> 1.191"
