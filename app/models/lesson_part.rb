@@ -9,4 +9,8 @@ class LessonPart < ApplicationRecord
     end_of_lesson: 3,
     script: 4
   }
+
+  def file_url
+    file.attached? ? Rails.application.routes.url_helpers.rails_blob_url(file, only_path: true) : nil
+  end
 end
