@@ -61,6 +61,35 @@
   margin: auto;
 }
 
+.lesson-star-block {
+  position: relative;
+  background: #ffffff;
+  padding: 2rem;
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  overflow: hidden;
+}
+
+.lesson-star-block::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -50%;
+  width: 50%;
+  height: 100%;
+  background: radial-gradient(circle, rgba(255,255,255,0.4) 0%, transparent 70%);
+  box-shadow: 0 0 40px rgba(255, 255, 255, 0.5);
+  transform: skewX(-20deg);
+  animation: starbeam 4s infinite alternate;
+  z-index: 0;
+}
+
+@keyframes starbeam {
+  0% { left: -50%; }
+  100% { left: 100%; }
+}
+
+
 .lesson-block {
   background: #ffffff;
   padding: 2rem;
