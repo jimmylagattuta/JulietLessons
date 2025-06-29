@@ -8,23 +8,16 @@ export default function GenerateLesson() {
 
   const handleGenerate = () => {
     setGenerating(true);
-    setTimeout(() => {
-      setLesson({
-        title: "Posing a Scene to Give it Life",
-        objective: "Players will be able to have purposeful blocking in a scene when a script is provided.",
-        at_a_glance: [
-          "PRODUCT OR DELIVERABLE MADE OR PERFORMED: Blocking In A Performance",
-          "MAJOR PRINCIPALS: Emotions and reactions lead to placement on stage and the actions make.",
-          "SKILLS LEARNED: Blocking, Poses, Listening, Gestures.",
-          "Warm Up: Emotional What Are you Doing?",
-          "Bridge - Partner Sculpture From Prompt",
-          "Main Activity - Tableaux - Photo Copier",
-          "Main Activity - Tableaux - Norman Rockwell (Various)",
-          "End Of Lesson - Performance Of Script - We Got A Problem - Using (EM, PL, PO, GE) Blocking Process"
-        ]
+    fetch('/api/lessons/random')
+      .then(response => response.json())
+      .then(data => {
+        setLesson(data);
+        setGenerating(false);
+      })
+      .catch(error => {
+        console.error('Error fetching lesson:', error);
+        setGenerating(false);
       });
-      setGenerating(false);
-    }, 1000);
   };
 
   return (
