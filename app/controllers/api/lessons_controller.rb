@@ -17,7 +17,6 @@ class Api::LessonsController < ApplicationController
     puts "lesson"
     puts lesson.inspect
     puts "*" * 100
-    puts tom
     if lesson.save
       render json: lesson,
              status: :created,
