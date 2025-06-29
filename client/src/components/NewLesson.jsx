@@ -1,14 +1,21 @@
-// src/components/NewLesson.jsx
 import React, { useState } from 'react'
 import './NewLesson.css'
 
+const SECTION_LABELS = {
+  warm_up:          'Warm Up',
+  bridge_activity:  'Bridge Activity',
+  main_activity:    'Main Activity',
+  end_of_lesson:    'End Of Lesson',
+  script:           'Script',
+}
+
 export default function NewLesson() {
-  const [showForm, setShowForm] = useState(false)
-  const [title, setTitle] = useState('')
-  const [objective, setObjective] = useState('')
-  const [atAGlance, setAtAGlance] = useState([''])
-  const [sectionType, setSectionType] = useState('warm_up')
-  const [saving, setSaving] = useState(false)
+  const [showForm, setShowForm]       = useState(false)
+  const [title, setTitle]             = useState('')
+  const [objective, setObjective]     = useState('')
+  const [atAGlance, setAtAGlance]     = useState([''])
+  const [sectionType, setSectionType] = useState('')    // start blank
+  const [saving, setSaving]           = useState(false)
 
   const handleHeaderClick = () => setShowForm(true)
 
@@ -35,23 +42,23 @@ export default function NewLesson() {
     setSaving(true)
     try {
       const resp = await fetch('/api/lessons', {
-        method: 'POST',
+        method:  'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
+        body:    JSON.stringify(payload)
       })
       if (!resp.ok) throw new Error(`Status ${resp.status}`)
       const data = await resp.json()
       console.log('Saved lesson:', data)
 
       if (mode === 'again') {
-        // reset for another
+        // reset form
         setTitle('')
         setObjective('')
         setAtAGlance([''])
-        setSectionType('warm_up')
+        setSectionType('')
         setShowForm(false)
       }
-      // if mode === 'view', could navigate to a details page
+      // else on "view" you could navigate…
     } catch (err) {
       console.error('Save failed:', err)
       alert('Failed to save. See console for details.')
@@ -113,19 +120,31 @@ export default function NewLesson() {
               ))}
             </div>
 
+            {/* show selected section above */}
+            {sectionType && (
+              <div className="selected-section">
+                Section: {SECTION_LABELS[sectionType]}
+              </div>
+            )}
+
             <div className="form-group">
               <label htmlFor="section-type">Section Type</label>
-              <select
-                id="section-type"
-                value={sectionType}
-                onChange={e => setSectionType(e.target.value)}
-              >
-                <option value="warm_up">Warm Up</option>
-                <option value="bridge_activity">Bridge Activity</option>
-                <option value="main_activity">Main Activity</option>
-                <option value="end_of_lesson">End Of Lesson</option>
-                <option value="script">Script</option>
-              </select>
+              <div className="select-wrapper">
+                <select
+                  id="section-type"
+                  value={sectionType}
+                  onChange={e => setSectionType(e.target.value)}
+                >
+                  <option value="" disabled>
+                    Select section type…
+                  </option>
+                  <option value="warm_up">Warm Up</option>
+                  <option value="bridge_activity">Bridge Activity</option>
+                  <option value="main_activity">Main Activity</option>
+                  <option value="end_of_lesson">End Of Lesson</option>
+                  <option value="script">Script</option>
+                </select>
+              </div>
             </div>
 
             <div className="form-actions">

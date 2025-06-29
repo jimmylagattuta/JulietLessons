@@ -21,7 +21,7 @@
   box-sizing: border-box;
 }
 
-/* header row */
+/* header */
 .new-lesson-header {
   display: flex;
   align-items: baseline;
@@ -48,7 +48,7 @@
   color: #334155;
 }
 
-/* form styling */
+/* form */
 .new-lesson-form {
   margin-top: 2rem;
   max-width: 600px;
@@ -65,7 +65,6 @@
   color: #a2c0e9;
 }
 
-/* Inputs & textarea */
 .form-group input,
 .form-group textarea {
   width: 100%;
@@ -77,38 +76,64 @@
   background: white;
 }
 
-/* Dropdown styling */
-.form-group select {
+.at-glance-input {
+  margin-top: 0.5rem;
+}
+
+/* selected section pill */
+.selected-section {
+  background: #334155;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  display: inline-block;
+  margin-bottom: 1rem;
+  font-weight: 600;
+}
+
+/* dropdown wrapper & arrow */
+.select-wrapper {
+  position: relative;
+}
+.select-wrapper select {
+  appearance: none;
+  -moz-appearance: none;
+  -webkit-appearance: none;
   width: 100%;
   padding: 0.5rem;
+  padding-right: 2rem;
   border: 1px solid #cbd5e1;
   border-radius: 0.375rem;
   font-size: 1rem;
   color: #334155;
   background: white;
   cursor: pointer;
-  -webkit-appearance: none;
-     -moz-appearance: none;
-          appearance: none;
+}
+.select-wrapper::after {
+  content: '▼';
+  position: absolute;
+  right: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  font-size: 0.8rem;
+  color: #475569;
 }
 
-.form-group select:focus {
+/* focus style */
+.select-wrapper select:focus {
   outline: none;
   border-color: #9333ea;
   box-shadow: 0 0 0 3px rgba(147, 51, 234, 0.3);
 }
 
-.at-glance-input {
-  margin-top: 0.5rem;
-}
-
+/* actions */
 .form-actions {
   display: flex;
   gap: 1rem;
   margin-top: 2rem;
 }
 
-/* Save buttons */
 .btn-save-view,
 .btn-save-again {
   background: linear-gradient(to right, #9333ea, #6b21a8);
