@@ -42,9 +42,9 @@ export default function GenerateLesson() {
       <div className="lesson-content">
         {lesson ? (
           <div className="lesson-details">
-            <div className="lesson-block">
+
               <h1 className="lesson-title showman">{lesson.title}</h1>
-            </div>
+
 
             <div className="lesson-block alternate">
               <h2 className="section-heading">Lesson Objective</h2>
