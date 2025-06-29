@@ -1,3 +1,4 @@
+// src/components/NewLesson.jsx
 import React, { useState } from 'react'
 import './NewLesson.css'
 
@@ -6,11 +7,10 @@ export default function NewLesson() {
   const [title, setTitle] = useState('')
   const [objective, setObjective] = useState('')
   const [atAGlance, setAtAGlance] = useState([''])
+  const [sectionType, setSectionType] = useState('warm_up')
   const [saving, setSaving] = useState(false)
 
-  const handleHeaderClick = () => {
-    setShowForm(true)
-  }
+  const handleHeaderClick = () => setShowForm(true)
 
   const handleAtAGlanceChange = (value, idx) => {
     const items = [...atAGlance]
@@ -23,7 +23,14 @@ export default function NewLesson() {
 
   const handleSave = async mode => {
     const cleaned = atAGlance.filter(item => item.trim() !== '')
-    const payload = { lesson: { title, objective, at_a_glance: cleaned } }
+    const payload = {
+      lesson: {
+        title,
+        objective,
+        at_a_glance: cleaned,
+        section_type: sectionType
+      }
+    }
 
     setSaving(true)
     try {
@@ -37,13 +44,14 @@ export default function NewLesson() {
       console.log('Saved lesson:', data)
 
       if (mode === 'again') {
-        // reset form for another
+        // reset for another
         setTitle('')
         setObjective('')
         setAtAGlance([''])
+        setSectionType('warm_up')
         setShowForm(false)
       }
-      // if mode === 'view', you could route to a details page
+      // if mode === 'view', could navigate to a details page
     } catch (err) {
       console.error('Save failed:', err)
       alert('Failed to save. See console for details.')
@@ -63,9 +71,7 @@ export default function NewLesson() {
           tabIndex={showForm ? undefined : 0}
           onKeyPress={e => !showForm && e.key === 'Enter' && handleHeaderClick()}
         >
-          {!showForm && (
-            <button className="new-lesson-add" type="button">+</button>
-          )}
+          {!showForm && <button className="new-lesson-add">+</button>}
           <h1 className="new-lesson-title">
             {showForm ? 'New Lesson' : 'Create a New Lesson'}
           </h1>
@@ -105,6 +111,21 @@ export default function NewLesson() {
                   onChange={e => handleAtAGlanceChange(e.target.value, idx)}
                 />
               ))}
+            </div>
+
+            <div className="form-group">
+              <label htmlFor="section-type">Section Type</label>
+              <select
+                id="section-type"
+                value={sectionType}
+                onChange={e => setSectionType(e.target.value)}
+              >
+                <option value="warm_up">Warm Up</option>
+                <option value="bridge_activity">Bridge Activity</option>
+                <option value="main_activity">Main Activity</option>
+                <option value="end_of_lesson">End Of Lesson</option>
+                <option value="script">Script</option>
+              </select>
             </div>
 
             <div className="form-actions">
