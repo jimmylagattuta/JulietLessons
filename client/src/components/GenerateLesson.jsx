@@ -37,18 +37,15 @@ export default function GenerateLesson() {
       >
         {lesson ? (
           <div className="lesson-details">
-            {/* Title Block */}
             <div className="lesson-block">
               <h1 className="lesson-title showman">{lesson.title}</h1>
             </div>
 
-            {/* Objective Block */}
             <div className="lesson-block alternate">
               <h2 className="section-heading">Lesson Objective</h2>
               <p>{lesson.objective}</p>
             </div>
 
-            {/* At a Glance Block */}
             <div className="lesson-block alternate">
               <h2
                 className="section-heading glance-toggle"
@@ -65,7 +62,6 @@ export default function GenerateLesson() {
               )}
             </div>
 
-            {/* Warm Ups Block */}
             {warmUps.length > 0 && (
               <div className="lesson-block">
                 <h2
@@ -74,24 +70,6 @@ export default function GenerateLesson() {
                 >
                   Warm Ups — {totalWarmUpTime} min {showWarmUps ? '▲' : '▼'}
                 </h2>
-
-                {/* Render PDF buttons outside of the dropdown */}
-                {warmUps.map((wp, i) =>
-                  wp.file_url ? (
-                    <div className="pdf-button-wrapper" key={`pdf-${i}`}>
-                      <span className="pdf-title">{wp.title}</span>
-                      <a
-                        href={wp.file_url}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="pdf-button"
-                      >
-                        <span className="pdf-icon">📄</span>
-                        View PDF
-                      </a>
-                    </div>
-                  ) : null
-                )}
 
                 {showWarmUps && (
                   <ul className="lesson-parts-list">
@@ -102,6 +80,23 @@ export default function GenerateLesson() {
                       </li>
                     ))}
                   </ul>
+                )}
+
+                {warmUps.map((wp, i) =>
+                  wp.file_url ? (
+                    <div className="pdf-button-wrapper" key={`pdf-${i}`}>
+                      <a
+                        href={wp.file_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="pdf-button"
+                      >
+                        <span className="pdf-icon">📄</span>
+                        <span className="pdf-title">{wp.title}</span>
+                        View PDF
+                      </a>
+                    </div>
+                  ) : null
                 )}
               </div>
             )}
