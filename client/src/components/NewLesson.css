@@ -36,7 +36,7 @@
   color: rgba(139, 187, 171, 0.5);
   line-height: 1;
   transition: color 0.2s ease;
-  pointer-events: none; /* so header onclick still fires */
+  pointer-events: none;
 }
 
 .new-lesson-title {
@@ -46,7 +46,63 @@
   transition: color 0.2s ease;
 }
 
-/* hover anywhere in header lights up both */
-.new-lesson-header:hover .new-lesson-add {
+.new-lesson-header:hover .new-lesson-add,
+.new-lesson-header:hover .new-lesson-title {
   color: #10b981;
+}
+
+
+/* form styling */
+.new-lesson-form {
+  margin-top: 2rem;
+  max-width: 600px;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #334155;
+}
+
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.375rem;
+  font-size: 1rem;
+  color: #334155;
+}
+
+.at-glance-input {
+  margin-top: 0.5rem;
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+/* match site theme gradient buttons */
+.btn-save-view,
+.btn-save-new {
+  background: linear-gradient(to right, #9333ea, #6b21a8);
+  color: white;
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.btn-save-view:hover,
+.btn-save-new:hover {
+  background: linear-gradient(to right, #7e22ce, #581c87);
 }
