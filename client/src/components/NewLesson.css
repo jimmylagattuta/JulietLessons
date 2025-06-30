@@ -97,15 +97,13 @@
   padding-bottom: 0.25rem;
 }
 
-/* Row */
+/* Each part row */
 .lesson-part-row {
   position: relative;
   margin-bottom: 1rem;
   padding-bottom: 1rem;
   border-bottom: 1px solid #e2e8f0;
 }
-
-/* Part fields */
 .lesson-part-label {
   margin-bottom: 0.75rem;
 }
@@ -127,24 +125,11 @@
   font-size: 1rem;
 }
 
-.lesson-part-files {
-  margin-bottom: 0.75rem;
-}
-.lesson-part-files label {
-  display: block;
-  font-weight: 600;
-  margin-bottom: 0.25rem;
-  color: #475569;
-}
-.lesson-part-files input[type="file"] {
-  display: block;
-}
-
-/* Remove button */
+/* Remove part button */
 .lesson-part-remove {
   position: absolute;
-  top: 0;
-  right: 0;
+  top: 0.5rem;
+  right: 0.5rem;
   background: none;
   border: none;
   color: #dc2626;
@@ -155,7 +140,44 @@
   text-decoration: underline;
 }
 
-/* Inline add */
+/* PDF uploader section */
+.lesson-part-files {
+  margin-bottom: 1rem;
+}
+.lesson-part-files label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #475569;
+}
+.pdf-slot {
+  display: flex;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+.pdf-slot input[type="file"] {
+  margin-right: 1rem;
+}
+.pdf-title {
+  background: #eef2ff;
+  padding: 0.5rem;
+  border-radius: 0.25rem;
+  flex-grow: 1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: #3730a3;
+  font-weight: 500;
+}
+.pdf-remove {
+  background: none;
+  border: none;
+  color: #dc2626;
+  cursor: pointer;
+  margin-left: 0.5rem;
+}
+
+/* Inline add buttons */
 .lesson-part-add-inline {
   margin-top: 0.5rem;
 }
@@ -220,4 +242,3 @@
 .btn-save-again:hover {
   background: linear-gradient(to right, #7e22ce, #581c87);
 }
-

@@ -25,13 +25,20 @@ export default function NewLesson() {
       : ['']
   )
   const [sectionType, setSectionType] = useState('')    // for fallback dropdown
-  const [lessonParts, setLessonParts] = useState([])    // {sectionType, title, body, time, attachments: File[]}
+  const [lessonParts, setLessonParts] = useState([])    // {sectionType, title, body, time}
+  // store PDF slots per section key
+  const [pdfsBySection, setPdfsBySection] = useState(() =>
+    Object.keys(SECTION_LABELS).reduce((acc, key) => {
+      acc[key] = [{ file: null }]   // start with one empty slot
+      return acc
+    }, {})
+  )
   const [saving, setSaving]           = useState(false)
 
-  // reveal form
+  // show the form
   const handleHeaderClick = () => setShowForm(true)
 
-  // dynamic at-a-glance bullets
+  // dynamic At-a-Glance bullets
   const handleAtAGlanceChange = (val, idx) => {
     const arr = [...atAGlance]
     arr[idx] = val
@@ -39,17 +46,17 @@ export default function NewLesson() {
     setAtAGlance(arr)
   }
 
-  // add new blank part (including empty attachments array)
+  // add a new lesson part
   const handleAddPart = sectionKey => {
     if (!sectionKey) return
     setLessonParts(ps => [
       ...ps,
-      { sectionType: sectionKey, title: '', body: '', time: '', attachments: [] }
+      { sectionType: sectionKey, title: '', body: '', time: '' }
     ])
     setSectionType('')
   }
 
-  // update field on part
+  // update a field on a part
   const handlePartChange = (idx, field, val) => {
     setLessonParts(ps => {
       const copy = [...ps]
@@ -58,70 +65,40 @@ export default function NewLesson() {
     })
   }
 
-  // update attachments on part
-  const handleFileChange = (idx, files) => {
-    setLessonParts(ps => {
-      const copy = [...ps]
-      copy[idx] = { ...copy[idx], attachments: Array.from(files) }
-      return copy
-    })
-  }
-
-  // remove a part
+  // remove a part row
   const handleRemovePart = idxToRemove => {
     setLessonParts(ps => ps.filter((_, i) => i !== idxToRemove))
   }
 
-  // save with FormData so PDFs upload
-  const handleSave = async mode => {
-    const glance = atAGlance.filter(x => x.trim() !== '')
-
-    const formData = new FormData()
-    formData.append('lesson[title]', title)
-    formData.append('lesson[objective]', objective)
-    glance.forEach((g, i) => {
-      formData.append(`lesson[at_a_glance][]`, g)
+  // file-picker for a PDF slot in a section
+  const handlePdfFileChange = (sectionKey, idx, files) => {
+    setPdfsBySection(prev => {
+      const copy = { ...prev }
+      copy[sectionKey][idx].file = files[0]
+      return copy
     })
+  }
 
-    lessonParts.forEach((p, i) => {
-      const base = `lesson[lesson_parts_attributes][${i}]`
-      formData.append(`${base}[section_type]`, p.sectionType)
-      formData.append(`${base}[title]`, p.title)
-      formData.append(`${base}[body]`, p.body)
-      formData.append(`${base}[time]`, p.time)
-      formData.append(`${base}[position]`, i + 1)
-      if (p._destroy) {
-        formData.append(`${base}[_destroy]`, '1')
+  // add another PDF slot under that section
+  const handleAddPdf = sectionKey => {
+    setPdfsBySection(prev => {
+      const arr = prev[sectionKey] || []
+      return {
+        ...prev,
+        [sectionKey]: [...arr, { file: null }]
       }
-      // attach each PDF
-      p.attachments.forEach(file => {
-        formData.append(`${base}[files][]`, file)
-      })
     })
+  }
 
-    setSaving(true)
-    try {
-      const resp = await fetch('/api/lessons', {
-        method:  'POST',
-        body:    formData,    // <-- multipart/form-data
-      })
-      if (!resp.ok) throw new Error(`Status ${resp.status}`)
-      const data = await resp.json()
-      console.log('Saved lesson:', data)
-
-      if (mode === 'again') {
-        setShowForm(false)
-        setTitle('')
-        setObjective('')
-        setAtAGlance([''])
-        setLessonParts([])
+  // remove a PDF slot (never go below one)
+  const handleRemovePdf = (sectionKey, idx) => {
+    setPdfsBySection(prev => {
+      const arr = prev[sectionKey].filter((_, i) => i !== idx)
+      return {
+        ...prev,
+        [sectionKey]: arr.length ? arr : [{ file: null }]
       }
-    } catch (err) {
-      console.error(err)
-      alert('Failed to save. See console.')
-    } finally {
-      setSaving(false)
-    }
+    })
   }
 
   // group parts by sectionType
@@ -132,6 +109,62 @@ export default function NewLesson() {
       return acc
     }, {})
   }, [lessonParts])
+
+  // on save, bundle everything into FormData
+  const handleSave = async mode => {
+    const glance = atAGlance.filter(x => x.trim() !== '')
+    const formData = new FormData()
+    formData.append('lesson[title]', title)
+    formData.append('lesson[objective]', objective)
+    glance.forEach(g => formData.append('lesson[at_a_glance][]', g))
+
+    // append lesson parts
+    lessonParts.forEach((p, i) => {
+      const base = `lesson[lesson_parts_attributes][${i}]`
+      formData.append(`${base}[section_type]`, p.sectionType)
+      formData.append(`${base}[title]`, p.title)
+      formData.append(`${base}[body]`, p.body)
+      formData.append(`${base}[time]`, p.time)
+      formData.append(`${base}[position]`, i + 1)
+
+      // find that part's sectionKey, get all its PDFs
+      const pdfSlots = pdfsBySection[p.sectionType] || []
+      pdfSlots.forEach(slot => {
+        if (slot.file) {
+          formData.append(`${base}[files][]`, slot.file)
+        }
+      })
+    })
+
+    setSaving(true)
+    try {
+      const resp = await fetch('/api/lessons', {
+        method: 'POST',
+        body:   formData
+      })
+      if (!resp.ok) throw new Error(`Status ${resp.status}`)
+      const data = await resp.json()
+      console.log('Saved lesson:', data)
+      if (mode === 'again') {
+        setShowForm(false)
+        setTitle(''); setObjective('')
+        setAtAGlance([''])
+        setLessonParts([])
+        // reset PDF slots
+        setPdfsBySection(
+          Object.keys(SECTION_LABELS).reduce((acc, key) => {
+            acc[key] = [{ file: null }]
+            return acc
+          }, {})
+        )
+      }
+    } catch (err) {
+      console.error(err)
+      alert('Failed to save. See console.')
+    } finally {
+      setSaving(false)
+    }
+  }
 
   return (
     <div className="lesson-page">
@@ -197,15 +230,14 @@ export default function NewLesson() {
             {Object.entries(partsBySection).map(([sectionKey, parts]) => (
               <div className="lesson-part-group" key={sectionKey}>
 
-                {/* Section heading */}
+                {/* Section Heading */}
                 <h3 className="lesson-part-heading">
                   {SECTION_LABELS[sectionKey]}
                 </h3>
 
+                {/* Each part row */}
                 {parts.map(p => (
                   <div className="lesson-part-row" key={p.idx}>
-
-                    {/* Title */}
                     <div className="lesson-part-label">
                       <label>Title</label>
                       <input
@@ -214,8 +246,6 @@ export default function NewLesson() {
                         onChange={e => handlePartChange(p.idx, 'title', e.target.value)}
                       />
                     </div>
-
-                    {/* Body */}
                     <div className="lesson-part-label">
                       <label>Body</label>
                       <textarea
@@ -224,8 +254,6 @@ export default function NewLesson() {
                         onChange={e => handlePartChange(p.idx, 'body', e.target.value)}
                       />
                     </div>
-
-                    {/* Time */}
                     <div className="lesson-part-label">
                       <label>Time (min)</label>
                       <input
@@ -235,19 +263,6 @@ export default function NewLesson() {
                         onChange={e => handlePartChange(p.idx, 'time', e.target.value)}
                       />
                     </div>
-
-                    {/* PDF uploader */}
-                    <div className="lesson-part-files">
-                      <label>Attachments (PDF)</label>
-                      <input
-                        type="file"
-                        accept="application/pdf"
-                        multiple
-                        onChange={e => handleFileChange(p.idx, e.target.files)}
-                      />
-                    </div>
-
-                    {/* Remove */}
                     <button
                       type="button"
                       className="lesson-part-remove"
@@ -258,9 +273,45 @@ export default function NewLesson() {
                   </div>
                 ))}
 
-                {/* Inline Add */}
+                {/* PDF uploader for this section */}
+                <div className="lesson-part-files">
+                  <label>Attachments (PDF)</label>
+                  {pdfsBySection[sectionKey].map((slot, i) => (
+                    <div className="pdf-slot" key={i}>
+                      <input
+                        type="file"
+                        accept="application/pdf"
+                        onChange={e => handlePdfFileChange(sectionKey, i, e.target.files)}
+                      />
+                      {slot.file && (
+                        <div className="pdf-title">
+                          {slot.file.name}
+                          <button
+                            type="button"
+                            className="pdf-remove"
+                            onClick={() => handleRemovePdf(sectionKey, i)}
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                  <button
+                    type="button"
+                    className="lesson-part-add-inline"
+                    onClick={() => handleAddPdf(sectionKey)}
+                  >
+                    + Add PDF
+                  </button>
+                </div>
+
+                {/* Inline “Add Part” */}
                 <div className="lesson-part-add-inline">
-                  <button type="button" onClick={() => handleAddPart(sectionKey)}>
+                  <button
+                    type="button"
+                    onClick={() => handleAddPart(sectionKey)}
+                  >
                     + Add {SECTION_LABELS[sectionKey].replace(/s$/, '')}
                   </button>
                 </div>
