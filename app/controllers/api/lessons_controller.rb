@@ -13,10 +13,7 @@ class Api::LessonsController < ApplicationController
   # POST /api/lessons
   def create
     lesson = Lesson.new(lesson_params)
-    puts "*" * 100
-    puts "lesson"
-    puts lesson.inspect
-    puts "*" * 100
+
     if lesson.save
       render json: lesson,
              status: :created,
@@ -30,7 +27,21 @@ class Api::LessonsController < ApplicationController
   private
 
   def lesson_params
-    # Permit title, objective, and an array of at_a_glance strings
-    params.require(:lesson).permit(:title, :objective, at_a_glance: [])
+    params.require(:lesson).permit(
+      :title,
+      :objective,
+      at_a_glance: [],
+
+      # allow nested lesson_parts + attachments
+      lesson_parts_attributes: [
+        :section_type,
+        :title,
+        :body,
+        :time,
+        :position,
+        :_destroy,
+        files: []          # if you’re sending PDFs in multipart
+      ]
+    )
   end
 end
