@@ -1,5 +1,3 @@
-// src/components/GenerateLesson.jsx
-
 import React, { useState } from 'react';
 import './GenerateLesson.css';
 
@@ -19,10 +17,11 @@ export default function GenerateLesson() {
       .then(r => r.json())
       .then(data => {
         setLesson(data);
-        setGenerating(false);
       })
       .catch(err => {
         console.error('Error fetching lesson:', err);
+      })
+      .finally(() => {
         setGenerating(false);
       });
   };
@@ -44,7 +43,20 @@ export default function GenerateLesson() {
 
   return (
     <div className="lesson-page">
-      <aside className="lesson-sidebar">Sidebar</aside>
+      <aside className="lesson-sidebar">
+        {lesson ? (
+          <button
+            className="sidebar-generate-btn"
+            onClick={handleGenerate}
+            disabled={generating}
+          >
+            {generating ? 'Generating…' : 'Generate Again'}
+          </button>
+        ) : (
+          <div className="sidebar-placeholder">Sidebar</div>
+        )}
+      </aside>
+
       <div className="lesson-content">
         {lesson ? (
           <div className="lesson-details">
@@ -286,7 +298,7 @@ export default function GenerateLesson() {
               onClick={handleGenerate}
               disabled={generating}
             >
-              {generating ? 'Generating...' : 'Generate Random Lesson'}
+              {generating ? 'Generating…' : 'Generate Random Lesson'}
             </button>
           </div>
         )}
