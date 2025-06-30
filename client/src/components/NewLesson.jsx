@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import './NewLesson.css'
 
 const SECTION_LABELS = {
-  warm_up:          'Warm Up',
+  warm_up:          'Warm Ups',
   bridge_activity:  'Bridge Activity',
   main_activity:    'Main Activity',
   end_of_lesson:    'End Of Lesson',
@@ -10,12 +10,13 @@ const SECTION_LABELS = {
 }
 
 export default function NewLesson() {
-  const [showForm, setShowForm]       = useState(false)
-  const [title, setTitle]             = useState('')
-  const [objective, setObjective]     = useState('')
-  const [atAGlance, setAtAGlance]     = useState([''])
-  const [sectionType, setSectionType] = useState('')    // start blank
-  const [saving, setSaving]           = useState(false)
+  const [showForm, setShowForm]         = useState(false)
+  const [title, setTitle]               = useState('')
+  const [objective, setObjective]       = useState('')
+  const [atAGlance, setAtAGlance]       = useState([''])
+  const [sectionType, setSectionType]   = useState('')    // controlled for the <select>
+  const [lessonParts, setLessonParts]   = useState([])    // array of picked parts
+  const [saving, setSaving]             = useState(false)
 
   const handleHeaderClick = () => setShowForm(true)
 
@@ -28,14 +29,20 @@ export default function NewLesson() {
     setAtAGlance(items)
   }
 
+  const handlePartsChange = val => {
+    if (!val) return
+    setLessonParts(parts => [...parts, val])
+    setSectionType('')  // reset dropdown
+  }
+
   const handleSave = async mode => {
-    const cleaned = atAGlance.filter(item => item.trim() !== '')
+    const cleanedGlance = atAGlance.filter(i => i.trim() !== '')
     const payload = {
       lesson: {
         title,
         objective,
-        at_a_glance: cleaned,
-        section_type: sectionType
+        at_a_glance: cleanedGlance,
+        // you may want to send lesson_parts separately later
       }
     }
 
@@ -51,17 +58,15 @@ export default function NewLesson() {
       console.log('Saved lesson:', data)
 
       if (mode === 'again') {
-        // reset form
         setTitle('')
         setObjective('')
         setAtAGlance([''])
-        setSectionType('')
+        setLessonParts([])
         setShowForm(false)
       }
-      // else on "view" you could navigate…
     } catch (err) {
       console.error('Save failed:', err)
-      alert('Failed to save. See console for details.')
+      alert('Failed to save. See console.')
     } finally {
       setSaving(false)
     }
@@ -86,6 +91,7 @@ export default function NewLesson() {
 
         {showForm && (
           <div className="new-lesson-form">
+            {/* Title */}
             <div className="form-group">
               <label htmlFor="lesson-title">Title</label>
               <input
@@ -96,6 +102,7 @@ export default function NewLesson() {
               />
             </div>
 
+            {/* Objective */}
             <div className="form-group">
               <label htmlFor="lesson-objective">Objective</label>
               <textarea
@@ -106,6 +113,7 @@ export default function NewLesson() {
               />
             </div>
 
+            {/* At a Glance */}
             <div className="form-group">
               <label>At a Glance</label>
               {atAGlance.map((item, idx) => (
@@ -120,33 +128,40 @@ export default function NewLesson() {
               ))}
             </div>
 
-            {/* show selected section above */}
-            {sectionType && (
-              <div className="selected-section">
-                Section: {SECTION_LABELS[sectionType]}
-              </div>
-            )}
-
+            {/* Lesson Parts – show each picked part as its own input */}
             <div className="form-group">
-              <label htmlFor="section-type">Lesson Parts</label>
+              <label>Lesson Parts</label>
+              {lessonParts.map((pt, i) => (
+                <input
+                  key={i}
+                  className="at-glance-input"
+                  type="text"
+                  readOnly
+                  value={SECTION_LABELS[pt]}
+                />
+              ))}
+
+              {/* the dropdown */}
               <div className="select-wrapper">
                 <select
-                  id="section-type"
                   value={sectionType}
-                  onChange={e => setSectionType(e.target.value)}
+                  onChange={e => {
+                    handlePartsChange(e.target.value)
+                  }}
                 >
                   <option value="" disabled>
                     Select part…
                   </option>
                   <option value="warm_up">Warm Ups</option>
-                  <option value="bridge_activity">Bridge Activities</option>
-                  <option value="main_activity">Main Activities</option>
+                  <option value="bridge_activity">Bridge Activity</option>
+                  <option value="main_activity">Main Activity</option>
                   <option value="end_of_lesson">End Of Lesson</option>
                   <option value="script">Script</option>
                 </select>
               </div>
             </div>
 
+            {/* Save buttons */}
             <div className="form-actions">
               <button
                 className="btn-save-view"
