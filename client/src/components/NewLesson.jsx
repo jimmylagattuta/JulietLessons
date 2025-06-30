@@ -106,29 +106,42 @@ export default function NewLesson() {
   }, [lessonParts])
 
   // save all via FormData
-  const handleSave = async mode => {
+    const handleSave = async mode => {
     const glance = atAGlance.filter(x => x.trim() !== '')
     const formData = new FormData()
+
     formData.append('lesson[title]', title)
     formData.append('lesson[objective]', objective)
     glance.forEach(g => formData.append('lesson[at_a_glance][]', g))
 
-    lessonParts.forEach((p, i) => {
-      const base = `lesson[lesson_parts_attributes][${i}]`
-      formData.append(`${base}[section_type]`, p.sectionType)
-      formData.append(`${base}[title]`, p.title)
-      formData.append(`${base}[body]`, p.body)
-      formData.append(`${base}[time]`, p.time)
-      formData.append(`${base}[position]`, i + 1)
-
-      // attach PDFs for that section
-      ;(pdfsBySection[p.sectionType] || []).forEach(slot => {
-        if (slot.file) {
-          formData.append(`${base}[files][]`, slot.file)
+    // STEP 1: figure out the first part index for each section
+    const firstIndexBySection = {}
+    lessonParts.forEach((p, idx) => {
+        if (firstIndexBySection[p.sectionType] == null) {
+        firstIndexBySection[p.sectionType] = idx
         }
-      })
     })
 
+    // STEP 2: build nested params, but only attach PDFs on the first index
+    lessonParts.forEach((p, i) => {
+        const base = `lesson[lesson_parts_attributes][${i}]`
+        formData.append(`${base}[section_type]`, p.sectionType)
+        formData.append(`${base}[title]`, p.title)
+        formData.append(`${base}[body]`, p.body)
+        formData.append(`${base}[time]`, p.time)
+        formData.append(`${base}[position]`, i + 1)
+
+        // only for the first part of this section:
+        if (firstIndexBySection[p.sectionType] === i) {
+        (pdfsBySection[p.sectionType] || []).forEach(slot => {
+            if (slot.file) {
+            formData.append(`${base}[files][]`, slot.file)
+            }
+        })
+        }
+    })
+
+    // … then the rest of your saving logic unchanged …
     setSaving(true)
     try {
       const resp = await fetch('/api/lessons', {
@@ -155,7 +168,7 @@ export default function NewLesson() {
     } finally {
       setSaving(false)
     }
-  }
+    }
 
   return (
     <div className="lesson-page">
