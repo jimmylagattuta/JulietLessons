@@ -17,7 +17,7 @@ const SECTION_LABELS = {
   script:          'Scripts',
 }
 
-export default function NewLesson() {
+export default function NewLesson({ onSwitch, onSaveAndView }) {
   const [showForm, setShowForm]       = useState(DEMO)
   const [title, setTitle]             = useState(DEMO ? 'Demo Lesson Title'       : '')
   const [objective, setObjective]     = useState(DEMO ? 'This is a demo objective' : '')
@@ -132,7 +132,6 @@ export default function NewLesson() {
       formData.append(`${base}[time]`, p.time)
       formData.append(`${base}[position]`, i + 1)
 
-      // only for the first part of this section:
       if (firstIndexBySection[p.sectionType] === i) {
         (pdfsBySection[p.sectionType] || []).forEach(slot => {
           if (slot.file) {
@@ -152,8 +151,11 @@ export default function NewLesson() {
       const data = await resp.json()
       console.log('Saved lesson:', data)
 
+      if (mode === 'view') {
+        onSaveAndView(data.id)
+      }
+
       if (mode === 'again') {
-        // reset everything back to demo or blank defaults, keep form open
         setTitle(DEMO ? 'Demo Lesson Title' : '')
         setObjective(DEMO ? 'This is a demo objective' : '')
         setAtAGlance(

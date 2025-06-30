@@ -1,9 +1,22 @@
-import React, { useState } from 'react';
+// src/components/GenerateLesson.jsx
+
+import React, { useState, useEffect } from 'react';
 import './GenerateLesson.css';
 
-export default function GenerateLesson() {
+/**
+ * GenerateLesson component:
+ *  - If `lessonId` prop is set, fetch that specific lesson once.
+ *  - Otherwise, fetch random lessons via `onGenerateRandom` when user clicks generate.
+ *  - Calling onClearView() clears lessonId so subsequent generates are random.
+ *
+ * Props:
+ *  - lessonId: string | null
+ *  - onGenerateRandom: () => Promise<any>  // returns a lesson object
+ *  - onClearView: () => void
+ */
+export default function GenerateLesson({ lessonId = null, onGenerateRandom, onClearView }) {
   const [lesson, setLesson] = useState(null);
-  const [generating, setGenerating] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [showGlance, setShowGlance] = useState(false);
   const [showWarmUps, setShowWarmUps] = useState(false);
   const [showBridge, setShowBridge] = useState(false);
@@ -11,21 +24,35 @@ export default function GenerateLesson() {
   const [showEnd, setShowEnd] = useState(false);
   const [showScripts, setShowScripts] = useState(false);
 
-  const handleGenerate = () => {
-    setGenerating(true);
-    fetch('/api/lessons/random')
-      .then(r => r.json())
-      .then(data => {
-        setLesson(data);
+  // Fetch a specific lesson by ID when provided
+  useEffect(() => {
+    if (!lessonId) return;
+    setLoading(true);
+    fetch(`/api/lessons/${lessonId}`)
+      .then(res => {
+        if (!res.ok) throw new Error(`Status ${res.status}`);
+        return res.json();
       })
-      .catch(err => {
-        console.error('Error fetching lesson:', err);
-      })
-      .finally(() => {
-        setGenerating(false);
-      });
+      .then(data => setLesson(data))
+      .catch(err => console.error('Error fetching lesson by ID:', err))
+      .finally(() => setLoading(false));
+  }, [lessonId]);
+
+  // Handle random lesson generation
+  const handleGenerate = async () => {
+    onClearView && onClearView();
+    setLoading(true);
+    try {
+      const randomLesson = await onGenerateRandom();
+      setLesson(randomLesson);
+    } catch (err) {
+      console.error('Error fetching random lesson:', err);
+    } finally {
+      setLoading(false);
+    }
   };
 
+  // Helper arrays for each section
   const warmUps = lesson?.lesson_parts?.filter(lp => lp.section_type === 'warm_up') || [];
   const bridgeParts = lesson?.lesson_parts?.filter(lp => lp.section_type === 'bridge_activity') || [];
   const mainActivities = lesson?.lesson_parts?.filter(lp => lp.section_type === 'main_activity') || [];
@@ -37,24 +64,19 @@ export default function GenerateLesson() {
   const totalMainTime = mainActivities.reduce((sum, lp) => sum + (lp.time || 0), 0);
   const totalEndTime = endActivities.reduce((sum, lp) => sum + (lp.time || 0), 0);
 
-  // keep your DB order logic but display 1-based per section
   const sortByPosition = arr =>
     arr.slice().sort((a, b) => (a.position || 0) - (b.position || 0));
 
   return (
     <div className="lesson-page">
       <aside className="lesson-sidebar">
-        {lesson ? (
-          <button
-            className="sidebar-generate-btn"
-            onClick={handleGenerate}
-            disabled={generating}
-          >
-            {generating ? 'Generating…' : 'Generate Again'}
-          </button>
-        ) : (
-          <div className="sidebar-placeholder">Sidebar</div>
-        )}
+        <button
+          className="sidebar-generate-btn"
+          onClick={handleGenerate}
+          disabled={loading}
+        >
+          {loading ? 'Loading…' : (lesson ? 'Generate Again' : 'Generate Random Lesson')}
+        </button>
       </aside>
 
       <div className="lesson-content">
@@ -106,10 +128,7 @@ export default function GenerateLesson() {
                 )}
                 {sortByPosition(warmUps).map((wp, i) =>
                   wp.file_infos?.map((file, j) => (
-                    <div
-                      className="pdf-button-wrapper"
-                      key={`warmup-pdf-${i}-${j}`}
-                    >
+                    <div className="pdf-button-wrapper" key={`warmup-pdf-${i}-${j}`}>
                       <a
                         href={file.url}
                         target="_blank"
@@ -147,10 +166,7 @@ export default function GenerateLesson() {
                 )}
                 {sortByPosition(bridgeParts).map((bp, i) =>
                   bp.file_infos?.map((file, j) => (
-                    <div
-                      className="pdf-button-wrapper"
-                      key={`bridge-pdf-${i}-${j}`}
-                    >
+                    <div className="pdf-button-wrapper" key={`bridge-pdf-${i}-${j}`}>
                       <a
                         href={file.url}
                         target="_blank"
@@ -188,10 +204,7 @@ export default function GenerateLesson() {
                 )}
                 {sortByPosition(mainActivities).map((mp, i) =>
                   mp.file_infos?.map((file, j) => (
-                    <div
-                      className="pdf-button-wrapper"
-                      key={`main-pdf-${i}-${j}`}
-                    >
+                    <div className="pdf-button-wrapper" key={`main-pdf-${i}-${j}`}>
                       <a
                         href={file.url}
                         target="_blank"
@@ -229,10 +242,7 @@ export default function GenerateLesson() {
                 )}
                 {sortByPosition(endActivities).map((ep, i) =>
                   ep.file_infos?.map((file, j) => (
-                    <div
-                      className="pdf-button-wrapper"
-                      key={`end-pdf-${i}-${j}`}
-                    >
+                    <div className="pdf-button-wrapper" key={`end-pdf-${i}-${j}`}>
                       <a
                         href={file.url}
                         target="_blank"
@@ -270,10 +280,7 @@ export default function GenerateLesson() {
                 )}
                 {sortByPosition(scripts).map((sp, i) =>
                   sp.file_infos?.map((file, j) => (
-                    <div
-                      className="pdf-button-wrapper"
-                      key={`script-pdf-${i}-${j}`}
-                    >
+                    <div className="pdf-button-wrapper" key={`script-pdf-${i}-${j}`}>
                       <a
                         href={file.url}
                         target="_blank"
@@ -296,9 +303,9 @@ export default function GenerateLesson() {
             <button
               className="generate-button"
               onClick={handleGenerate}
-              disabled={generating}
+              disabled={loading}
             >
-              {generating ? 'Generating…' : 'Generate Random Lesson'}
+              {loading ? 'Generating…' : 'Generate Random Lesson'}
             </button>
           </div>
         )}

@@ -10,6 +10,15 @@ class Api::LessonsController < ApplicationController
            include: { lesson_parts: { methods: :file_infos } }
   end
 
+  # GET /api/lessons/:id
+  def show
+    lesson = Lesson.includes(lesson_parts: { files_attachments: :blob })
+                   .find(params[:id])
+
+    render json: lesson,
+           include: { lesson_parts: { methods: :file_infos } }
+  end
+
   # POST /api/lessons
   def create
     lesson = Lesson.new(lesson_params)

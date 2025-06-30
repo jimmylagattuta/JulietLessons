@@ -145,6 +145,7 @@ function App() {0
   const [showLessonActivitiesModal, setShowLessonActivitiesModal] = useState(false);
   const [lessonPlanCollapsed, setLessonPlanCollapsed] = useState(false);
   const [targetSection, setTargetSection] = useState<'warmUp' | 'main' | 'coolDown' | null>(null);
+  const [viewLessonId, setViewLessonId] = useState<string | null>(null);
 
   // Initialize auth and demo users
   useEffect(() => {
@@ -1041,6 +1042,12 @@ function App() {0
     return allSelected;
   };
 
+  // called by NewLesson when they click “Save & View”
+  const handleViewSavedLesson = (lessonId: string) => {
+    setViewLessonId(lessonId);
+    setActiveTab('generate');
+  };
+
   // Show loading screen while checking auth
   if (authState.isLoading) {
     return (
@@ -1230,13 +1237,16 @@ function App() {0
           <GenerateLesson
             onGenerate={handleGenerateLesson}
             lessonGenerationState={lessonGenerationState}
+            lessonId={viewLessonId}
             onSwitch={setActiveTab}
+            onClearView={() => setViewLessonId(null)}
           />
         )}
 
         {activeTab === 'newLesson' && (
             <NewLesson
               onSwitch={setActiveTab}
+              onSaveAndView={handleViewSavedLesson}
             />
         )}
 
