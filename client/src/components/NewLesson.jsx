@@ -1,3 +1,5 @@
+// src/components/NewLesson.jsx
+
 import React, { useState, useMemo } from 'react'
 import './NewLesson.css'
 
@@ -106,7 +108,7 @@ export default function NewLesson() {
   }, [lessonParts])
 
   // save all via FormData
-    const handleSave = async mode => {
+  const handleSave = async mode => {
     const glance = atAGlance.filter(x => x.trim() !== '')
     const formData = new FormData()
 
@@ -117,31 +119,30 @@ export default function NewLesson() {
     // STEP 1: figure out the first part index for each section
     const firstIndexBySection = {}
     lessonParts.forEach((p, idx) => {
-        if (firstIndexBySection[p.sectionType] == null) {
+      if (firstIndexBySection[p.sectionType] == null) {
         firstIndexBySection[p.sectionType] = idx
-        }
+      }
     })
 
     // STEP 2: build nested params, but only attach PDFs on the first index
     lessonParts.forEach((p, i) => {
-        const base = `lesson[lesson_parts_attributes][${i}]`
-        formData.append(`${base}[section_type]`, p.sectionType)
-        formData.append(`${base}[title]`, p.title)
-        formData.append(`${base}[body]`, p.body)
-        formData.append(`${base}[time]`, p.time)
-        formData.append(`${base}[position]`, i + 1)
+      const base = `lesson[lesson_parts_attributes][${i}]`
+      formData.append(`${base}[section_type]`, p.sectionType)
+      formData.append(`${base}[title]`, p.title)
+      formData.append(`${base}[body]`, p.body)
+      formData.append(`${base}[time]`, p.time)
+      formData.append(`${base}[position]`, i + 1)
 
-        // only for the first part of this section:
-        if (firstIndexBySection[p.sectionType] === i) {
+      // only for the first part of this section:
+      if (firstIndexBySection[p.sectionType] === i) {
         (pdfsBySection[p.sectionType] || []).forEach(slot => {
-            if (slot.file) {
+          if (slot.file) {
             formData.append(`${base}[files][]`, slot.file)
-            }
+          }
         })
-        }
+      }
     })
 
-    // … then the rest of your saving logic unchanged …
     setSaving(true)
     try {
       const resp = await fetch('/api/lessons', {
@@ -168,7 +169,7 @@ export default function NewLesson() {
     } finally {
       setSaving(false)
     }
-    }
+  }
 
   return (
     <div className="lesson-page">
@@ -193,7 +194,7 @@ export default function NewLesson() {
         {showForm && (
           <div className="new-lesson-form">
 
-            {/* Title */}
+            {/* Lesson Title */}
             <div className="form-group">
               <label htmlFor="lesson-title">Title</label>
               <input
@@ -248,6 +249,7 @@ export default function NewLesson() {
                         onChange={e => handlePartChange(p.idx, 'title', e.target.value)}
                       />
                     </div>
+
                     <div className="lesson-part-label">
                       <label>Body</label>
                       <textarea
@@ -256,15 +258,19 @@ export default function NewLesson() {
                         onChange={e => handlePartChange(p.idx, 'body', e.target.value)}
                       />
                     </div>
-                    <div className="lesson-part-label">
-                      <label>Time (min)</label>
-                      <input
-                        type="number"
-                        min="0"
-                        value={p.time}
-                        onChange={e => handlePartChange(p.idx, 'time', e.target.value)}
-                      />
-                    </div>
+
+                    {sectionKey !== 'script' && (
+                      <div className="lesson-part-label">
+                        <label>Time (min)</label>
+                        <input
+                          type="number"
+                          min="0"
+                          value={p.time}
+                          onChange={e => handlePartChange(p.idx, 'time', e.target.value)}
+                        />
+                      </div>
+                    )}
+
                     <button
                       type="button"
                       className="lesson-part-remove"
@@ -331,7 +337,7 @@ export default function NewLesson() {
               </div>
             </div>
 
-            {/* Save */}
+            {/* Save buttons */}
             <div className="form-actions">
               <button
                 className="btn-save-view"
@@ -348,7 +354,6 @@ export default function NewLesson() {
                 {saving ? 'Saving…' : 'Save and Create Again'}
               </button>
             </div>
-
           </div>
         )}
       </div>
