@@ -150,3 +150,34 @@
 .btn-save-again:hover {
   background: linear-gradient(to right, #7e22ce, #581c87);
 }
+
+/* (…your existing rules above…) */
+
+/* new: each part’s container */
+.lesson-part-group {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+/* heading for each part */
+.lesson-part-heading {
+  margin-top: 0;
+  margin-bottom: 0.75rem;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #334155;
+}
+
+/* reuse your .form-group & .at-glance-input styles for part fields */
+/* e.g. */
+.lesson-part-group .form-group {
+  margin-bottom: 1rem;
+}
+
+/* number input narrower */
+.lesson-part-group input[type="number"] {
+  max-width: 6rem;
+}
