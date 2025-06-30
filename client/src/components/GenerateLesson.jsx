@@ -1,3 +1,5 @@
+// src/components/GenerateLesson.jsx
+
 import React, { useState } from 'react';
 import './GenerateLesson.css';
 
@@ -36,6 +38,10 @@ export default function GenerateLesson() {
   const totalMainTime = mainActivities.reduce((sum, lp) => sum + (lp.time || 0), 0);
   const totalEndTime = endActivities.reduce((sum, lp) => sum + (lp.time || 0), 0);
 
+  // helper to sort by position
+  const sortByPosition = arr =>
+    arr.slice().sort((a, b) => (a.position || 0) - (b.position || 0));
+
   return (
     <div className="lesson-page">
       <aside className="lesson-sidebar">Sidebar</aside>
@@ -52,7 +58,10 @@ export default function GenerateLesson() {
             </div>
 
             <div className="lesson-block alternate">
-              <h2 className="section-heading glance-toggle" onClick={() => setShowGlance(!showGlance)}>
+              <h2
+                className="section-heading glance-toggle"
+                onClick={() => setShowGlance(!showGlance)}
+              >
                 At a Glance {showGlance ? '▲' : '▼'}
               </h2>
               {showGlance && (
@@ -67,12 +76,15 @@ export default function GenerateLesson() {
             {/* Warm Ups */}
             {warmUps.length > 0 && (
               <div className="lesson-block">
-                <h2 className="section-heading glance-toggle" onClick={() => setShowWarmUps(!showWarmUps)}>
+                <h2
+                  className="section-heading glance-toggle"
+                  onClick={() => setShowWarmUps(!showWarmUps)}
+                >
                   Warm Ups — {totalWarmUpTime} min {showWarmUps ? '▲' : '▼'}
                 </h2>
                 {showWarmUps && (
                   <ul className="lesson-parts-list">
-                    {warmUps.map((wp, i) => (
+                    {sortByPosition(warmUps).map((wp, i) => (
                       <li key={i}>
                         <strong>Part {wp.position}:</strong> {wp.title}
                         {wp.body && <p className="part-body">{wp.body}</p>}
@@ -80,29 +92,40 @@ export default function GenerateLesson() {
                     ))}
                   </ul>
                 )}
-                {warmUps.map((wp, i) => (
-                  wp.file_infos && wp.file_infos.length > 0 && wp.file_infos.map((file, j) => (
-                    <div className="pdf-button-wrapper" key={`warmup-pdf-${i}-${j}`}>
-                      <a href={file.url} target="_blank" rel="noopener noreferrer" className="pdf-button">
+                {sortByPosition(warmUps).map((wp, i) =>
+                  wp.file_infos?.map((file, j) => (
+                    <div
+                      className="pdf-button-wrapper"
+                      key={`warmup-pdf-${i}-${j}`}
+                    >
+                      <a
+                        href={file.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="pdf-button"
+                      >
                         <span className="pdf-icon">📄</span>
                         <span className="pdf-title">{file.filename}</span>
                         View PDF
                       </a>
                     </div>
                   ))
-                ))}
+                )}
               </div>
             )}
 
             {/* Bridge Activities */}
             {bridgeParts.length > 0 && (
               <div className="lesson-block">
-                <h2 className="section-heading glance-toggle" onClick={() => setShowBridge(!showBridge)}>
+                <h2
+                  className="section-heading glance-toggle"
+                  onClick={() => setShowBridge(!showBridge)}
+                >
                   Bridge Activities — {totalBridgeTime} min {showBridge ? '▲' : '▼'}
                 </h2>
                 {showBridge && (
                   <ul className="lesson-parts-list">
-                    {bridgeParts.map((bp, i) => (
+                    {sortByPosition(bridgeParts).map((bp, i) => (
                       <li key={i}>
                         <strong>Part {bp.position}:</strong> {bp.title}
                         {bp.body && <p className="part-body">{bp.body}</p>}
@@ -110,29 +133,40 @@ export default function GenerateLesson() {
                     ))}
                   </ul>
                 )}
-                {bridgeParts.map((bp, i) => (
-                  bp.file_infos && bp.file_infos.length > 0 && bp.file_infos.map((file, j) => (
-                    <div className="pdf-button-wrapper" key={`bridge-pdf-${i}-${j}`}>
-                      <a href={file.url} target="_blank" rel="noopener noreferrer" className="pdf-button">
+                {sortByPosition(bridgeParts).map((bp, i) =>
+                  bp.file_infos?.map((file, j) => (
+                    <div
+                      className="pdf-button-wrapper"
+                      key={`bridge-pdf-${i}-${j}`}
+                    >
+                      <a
+                        href={file.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="pdf-button"
+                      >
                         <span className="pdf-icon">📄</span>
                         <span className="pdf-title">{file.filename}</span>
                         View PDF
                       </a>
                     </div>
                   ))
-                ))}
+                )}
               </div>
             )}
 
             {/* Main Activities */}
             {mainActivities.length > 0 && (
               <div className="lesson-block">
-                <h2 className="section-heading glance-toggle" onClick={() => setShowMain(!showMain)}>
+                <h2
+                  className="section-heading glance-toggle"
+                  onClick={() => setShowMain(!showMain)}
+                >
                   Main Activities — {totalMainTime} min {showMain ? '▲' : '▼'}
                 </h2>
                 {showMain && (
                   <ul className="lesson-parts-list">
-                    {mainActivities.map((mp, i) => (
+                    {sortByPosition(mainActivities).map((mp, i) => (
                       <li key={i}>
                         <strong>Part {mp.position}:</strong> {mp.title}
                         {mp.body && <p className="part-body">{mp.body}</p>}
@@ -140,29 +174,37 @@ export default function GenerateLesson() {
                     ))}
                   </ul>
                 )}
-                {mainActivities.map((mp, i) => (
-                  mp.file_infos && mp.file_infos.length > 0 && mp.file_infos.map((file, j) => (
+                {sortByPosition(mainActivities).map((mp, i) =>
+                  mp.file_infos?.map((file, j) => (
                     <div className="pdf-button-wrapper" key={`main-pdf-${i}-${j}`}>
-                      <a href={file.url} target="_blank" rel="noopener noreferrer" className="pdf-button">
+                      <a
+                        href={file.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="pdf-button"
+                      >
                         <span className="pdf-icon">📄</span>
                         <span className="pdf-title">{file.filename}</span>
                         View PDF
                       </a>
                     </div>
                   ))
-                ))}
+                )}
               </div>
             )}
 
             {/* End of Lesson */}
             {endActivities.length > 0 && (
               <div className="lesson-block">
-                <h2 className="section-heading glance-toggle" onClick={() => setShowEnd(!showEnd)}>
+                <h2
+                  className="section-heading glance-toggle"
+                  onClick={() => setShowEnd(!showEnd)}
+                >
                   End of Lesson — {totalEndTime} min {showEnd ? '▲' : '▼'}
                 </h2>
                 {showEnd && (
                   <ul className="lesson-parts-list">
-                    {endActivities.map((ep, i) => (
+                    {sortByPosition(endActivities).map((ep, i) => (
                       <li key={i}>
                         <strong>Part {ep.position}:</strong> {ep.title}
                         {ep.body && <p className="part-body">{ep.body}</p>}
@@ -170,28 +212,37 @@ export default function GenerateLesson() {
                     ))}
                   </ul>
                 )}
-                {endActivities.map((ep, i) => (
-                  ep.file_infos && ep.file_infos.length > 0 && ep.file_infos.map((file, j) => (
+                {sortByPosition(endActivities).map((ep, i) =>
+                  ep.file_infos?.map((file, j) => (
                     <div className="pdf-button-wrapper" key={`end-pdf-${i}-${j}`}>
-                      <a href={file.url} target="_blank" rel="noopener noreferrer" className="pdf-button">
+                      <a
+                        href={file.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="pdf-button"
+                      >
                         <span className="pdf-icon">📄</span>
                         <span className="pdf-title">{file.filename}</span>
                         View PDF
                       </a>
                     </div>
                   ))
-                ))}
+                )}
               </div>
             )}
+
+            {/* Scripts */}
             {scripts.length > 0 && (
               <div className="lesson-block">
-                <h2 className="section-heading glance-toggle" onClick={() => setShowScripts(!showScripts)}>
+                <h2
+                  className="section-heading glance-toggle"
+                  onClick={() => setShowScripts(!showScripts)}
+                >
                   Scripts {showScripts ? '▲' : '▼'}
                 </h2>
-
                 {showScripts && (
                   <ul className="lesson-parts-list">
-                    {scripts.map((sp, i) => (
+                    {sortByPosition(scripts).map((sp, i) => (
                       <li key={i}>
                         <strong>{sp.title}</strong>
                         {sp.body && <p className="part-body">{sp.body}</p>}
@@ -199,25 +250,35 @@ export default function GenerateLesson() {
                     ))}
                   </ul>
                 )}
-
-                {scripts.map((sp, i) => (
-                  sp.file_infos && sp.file_infos.length > 0 && sp.file_infos.map((file, j) => (
+                {sortByPosition(scripts).map((sp, i) =>
+                  sp.file_infos?.map((file, j) => (
                     <div className="pdf-button-wrapper" key={`script-pdf-${i}-${j}`}>
-                      <a href={file.url} target="_blank" rel="noopener noreferrer" className="pdf-button">
+                      <a
+                        href={file.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="pdf-button"
+                      >
                         <span className="pdf-icon">📄</span>
-                        <span className="pdf-title">SCRIPT{" - "}{file.filename}</span>
+                        <span className="pdf-title">
+                          SCRIPT – {file.filename}
+                        </span>
                         View PDF
                       </a>
                     </div>
                   ))
-                ))}
+                )}
               </div>
             )}
           </div>
         ) : (
           <div className="generate-box">
             <h2 className="generate-title">Instant Lesson Generator</h2>
-            <button className="generate-button" onClick={handleGenerate} disabled={generating}>
+            <button
+              className="generate-button"
+              onClick={handleGenerate}
+              disabled={generating}
+            >
               {generating ? 'Generating...' : 'Generate Random Lesson'}
             </button>
           </div>
