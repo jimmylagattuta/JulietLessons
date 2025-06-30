@@ -1,8 +1,11 @@
+// src/components/NewLesson.jsx
 import React, { useState } from 'react'
 import './NewLesson.css'
 
+const DEMO = false   // ← set to true when you want demo data
+
 const SECTION_LABELS = {
-  warm_up:         'Warm Ups',
+  warm_up:         'Warm Up',
   bridge_activity: 'Bridge Activity',
   main_activity:   'Main Activity',
   end_of_lesson:   'End Of Lesson',
@@ -10,12 +13,12 @@ const SECTION_LABELS = {
 }
 
 export default function NewLesson() {
-  const [showForm, setShowForm]       = useState(false)
-  const [title, setTitle]             = useState('')
-  const [objective, setObjective]     = useState('')
-  const [atAGlance, setAtAGlance]     = useState([''])
-  const [sectionType, setSectionType] = useState('')   // dropdown controlled
-  const [lessonParts, setLessonParts] = useState([])   // array of {sectionType, title, body, time}
+  const [showForm, setShowForm]       = useState(DEMO)
+  const [title, setTitle]             = useState(DEMO ? 'Demo Lesson Title' : '')
+  const [objective, setObjective]     = useState(DEMO ? 'This is a demo objective' : '')
+  const [atAGlance, setAtAGlance]     = useState(DEMO ? ['True','False'] : [''])
+  const [sectionType, setSectionType] = useState('')    // dropdown controlled
+  const [lessonParts, setLessonParts] = useState([])    // array of { sectionType, title, body, time }
   const [saving, setSaving]           = useState(false)
 
   const handleHeaderClick = () => setShowForm(true)
@@ -23,7 +26,10 @@ export default function NewLesson() {
   const handleAtAGlanceChange = (value, idx) => {
     const arr = [...atAGlance]
     arr[idx] = value
-    if (idx === arr.length - 1 && value.trim() !== '') arr.push('')
+    // auto-append blank box when typing into last
+    if (idx === arr.length - 1 && value.trim() !== '') {
+      arr.push('')
+    }
     setAtAGlance(arr)
   }
 
@@ -33,7 +39,7 @@ export default function NewLesson() {
       ...parts,
       { sectionType: val, title: '', body: '', time: '' }
     ])
-    setSectionType('')
+    setSectionType('')  // reset dropdown
   }
 
   const handlePartChange = (idx, field, value) => {
@@ -45,13 +51,13 @@ export default function NewLesson() {
   }
 
   const handleSave = async mode => {
-    const cleanedGlance = atAGlance.filter(i => i.trim() !== '')
+    const cleanedGlance = atAGlance.filter(x => x.trim() !== '')
     const payload = {
       lesson: {
         title,
         objective,
         at_a_glance: cleanedGlance,
-        // you’ll send lesson_parts separately in your real API
+        // in a real app you would also send lesson_parts here
       }
     }
 
@@ -67,11 +73,12 @@ export default function NewLesson() {
       console.log('Saved lesson:', data)
 
       if (mode === 'again') {
+        // reset everything
+        setShowForm(false)
         setTitle('')
         setObjective('')
         setAtAGlance([''])
         setLessonParts([])
-        setShowForm(false)
       }
     } catch (err) {
       console.error('Save failed:', err)
@@ -101,7 +108,7 @@ export default function NewLesson() {
 
         {showForm && (
           <div className="new-lesson-form">
-            {/* Lesson metadata */}
+            {/* Title */}
             <div className="form-group">
               <label htmlFor="lesson-title">Title</label>
               <input
@@ -112,6 +119,7 @@ export default function NewLesson() {
               />
             </div>
 
+            {/* Objective */}
             <div className="form-group">
               <label htmlFor="lesson-objective">Objective</label>
               <textarea
@@ -122,6 +130,7 @@ export default function NewLesson() {
               />
             </div>
 
+            {/* At a Glance */}
             <div className="form-group">
               <label>At a Glance</label>
               {atAGlance.map((item, idx) => (
@@ -181,7 +190,7 @@ export default function NewLesson() {
                   <option value="" disabled>
                     Select part…
                   </option>
-                  <option value="warm_up">Warm Ups</option>
+                  <option value="warm_up">Warm Up</option>
                   <option value="bridge_activity">Bridge Activity</option>
                   <option value="main_activity">Main Activity</option>
                   <option value="end_of_lesson">End Of Lesson</option>
