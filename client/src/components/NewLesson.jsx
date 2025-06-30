@@ -26,8 +26,8 @@ export default function NewLesson() {
       ? ['There will be a warm up', 'There will be a main activity']
       : ['']
   )
-  const [sectionType, setSectionType] = useState('')    // for fallback dropdown
-  const [lessonParts, setLessonParts] = useState([])    // {sectionType, title, body, time}
+  const [sectionType, setSectionType] = useState('')
+  const [lessonParts, setLessonParts] = useState([])
   const [pdfsBySection, setPdfsBySection] = useState(() =>
     Object.keys(SECTION_LABELS).reduce((acc, key) => {
       acc[key] = [{ file: null }]
@@ -78,7 +78,6 @@ export default function NewLesson() {
       const slots = [...copy[sectionKey]]
       slots[idxSlot].file = files[0] || null
 
-      // if this was the last slot and a file was chosen, add another
       if (idxSlot === slots.length - 1 && files[0]) {
         slots.push({ file: null })
       }
@@ -152,10 +151,17 @@ export default function NewLesson() {
       if (!resp.ok) throw new Error(`Status ${resp.status}`)
       const data = await resp.json()
       console.log('Saved lesson:', data)
+
       if (mode === 'again') {
-        // reset everything
-        setShowForm(false)
-        setTitle(''); setObjective(''); setAtAGlance(['']); setLessonParts([])
+        // reset everything back to demo or blank defaults, keep form open
+        setTitle(DEMO ? 'Demo Lesson Title' : '')
+        setObjective(DEMO ? 'This is a demo objective' : '')
+        setAtAGlance(
+          DEMO
+            ? ['There will be a warm up', 'There will be a main activity']
+            : ['']
+        )
+        setLessonParts([])
         setPdfsBySection(
           Object.keys(SECTION_LABELS).reduce((acc, key) => {
             acc[key] = [{ file: null }]
