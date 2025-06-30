@@ -38,7 +38,7 @@ export default function GenerateLesson() {
   const totalMainTime = mainActivities.reduce((sum, lp) => sum + (lp.time || 0), 0);
   const totalEndTime = endActivities.reduce((sum, lp) => sum + (lp.time || 0), 0);
 
-  // helper to sort by position
+  // keep your DB order logic but display 1-based per section
   const sortByPosition = arr =>
     arr.slice().sort((a, b) => (a.position || 0) - (b.position || 0));
 
@@ -86,7 +86,7 @@ export default function GenerateLesson() {
                   <ul className="lesson-parts-list">
                     {sortByPosition(warmUps).map((wp, i) => (
                       <li key={i}>
-                        <strong>Part {wp.position}:</strong> {wp.title}
+                        <strong>Part {i + 1}:</strong> {wp.title}
                         {wp.body && <p className="part-body">{wp.body}</p>}
                       </li>
                     ))}
@@ -127,7 +127,7 @@ export default function GenerateLesson() {
                   <ul className="lesson-parts-list">
                     {sortByPosition(bridgeParts).map((bp, i) => (
                       <li key={i}>
-                        <strong>Part {bp.position}:</strong> {bp.title}
+                        <strong>Part {i + 1}:</strong> {bp.title}
                         {bp.body && <p className="part-body">{bp.body}</p>}
                       </li>
                     ))}
@@ -168,7 +168,7 @@ export default function GenerateLesson() {
                   <ul className="lesson-parts-list">
                     {sortByPosition(mainActivities).map((mp, i) => (
                       <li key={i}>
-                        <strong>Part {mp.position}:</strong> {mp.title}
+                        <strong>Part {i + 1}:</strong> {mp.title}
                         {mp.body && <p className="part-body">{mp.body}</p>}
                       </li>
                     ))}
@@ -176,7 +176,10 @@ export default function GenerateLesson() {
                 )}
                 {sortByPosition(mainActivities).map((mp, i) =>
                   mp.file_infos?.map((file, j) => (
-                    <div className="pdf-button-wrapper" key={`main-pdf-${i}-${j}`}>
+                    <div
+                      className="pdf-button-wrapper"
+                      key={`main-pdf-${i}-${j}`}
+                    >
                       <a
                         href={file.url}
                         target="_blank"
@@ -206,7 +209,7 @@ export default function GenerateLesson() {
                   <ul className="lesson-parts-list">
                     {sortByPosition(endActivities).map((ep, i) => (
                       <li key={i}>
-                        <strong>Part {ep.position}:</strong> {ep.title}
+                        <strong>Part {i + 1}:</strong> {ep.title}
                         {ep.body && <p className="part-body">{ep.body}</p>}
                       </li>
                     ))}
@@ -214,7 +217,10 @@ export default function GenerateLesson() {
                 )}
                 {sortByPosition(endActivities).map((ep, i) =>
                   ep.file_infos?.map((file, j) => (
-                    <div className="pdf-button-wrapper" key={`end-pdf-${i}-${j}`}>
+                    <div
+                      className="pdf-button-wrapper"
+                      key={`end-pdf-${i}-${j}`}
+                    >
                       <a
                         href={file.url}
                         target="_blank"
@@ -244,7 +250,7 @@ export default function GenerateLesson() {
                   <ul className="lesson-parts-list">
                     {sortByPosition(scripts).map((sp, i) => (
                       <li key={i}>
-                        <strong>{sp.title}</strong>
+                        <strong>Part {i + 1}:</strong> {sp.title}
                         {sp.body && <p className="part-body">{sp.body}</p>}
                       </li>
                     ))}
@@ -252,7 +258,10 @@ export default function GenerateLesson() {
                 )}
                 {sortByPosition(scripts).map((sp, i) =>
                   sp.file_infos?.map((file, j) => (
-                    <div className="pdf-button-wrapper" key={`script-pdf-${i}-${j}`}>
+                    <div
+                      className="pdf-button-wrapper"
+                      key={`script-pdf-${i}-${j}`}
+                    >
                       <a
                         href={file.url}
                         target="_blank"
@@ -260,9 +269,7 @@ export default function GenerateLesson() {
                         className="pdf-button"
                       >
                         <span className="pdf-icon">📄</span>
-                        <span className="pdf-title">
-                          SCRIPT – {file.filename}
-                        </span>
+                        <span className="pdf-title">SCRIPT – {file.filename}</span>
                         View PDF
                       </a>
                     </div>
