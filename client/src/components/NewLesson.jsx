@@ -11,17 +11,21 @@ const DEMO = true
 
 const SECTION_LABELS = {
   warm_up:         'Warm Ups',
-  bridge_activity: 'Bridge Activity',
-  main_activity:   'Main Activity',
+  bridge_activity: 'Bridge Activities',
+  main_activity:   'Main Activities',
   end_of_lesson:   'End Of Lesson',
-  script:          'Script',
+  script:          'Scripts',
 }
 
 export default function NewLesson() {
   const [showForm, setShowForm]       = useState(DEMO)
   const [title, setTitle]             = useState(DEMO ? 'Demo Lesson Title'           : '')
   const [objective, setObjective]     = useState(DEMO ? 'This is a demo objective'     : '')
-  const [atAGlance, setAtAGlance]     = useState(DEMO ? ['True', 'False']          : [''])
+  const [atAGlance, setAtAGlance]     = useState(
+    DEMO 
+      ? ['There will be a warm up', 'There will be a main activity'] 
+      : ['']
+  )
   const [sectionType, setSectionType] = useState('')    // controlled dropdown
   const [lessonParts, setLessonParts] = useState([])    // added parts: {sectionType, title, body, time}
   const [saving, setSaving]           = useState(false)
@@ -154,11 +158,14 @@ export default function NewLesson() {
             {/* Dynamically added Lesson Parts */}
             {lessonParts.map((part, idx) => (
               <div className="lesson-part-group" key={idx}>
+
+                {/* 🚨 Section label made extra-visible 🚨 */}
                 <h3 className="lesson-part-heading">
                   {SECTION_LABELS[part.sectionType]}
                 </h3>
+
                 <div className="form-group">
-                  <label>Part Title</label>
+                  <label>Title</label>
                   <input
                     type="text"
                     value={part.title}
@@ -195,10 +202,10 @@ export default function NewLesson() {
                 >
                   <option value="" disabled>Select part…</option>
                   <option value="warm_up">Warm Ups</option>
-                  <option value="bridge_activity">Bridge Activity</option>
-                  <option value="main_activity">Main Activity</option>
+                  <option value="bridge_activity">Bridge Activities</option>
+                  <option value="main_activity">Main Activities</option>
                   <option value="end_of_lesson">End Of Lesson</option>
-                  <option value="script">Script</option>
+                  <option value="script">Scripts</option>
                 </select>
               </div>
             </div>
