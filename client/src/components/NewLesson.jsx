@@ -1,6 +1,4 @@
-// src/components/NewLesson.jsx
-
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import './NewLesson.css'
 
 /** 
@@ -19,19 +17,21 @@ const SECTION_LABELS = {
 
 export default function NewLesson() {
   const [showForm, setShowForm]       = useState(DEMO)
-  const [title, setTitle]             = useState(DEMO ? 'Demo Lesson Title'           : '')
-  const [objective, setObjective]     = useState(DEMO ? 'This is a demo objective'     : '')
+  const [title, setTitle]             = useState(DEMO ? 'Demo Lesson Title'       : '')
+  const [objective, setObjective]     = useState(DEMO ? 'This is a demo objective' : '')
   const [atAGlance, setAtAGlance]     = useState(
-    DEMO 
-      ? ['There will be a warm up', 'There will be a main activity'] 
+    DEMO
+      ? ['There will be a warm up', 'There will be a main activity']
       : ['']
   )
   const [sectionType, setSectionType] = useState('')    // controlled dropdown
   const [lessonParts, setLessonParts] = useState([])    // added parts: {sectionType, title, body, time}
   const [saving, setSaving]           = useState(false)
 
+  // show form on header click
   const handleHeaderClick = () => setShowForm(true)
 
+  // dynamically grow at-a-glance bullets
   const handleAtAGlanceChange = (value, idx) => {
     const arr = [...atAGlance]
     arr[idx] = value
@@ -41,6 +41,7 @@ export default function NewLesson() {
     setAtAGlance(arr)
   }
 
+  // add a new part of given sectionType
   const handleAddPart = val => {
     if (!val) return
     setLessonParts(parts => [
@@ -50,6 +51,7 @@ export default function NewLesson() {
     setSectionType('')
   }
 
+  // update a field on an existing part
   const handlePartChange = (idx, field, value) => {
     setLessonParts(parts => {
       const copy = [...parts]
@@ -58,15 +60,12 @@ export default function NewLesson() {
     })
   }
 
+  // save handler (stub)
   const handleSave = async mode => {
     const cleanedGlance = atAGlance.filter(x => x.trim() !== '')
     const payload = {
-      lesson: {
-        title,
-        objective,
-        at_a_glance: cleanedGlance,
-        // in a real implementation you'd also POST lesson_parts
-      }
+      lesson: { title, objective, at_a_glance: cleanedGlance }
+      // in real life you'd POST lessonParts too
     }
 
     setSaving(true)
@@ -89,11 +88,20 @@ export default function NewLesson() {
       }
     } catch (err) {
       console.error('Save failed:', err)
-      alert('Failed to save. See console.')
+      alert('Failed to save; check console.')
     } finally {
       setSaving(false)
     }
   }
+
+  // find index of the last warm_up in lessonParts
+  const lastWarmUpIndex = useMemo(() => {
+    let last = -1
+    lessonParts.forEach((p, i) => {
+      if (p.sectionType === 'warm_up') last = i
+    })
+    return last
+  }, [lessonParts])
 
   return (
     <div className="lesson-page">
@@ -114,11 +122,11 @@ export default function NewLesson() {
           </h1>
         </div>
 
-        {/* scrollable form */}
+        {/* form */}
         {showForm && (
           <div className="new-lesson-form">
 
-            {/* Title */}
+            {/* Lesson Title */}
             <div className="form-group">
               <label htmlFor="lesson-title">Title</label>
               <input
@@ -140,7 +148,7 @@ export default function NewLesson() {
               />
             </div>
 
-            {/* At a Glance */}
+            {/* At a Glance bullets */}
             <div className="form-group">
               <label>At a Glance</label>
               {atAGlance.map((item, idx) => (
@@ -155,15 +163,16 @@ export default function NewLesson() {
               ))}
             </div>
 
-            {/* Dynamically added Lesson Parts */}
+            {/* Dynamic Lesson Parts */}
             {lessonParts.map((part, idx) => (
               <div className="lesson-part-group" key={idx}>
 
-                {/* 🚨 Section label made extra-visible 🚨 */}
+                {/* Section Heading */}
                 <h3 className="lesson-part-heading">
                   {SECTION_LABELS[part.sectionType]}
                 </h3>
 
+                {/* Title */}
                 <div className="lesson-part-label">
                   <label>Title</label>
                   <input
@@ -172,6 +181,8 @@ export default function NewLesson() {
                     onChange={e => handlePartChange(idx, 'title', e.target.value)}
                   />
                 </div>
+
+                {/* Body */}
                 <div className="lesson-part-label">
                   <label>Body</label>
                   <textarea
@@ -180,6 +191,8 @@ export default function NewLesson() {
                     onChange={e => handlePartChange(idx, 'body', e.target.value)}
                   />
                 </div>
+
+                {/* Time */}
                 <div className="lesson-part-label">
                   <label>Time (min)</label>
                   <input
@@ -189,10 +202,22 @@ export default function NewLesson() {
                     onChange={e => handlePartChange(idx, 'time', e.target.value)}
                   />
                 </div>
+
+                {/* Inline “+ Add Warm Up” under the last warm_up */}
+                {part.sectionType === 'warm_up' && idx === lastWarmUpIndex && (
+                  <div className="lesson-part-add-inline">
+                    <button
+                      type="button"
+                      onClick={() => handleAddPart('warm_up')}
+                    >
+                      + Add Warm Up
+                    </button>
+                  </div>
+                )}
               </div>
             ))}
 
-            {/* Dropdown to add another part */}
+            {/* Fallback dropdown to add any section */}
             <div className="form-group">
               <label>Add Lesson Part</label>
               <div className="select-wrapper">
@@ -227,9 +252,9 @@ export default function NewLesson() {
                 {saving ? 'Saving…' : 'Save and Create Again'}
               </button>
             </div>
+
           </div>
         )}
-
       </div>
     </div>
   )

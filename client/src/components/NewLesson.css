@@ -1,5 +1,3 @@
-/* src/components/NewLesson.css */
-
 .lesson-page {
   display: flex;
   height: 100vh;
@@ -24,7 +22,7 @@
   overflow: hidden;
 }
 
-/* header */
+/* Header */
 .new-lesson-header {
   flex: 0 0 auto;
   display: flex;
@@ -33,27 +31,24 @@
   gap: 1rem;
   padding: 2rem 2rem 0;
 }
-
 .new-lesson-add {
   font-size: 3rem;
   background: none;
   border: none;
   color: rgba(139, 187, 171, 0.5);
-  line-height: 1;
-  pointer-events: none;
+  cursor: default;
   transition: color 0.2s;
 }
 .new-lesson-header:hover .new-lesson-add {
   color: #10b981;
 }
-
 .new-lesson-title {
   font-size: 2.5rem;
   font-weight: bold;
   color: #334155;
 }
 
-/* form container */
+/* Form container */
 .new-lesson-form {
   flex: 1 1 auto;
   overflow-y: auto;
@@ -62,49 +57,7 @@
   margin: 0 auto;
 }
 
-/* generic form groups */
-.lesson-part-label {
-  margin-bottom: 1.5rem;
-}
-.lesson-part-label label {
-  display: block;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-  color: #475569;  /* richer, high-contrast slate */
-}
-.lesson-part-label input,
-.lesson-part-label textarea {
-  width: 100%;
-  padding: 0.75rem;
-  margin: 4px;
-  border: none;
-  border-radius: 0.5rem;
-  font-size: 1rem;
-  color: #334155;
-  background: rgba(255,255,255,0.95);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-}
-
-/* lesson part wrapper */
-.lesson-part-group {
-  background: #cccccc;
-  border-left: 4px solid #9333ea;
-  padding: 1rem 1.5rem;
-  margin-bottom: 2rem;
-  border-radius: 0.5rem;
-}
-
-/* 🚨 make the section label pop! 🚨 */
-.lesson-part-heading {
-  font-size: 1.25rem;
-  font-weight: 700;
-  color: #6b21a8;
-  text-transform: uppercase;
-  margin-bottom: 1rem;
-  border-bottom: 2px solid #6b21a8;
-  padding-bottom: 0.25rem;
-}
-
+/* Generic form-group */
 .form-group {
   margin-bottom: 1.5rem;
 }
@@ -118,7 +71,6 @@
 .form-group textarea {
   width: 100%;
   padding: 0.75rem;
-  margin: 4px;
   border: none;
   border-radius: 0.5rem;
   font-size: 1rem;
@@ -127,7 +79,65 @@
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
-/* dropdown styling */
+/* Divider for section heading */
+.lesson-part-group {
+  background: #f5f5f5;
+  border-left: 4px solid #9333ea;
+  padding: 1rem 1.5rem;
+  margin-bottom: 2rem;
+  border-radius: 0.5rem;
+}
+
+/* Section heading */
+.lesson-part-heading {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #6b21a8;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid #6b21a8;
+  padding-bottom: 0.25rem;
+}
+
+/* Part field labels & inputs */
+.lesson-part-label {
+  margin-bottom: 1rem;
+}
+.lesson-part-label label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  color: #475569;  /* richer, high-contrast slate */
+}
+.lesson-part-label input,
+.lesson-part-label textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  color: #334155;
+  background: #fff;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+}
+
+/* Inline “Add Warm Up” */
+.lesson-part-add-inline {
+  margin-top: 0.5rem;
+}
+.lesson-part-add-inline button {
+  background: none;
+  border: none;
+  padding: 0;
+  color: #9333ea;
+  font-weight: 600;
+  cursor: pointer;
+}
+.lesson-part-add-inline button:hover {
+  text-decoration: underline;
+}
+
+/* Dropdown wrapper */
 .select-wrapper {
   position: relative;
 }
@@ -149,11 +159,11 @@
   top: 50%;
   transform: translateY(-50%);
   pointer-events: none;
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   color: #475569;
 }
 
-/* buttons */
+/* Save buttons */
 .form-actions {
   display: flex;
   gap: 1rem;
