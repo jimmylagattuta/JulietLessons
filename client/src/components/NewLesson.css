@@ -2,7 +2,6 @@
   display: flex;
   height: 100vh;
   width: 100vw;
-  overflow: hidden;
 }
 
 .lesson-sidebar {
@@ -36,7 +35,7 @@
   border: none;
   color: rgba(139, 187, 171, 0.5);
   pointer-events: none;
-  transition: color 0.2s ease;
+  transition: color 0.2s;
 }
 .new-lesson-header:hover .new-lesson-add {
   color: #10b981;
@@ -98,12 +97,18 @@
   padding-bottom: 0.25rem;
 }
 
-/* Row of inputs inside a section */
+/* Row */
 .lesson-part-row {
+  position: relative;
   margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #e2e8f0;
 }
 
-/* Field label + input */
+/* Part fields */
+.lesson-part-label {
+  margin-bottom: 0.75rem;
+}
 .lesson-part-label label {
   display: block;
   font-weight: 600;
@@ -122,7 +127,22 @@
   font-size: 1rem;
 }
 
-/* Inline “Add” button */
+/* Remove button */
+.lesson-part-remove {
+  position: absolute;
+  top: 0;
+  right: 0;
+  background: none;
+  border: none;
+  color: #dc2626;
+  font-weight: 600;
+  cursor: pointer;
+}
+.lesson-part-remove:hover {
+  text-decoration: underline;
+}
+
+/* Inline add */
 .lesson-part-add-inline {
   margin-top: 0.5rem;
 }
@@ -150,8 +170,8 @@
   border-radius: 0.5rem;
   background: rgba(255,255,255,0.95);
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-  font-size: 1rem;
   color: #334155;
+  font-size: 1rem;
   cursor: pointer;
 }
 .select-wrapper::after {

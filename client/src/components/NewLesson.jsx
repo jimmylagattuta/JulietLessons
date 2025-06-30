@@ -24,24 +24,22 @@ export default function NewLesson() {
       ? ['There will be a warm up', 'There will be a main activity']
       : ['']
   )
-  const [sectionType, setSectionType] = useState('')    // for the fallback dropdown
+  const [sectionType, setSectionType] = useState('')    // for fallback dropdown
   const [lessonParts, setLessonParts] = useState([])    // array of {sectionType, title, body, time}
   const [saving, setSaving]           = useState(false)
 
-  // Reveal the form when header clicked
+  // reveal form
   const handleHeaderClick = () => setShowForm(true)
 
-  // Grow At-a-Glance inputs dynamically
+  // dynamic at-a-glance bullets
   const handleAtAGlanceChange = (val, idx) => {
     const arr = [...atAGlance]
     arr[idx] = val
-    if (idx === arr.length - 1 && val.trim() !== '') {
-      arr.push('')
-    }
+    if (idx === arr.length - 1 && val.trim() !== '') arr.push('')
     setAtAGlance(arr)
   }
 
-  // Add a blank part for the given sectionType
+  // add new blank part
   const handleAddPart = sectionKey => {
     if (!sectionKey) return
     setLessonParts(ps => [
@@ -51,7 +49,7 @@ export default function NewLesson() {
     setSectionType('')
   }
 
-  // Update a field on a specific part
+  // update field on part
   const handlePartChange = (idx, field, val) => {
     setLessonParts(ps => {
       const copy = [...ps]
@@ -60,12 +58,15 @@ export default function NewLesson() {
     })
   }
 
-  // Stubbed save; in real life include lessonParts in the POST
+  // remove a part
+  const handleRemovePart = idxToRemove => {
+    setLessonParts(ps => ps.filter((_, i) => i !== idxToRemove))
+  }
+
+  // stubbed save
   const handleSave = async mode => {
-    const cleanedGlance = atAGlance.filter(x => x.trim() !== '')
-    const payload = {
-      lesson: { title, objective, at_a_glance: cleanedGlance }
-    }
+    const glance = atAGlance.filter(x => x.trim() !== '')
+    const payload = { lesson: { title, objective, at_a_glance: glance } }
 
     setSaving(true)
     try {
@@ -93,7 +94,7 @@ export default function NewLesson() {
     }
   }
 
-  // Group all parts by their sectionType so we render one block per section
+  // group parts by sectionType
   const partsBySection = useMemo(() => {
     return lessonParts.reduce((acc, part, idx) => {
       if (!acc[part.sectionType]) acc[part.sectionType] = []
@@ -125,7 +126,7 @@ export default function NewLesson() {
         {showForm && (
           <div className="new-lesson-form">
 
-            {/* Lesson Title */}
+            {/* Title */}
             <div className="form-group">
               <label htmlFor="lesson-title">Title</label>
               <input
@@ -162,16 +163,16 @@ export default function NewLesson() {
               ))}
             </div>
 
-            {/* Render one block per sectionType */}
+            {/* Sections */}
             {Object.entries(partsBySection).map(([sectionKey, parts]) => (
               <div className="lesson-part-group" key={sectionKey}>
 
-                {/* Section heading */}
+                {/* Heading */}
                 <h3 className="lesson-part-heading">
                   {SECTION_LABELS[sectionKey]}
                 </h3>
 
-                {/* Each part row */}
+                {/* Rows */}
                 {parts.map((p, localIdx) => (
                   <div className="lesson-part-row" key={p.idx}>
 
@@ -208,10 +209,19 @@ export default function NewLesson() {
                         onChange={e => handlePartChange(p.idx, 'time', e.target.value)}
                       />
                     </div>
+
+                    {/* Remove button */}
+                    <button
+                      type="button"
+                      className="lesson-part-remove"
+                      onClick={() => handleRemovePart(p.idx)}
+                    >
+                      Remove
+                    </button>
                   </div>
                 ))}
 
-                {/* Inline “Add” for this section */}
+                {/* Inline Add */}
                 <div className="lesson-part-add-inline">
                   <button
                     type="button"
@@ -241,7 +251,7 @@ export default function NewLesson() {
               </div>
             </div>
 
-            {/* Save buttons */}
+            {/* Save */}
             <div className="form-actions">
               <button
                 className="btn-save-view"
