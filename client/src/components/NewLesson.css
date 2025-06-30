@@ -24,20 +24,19 @@
 
 /* Header */
 .new-lesson-header {
-  flex: 0 0 auto;
   display: flex;
   justify-content: center;
   align-items: baseline;
   gap: 1rem;
-  padding: 2rem 2rem 0;
+  padding: 2rem;
 }
 .new-lesson-add {
   font-size: 3rem;
   background: none;
   border: none;
   color: rgba(139, 187, 171, 0.5);
-  cursor: default;
-  transition: color 0.2s;
+  pointer-events: none;
+  transition: color 0.2s ease;
 }
 .new-lesson-header:hover .new-lesson-add {
   color: #10b981;
@@ -50,7 +49,7 @@
 
 /* Form container */
 .new-lesson-form {
-  flex: 1 1 auto;
+  flex: 1;
   overflow-y: auto;
   padding: 0 2rem 2rem;
   max-width: 600px;
@@ -73,13 +72,13 @@
   padding: 0.75rem;
   border: none;
   border-radius: 0.5rem;
-  font-size: 1rem;
-  color: #334155;
   background: rgba(255,255,255,0.95);
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  color: #334155;
+  font-size: 1rem;
 }
 
-/* Divider for section heading */
+/* Section block */
 .lesson-part-group {
   background: #f5f5f5;
   border-left: 4px solid #9333ea;
@@ -92,22 +91,24 @@
 .lesson-part-heading {
   font-size: 1.25rem;
   font-weight: 700;
-  color: #6b21a8;
   text-transform: uppercase;
+  color: #6b21a8;
   margin-bottom: 1rem;
   border-bottom: 2px solid #6b21a8;
   padding-bottom: 0.25rem;
 }
 
-/* Part field labels & inputs */
-.lesson-part-label {
+/* Row of inputs inside a section */
+.lesson-part-row {
   margin-bottom: 1rem;
 }
+
+/* Field label + input */
 .lesson-part-label label {
   display: block;
   font-weight: 600;
   margin-bottom: 0.25rem;
-  color: #475569;  /* richer, high-contrast slate */
+  color: #475569;
 }
 .lesson-part-label input,
 .lesson-part-label textarea {
@@ -115,13 +116,13 @@
   padding: 0.75rem;
   border: 1px solid #cbd5e1;
   border-radius: 0.5rem;
-  font-size: 1rem;
-  color: #334155;
   background: #fff;
   box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+  color: #334155;
+  font-size: 1rem;
 }
 
-/* Inline “Add Warm Up” */
+/* Inline “Add” button */
 .lesson-part-add-inline {
   margin-top: 0.5rem;
 }
@@ -137,7 +138,7 @@
   text-decoration: underline;
 }
 
-/* Dropdown wrapper */
+/* Fallback dropdown */
 .select-wrapper {
   position: relative;
 }
@@ -147,9 +148,10 @@
   padding: 0.75rem;
   border: none;
   border-radius: 0.5rem;
-  font-size: 1rem;
   background: rgba(255,255,255,0.95);
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  font-size: 1rem;
+  color: #334155;
   cursor: pointer;
 }
 .select-wrapper::after {
@@ -159,8 +161,8 @@
   top: 50%;
   transform: translateY(-50%);
   pointer-events: none;
-  font-size: 0.8rem;
   color: #475569;
+  font-size: 0.8rem;
 }
 
 /* Save buttons */
@@ -173,13 +175,13 @@
 .btn-save-view,
 .btn-save-again {
   background: linear-gradient(to right, #9333ea, #6b21a8);
-  color: #fff;
-  font-weight: 600;
-  padding: 0.75rem 1.5rem;
   border: none;
   border-radius: 0.5rem;
+  color: #fff;
+  padding: 0.75rem 1.5rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s;
+  transition: background 0.2s ease;
 }
 .btn-save-view:hover,
 .btn-save-again:hover {
