@@ -63,19 +63,20 @@
 }
 
 /* generic form groups */
-.form-group {
+.lesson-part-label {
   margin-bottom: 1.5rem;
 }
-.form-group label {
+.lesson-part-label label {
   display: block;
   font-weight: 600;
   margin-bottom: 0.5rem;
-  color: #a2c0e9;
+  color: #475569;  /* richer, high-contrast slate */
 }
-.form-group input,
-.form-group textarea {
+.lesson-part-label input,
+.lesson-part-label textarea {
   width: 100%;
   padding: 0.75rem;
+  margin: 4px;
   border: none;
   border-radius: 0.5rem;
   font-size: 1rem;
@@ -86,7 +87,7 @@
 
 /* lesson part wrapper */
 .lesson-part-group {
-  background: #f9fafb;
+  background: #cccccc;
   border-left: 4px solid #9333ea;
   padding: 1rem 1.5rem;
   margin-bottom: 2rem;
@@ -100,8 +101,30 @@
   color: #6b21a8;
   text-transform: uppercase;
   margin-bottom: 1rem;
-  border-bottom: 2px solid #e5e7eb;
+  border-bottom: 2px solid #6b21a8;
   padding-bottom: 0.25rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+.form-group label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #a2c0e9;
+}
+.form-group input,
+.form-group textarea {
+  width: 100%;
+  padding: 0.75rem;
+  margin: 4px;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  color: #334155;
+  background: rgba(255,255,255,0.95);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
 /* dropdown styling */

@@ -164,7 +164,7 @@ export default function NewLesson() {
                   {SECTION_LABELS[part.sectionType]}
                 </h3>
 
-                <div className="form-group">
+                <div className="lesson-part-label">
                   <label>Title</label>
                   <input
                     type="text"
@@ -172,7 +172,7 @@ export default function NewLesson() {
                     onChange={e => handlePartChange(idx, 'title', e.target.value)}
                   />
                 </div>
-                <div className="form-group">
+                <div className="lesson-part-label">
                   <label>Body</label>
                   <textarea
                     rows={2}
@@ -180,7 +180,7 @@ export default function NewLesson() {
                     onChange={e => handlePartChange(idx, 'body', e.target.value)}
                   />
                 </div>
-                <div className="form-group">
+                <div className="lesson-part-label">
                   <label>Time (min)</label>
                   <input
                     type="number"
