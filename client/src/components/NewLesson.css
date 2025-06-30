@@ -127,6 +127,19 @@
   font-size: 1rem;
 }
 
+.lesson-part-files {
+  margin-bottom: 0.75rem;
+}
+.lesson-part-files label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  color: #475569;
+}
+.lesson-part-files input[type="file"] {
+  display: block;
+}
+
 /* Remove button */
 .lesson-part-remove {
   position: absolute;
@@ -207,3 +220,4 @@
 .btn-save-again:hover {
   background: linear-gradient(to right, #7e22ce, #581c87);
 }
+

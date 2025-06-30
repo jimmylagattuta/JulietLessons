@@ -25,7 +25,7 @@ export default function NewLesson() {
       : ['']
   )
   const [sectionType, setSectionType] = useState('')    // for fallback dropdown
-  const [lessonParts, setLessonParts] = useState([])    // array of {sectionType, title, body, time}
+  const [lessonParts, setLessonParts] = useState([])    // {sectionType, title, body, time, attachments: File[]}
   const [saving, setSaving]           = useState(false)
 
   // reveal form
@@ -39,12 +39,12 @@ export default function NewLesson() {
     setAtAGlance(arr)
   }
 
-  // add new blank part
+  // add new blank part (including empty attachments array)
   const handleAddPart = sectionKey => {
     if (!sectionKey) return
     setLessonParts(ps => [
       ...ps,
-      { sectionType: sectionKey, title: '', body: '', time: '' }
+      { sectionType: sectionKey, title: '', body: '', time: '', attachments: [] }
     ])
     setSectionType('')
   }
@@ -58,22 +58,52 @@ export default function NewLesson() {
     })
   }
 
+  // update attachments on part
+  const handleFileChange = (idx, files) => {
+    setLessonParts(ps => {
+      const copy = [...ps]
+      copy[idx] = { ...copy[idx], attachments: Array.from(files) }
+      return copy
+    })
+  }
+
   // remove a part
   const handleRemovePart = idxToRemove => {
     setLessonParts(ps => ps.filter((_, i) => i !== idxToRemove))
   }
 
-  // stubbed save
+  // save with FormData so PDFs upload
   const handleSave = async mode => {
     const glance = atAGlance.filter(x => x.trim() !== '')
-    const payload = { lesson: { title, objective, at_a_glance: glance } }
+
+    const formData = new FormData()
+    formData.append('lesson[title]', title)
+    formData.append('lesson[objective]', objective)
+    glance.forEach((g, i) => {
+      formData.append(`lesson[at_a_glance][]`, g)
+    })
+
+    lessonParts.forEach((p, i) => {
+      const base = `lesson[lesson_parts_attributes][${i}]`
+      formData.append(`${base}[section_type]`, p.sectionType)
+      formData.append(`${base}[title]`, p.title)
+      formData.append(`${base}[body]`, p.body)
+      formData.append(`${base}[time]`, p.time)
+      formData.append(`${base}[position]`, i + 1)
+      if (p._destroy) {
+        formData.append(`${base}[_destroy]`, '1')
+      }
+      // attach each PDF
+      p.attachments.forEach(file => {
+        formData.append(`${base}[files][]`, file)
+      })
+    })
 
     setSaving(true)
     try {
       const resp = await fetch('/api/lessons', {
         method:  'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body:    JSON.stringify(payload)
+        body:    formData,    // <-- multipart/form-data
       })
       if (!resp.ok) throw new Error(`Status ${resp.status}`)
       const data = await resp.json()
@@ -126,7 +156,7 @@ export default function NewLesson() {
         {showForm && (
           <div className="new-lesson-form">
 
-            {/* Title */}
+            {/* Lesson Title */}
             <div className="form-group">
               <label htmlFor="lesson-title">Title</label>
               <input
@@ -167,15 +197,15 @@ export default function NewLesson() {
             {Object.entries(partsBySection).map(([sectionKey, parts]) => (
               <div className="lesson-part-group" key={sectionKey}>
 
-                {/* Heading */}
+                {/* Section heading */}
                 <h3 className="lesson-part-heading">
                   {SECTION_LABELS[sectionKey]}
                 </h3>
 
-                {/* Rows */}
                 {parts.map(p => (
                   <div className="lesson-part-row" key={p.idx}>
 
+                    {/* Title */}
                     <div className="lesson-part-label">
                       <label>Title</label>
                       <input
@@ -185,6 +215,7 @@ export default function NewLesson() {
                       />
                     </div>
 
+                    {/* Body */}
                     <div className="lesson-part-label">
                       <label>Body</label>
                       <textarea
@@ -194,6 +225,7 @@ export default function NewLesson() {
                       />
                     </div>
 
+                    {/* Time */}
                     <div className="lesson-part-label">
                       <label>Time (min)</label>
                       <input
@@ -204,7 +236,18 @@ export default function NewLesson() {
                       />
                     </div>
 
-                    {/* Remove button */}
+                    {/* PDF uploader */}
+                    <div className="lesson-part-files">
+                      <label>Attachments (PDF)</label>
+                      <input
+                        type="file"
+                        accept="application/pdf"
+                        multiple
+                        onChange={e => handleFileChange(p.idx, e.target.files)}
+                      />
+                    </div>
+
+                    {/* Remove */}
                     <button
                       type="button"
                       className="lesson-part-remove"
@@ -217,10 +260,7 @@ export default function NewLesson() {
 
                 {/* Inline Add */}
                 <div className="lesson-part-add-inline">
-                  <button
-                    type="button"
-                    onClick={() => handleAddPart(sectionKey)}
-                  >
+                  <button type="button" onClick={() => handleAddPart(sectionKey)}>
                     + Add {SECTION_LABELS[sectionKey].replace(/s$/, '')}
                   </button>
                 </div>
@@ -245,7 +285,7 @@ export default function NewLesson() {
               </div>
             </div>
 
-            {/* Save */}
+            {/* Save buttons */}
             <div className="form-actions">
               <button
                 className="btn-save-view"
