@@ -7,7 +7,7 @@ import './NewLesson.css'
  * Set DEMO = true while developing to auto-fill 
  * Title, Objective, and two At a Glance bullets.
  */
-const DEMO = false
+const DEMO = true
 
 const SECTION_LABELS = {
   warm_up:         'Warm Ups',
