@@ -35,7 +35,7 @@
   border: none;
   color: rgba(139, 187, 171, 0.5);
   pointer-events: none;
-  transition: color 0.2s;
+  transition: color 0.2s ease;
 }
 .new-lesson-header:hover .new-lesson-add {
   color: #10b981;

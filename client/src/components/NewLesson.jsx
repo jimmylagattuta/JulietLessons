@@ -173,13 +173,11 @@ export default function NewLesson() {
                 </h3>
 
                 {/* Rows */}
-                {parts.map((p, localIdx) => (
+                {parts.map(p => (
                   <div className="lesson-part-row" key={p.idx}>
 
                     <div className="lesson-part-label">
-                      <label>
-                        Title{parts.length > 1 ? ` Part ${localIdx + 1}` : ''}
-                      </label>
+                      <label>Title</label>
                       <input
                         type="text"
                         value={p.title}
@@ -188,9 +186,7 @@ export default function NewLesson() {
                     </div>
 
                     <div className="lesson-part-label">
-                      <label>
-                        Body{parts.length > 1 ? ` Part ${localIdx + 1}` : ''}
-                      </label>
+                      <label>Body</label>
                       <textarea
                         rows={2}
                         value={p.body}
@@ -199,9 +195,7 @@ export default function NewLesson() {
                     </div>
 
                     <div className="lesson-part-label">
-                      <label>
-                        Time (min){parts.length > 1 ? ` Part ${localIdx + 1}` : ''}
-                      </label>
+                      <label>Time (min)</label>
                       <input
                         type="number"
                         min="0"
