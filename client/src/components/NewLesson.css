@@ -97,7 +97,7 @@
   padding-bottom: 0.25rem;
 }
 
-/* Each part row */
+/* Part rows */
 .lesson-part-row {
   position: relative;
   margin-bottom: 1rem;
@@ -140,7 +140,7 @@
   text-decoration: underline;
 }
 
-/* PDF uploader section */
+/* PDF upload slots */
 .lesson-part-files {
   margin-bottom: 1rem;
 }
@@ -177,7 +177,7 @@
   margin-left: 0.5rem;
 }
 
-/* Inline add buttons */
+/* Inline add part button */
 .lesson-part-add-inline {
   margin-top: 0.5rem;
 }
@@ -236,7 +236,7 @@
   padding: 0.75rem 1.5rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s ease;
+  transition: background 0.2s ease;  
 }
 .btn-save-view:hover,
 .btn-save-again:hover {

@@ -26,19 +26,18 @@ export default function NewLesson() {
   )
   const [sectionType, setSectionType] = useState('')    // for fallback dropdown
   const [lessonParts, setLessonParts] = useState([])    // {sectionType, title, body, time}
-  // store PDF slots per section key
   const [pdfsBySection, setPdfsBySection] = useState(() =>
     Object.keys(SECTION_LABELS).reduce((acc, key) => {
-      acc[key] = [{ file: null }]   // start with one empty slot
+      acc[key] = [{ file: null }]
       return acc
     }, {})
   )
   const [saving, setSaving]           = useState(false)
 
-  // show the form
+  // show form
   const handleHeaderClick = () => setShowForm(true)
 
-  // dynamic At-a-Glance bullets
+  // at-a-glance dynamic
   const handleAtAGlanceChange = (val, idx) => {
     const arr = [...atAGlance]
     arr[idx] = val
@@ -46,7 +45,7 @@ export default function NewLesson() {
     setAtAGlance(arr)
   }
 
-  // add a new lesson part
+  // add part
   const handleAddPart = sectionKey => {
     if (!sectionKey) return
     setLessonParts(ps => [
@@ -56,7 +55,7 @@ export default function NewLesson() {
     setSectionType('')
   }
 
-  // update a field on a part
+  // change part field
   const handlePartChange = (idx, field, val) => {
     setLessonParts(ps => {
       const copy = [...ps]
@@ -65,43 +64,39 @@ export default function NewLesson() {
     })
   }
 
-  // remove a part row
+  // remove part
   const handleRemovePart = idxToRemove => {
     setLessonParts(ps => ps.filter((_, i) => i !== idxToRemove))
   }
 
-  // file-picker for a PDF slot in a section
-  const handlePdfFileChange = (sectionKey, idx, files) => {
+  // when a PDF is picked, update and if last slot, append a new empty slot
+  const handlePdfFileChange = (sectionKey, idxSlot, files) => {
     setPdfsBySection(prev => {
       const copy = { ...prev }
-      copy[sectionKey][idx].file = files[0]
+      const slots = [...copy[sectionKey]]
+      slots[idxSlot].file = files[0] || null
+
+      // if this was the last slot and a file was chosen, add another
+      if (idxSlot === slots.length - 1 && files[0]) {
+        slots.push({ file: null })
+      }
+      copy[sectionKey] = slots
       return copy
     })
   }
 
-  // add another PDF slot under that section
-  const handleAddPdf = sectionKey => {
+  // remove a PDF slot (but always keep at least one)
+  const handleRemovePdf = (sectionKey, idxSlot) => {
     setPdfsBySection(prev => {
-      const arr = prev[sectionKey] || []
+      const slots = prev[sectionKey].filter((_, i) => i !== idxSlot)
       return {
         ...prev,
-        [sectionKey]: [...arr, { file: null }]
+        [sectionKey]: slots.length ? slots : [{ file: null }]
       }
     })
   }
 
-  // remove a PDF slot (never go below one)
-  const handleRemovePdf = (sectionKey, idx) => {
-    setPdfsBySection(prev => {
-      const arr = prev[sectionKey].filter((_, i) => i !== idx)
-      return {
-        ...prev,
-        [sectionKey]: arr.length ? arr : [{ file: null }]
-      }
-    })
-  }
-
-  // group parts by sectionType
+  // group parts by section
   const partsBySection = useMemo(() => {
     return lessonParts.reduce((acc, part, idx) => {
       if (!acc[part.sectionType]) acc[part.sectionType] = []
@@ -110,7 +105,7 @@ export default function NewLesson() {
     }, {})
   }, [lessonParts])
 
-  // on save, bundle everything into FormData
+  // save all via FormData
   const handleSave = async mode => {
     const glance = atAGlance.filter(x => x.trim() !== '')
     const formData = new FormData()
@@ -118,7 +113,6 @@ export default function NewLesson() {
     formData.append('lesson[objective]', objective)
     glance.forEach(g => formData.append('lesson[at_a_glance][]', g))
 
-    // append lesson parts
     lessonParts.forEach((p, i) => {
       const base = `lesson[lesson_parts_attributes][${i}]`
       formData.append(`${base}[section_type]`, p.sectionType)
@@ -127,9 +121,8 @@ export default function NewLesson() {
       formData.append(`${base}[time]`, p.time)
       formData.append(`${base}[position]`, i + 1)
 
-      // find that part's sectionKey, get all its PDFs
-      const pdfSlots = pdfsBySection[p.sectionType] || []
-      pdfSlots.forEach(slot => {
+      // attach PDFs for that section
+      ;(pdfsBySection[p.sectionType] || []).forEach(slot => {
         if (slot.file) {
           formData.append(`${base}[files][]`, slot.file)
         }
@@ -146,11 +139,9 @@ export default function NewLesson() {
       const data = await resp.json()
       console.log('Saved lesson:', data)
       if (mode === 'again') {
+        // reset everything
         setShowForm(false)
-        setTitle(''); setObjective('')
-        setAtAGlance([''])
-        setLessonParts([])
-        // reset PDF slots
+        setTitle(''); setObjective(''); setAtAGlance(['']); setLessonParts([])
         setPdfsBySection(
           Object.keys(SECTION_LABELS).reduce((acc, key) => {
             acc[key] = [{ file: null }]
@@ -189,7 +180,7 @@ export default function NewLesson() {
         {showForm && (
           <div className="new-lesson-form">
 
-            {/* Lesson Title */}
+            {/* Title */}
             <div className="form-group">
               <label htmlFor="lesson-title">Title</label>
               <input
@@ -230,12 +221,10 @@ export default function NewLesson() {
             {Object.entries(partsBySection).map(([sectionKey, parts]) => (
               <div className="lesson-part-group" key={sectionKey}>
 
-                {/* Section Heading */}
                 <h3 className="lesson-part-heading">
                   {SECTION_LABELS[sectionKey]}
                 </h3>
 
-                {/* Each part row */}
                 {parts.map(p => (
                   <div className="lesson-part-row" key={p.idx}>
                     <div className="lesson-part-label">
@@ -273,7 +262,7 @@ export default function NewLesson() {
                   </div>
                 ))}
 
-                {/* PDF uploader for this section */}
+                {/* PDF uploader slots */}
                 <div className="lesson-part-files">
                   <label>Attachments (PDF)</label>
                   {pdfsBySection[sectionKey].map((slot, i) => (
@@ -297,13 +286,6 @@ export default function NewLesson() {
                       )}
                     </div>
                   ))}
-                  <button
-                    type="button"
-                    className="lesson-part-add-inline"
-                    onClick={() => handleAddPdf(sectionKey)}
-                  >
-                    + Add PDF
-                  </button>
                 </div>
 
                 {/* Inline “Add Part” */}
@@ -336,7 +318,7 @@ export default function NewLesson() {
               </div>
             </div>
 
-            {/* Save buttons */}
+            {/* Save */}
             <div className="form-actions">
               <button
                 className="btn-save-view"
@@ -353,6 +335,7 @@ export default function NewLesson() {
                 {saving ? 'Saving…' : 'Save and Create Again'}
               </button>
             </div>
+
           </div>
         )}
       </div>
