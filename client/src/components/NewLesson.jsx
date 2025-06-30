@@ -1,11 +1,16 @@
 // src/components/NewLesson.jsx
+
 import React, { useState } from 'react'
 import './NewLesson.css'
 
-const DEMO = false   // ← set to true when you want demo data
+/** 
+ * Set DEMO = true while developing to auto-fill 
+ * Title, Objective, and two At a Glance bullets.
+ */
+const DEMO = false
 
 const SECTION_LABELS = {
-  warm_up:         'Warm Up',
+  warm_up:         'Warm Ups',
   bridge_activity: 'Bridge Activity',
   main_activity:   'Main Activity',
   end_of_lesson:   'End Of Lesson',
@@ -14,11 +19,11 @@ const SECTION_LABELS = {
 
 export default function NewLesson() {
   const [showForm, setShowForm]       = useState(DEMO)
-  const [title, setTitle]             = useState(DEMO ? 'Demo Lesson Title' : '')
-  const [objective, setObjective]     = useState(DEMO ? 'This is a demo objective' : '')
-  const [atAGlance, setAtAGlance]     = useState(DEMO ? ['True','False'] : [''])
-  const [sectionType, setSectionType] = useState('')    // dropdown controlled
-  const [lessonParts, setLessonParts] = useState([])    // array of { sectionType, title, body, time }
+  const [title, setTitle]             = useState(DEMO ? 'Demo Lesson Title'           : '')
+  const [objective, setObjective]     = useState(DEMO ? 'This is a demo objective'     : '')
+  const [atAGlance, setAtAGlance]     = useState(DEMO ? ['True', 'False']          : [''])
+  const [sectionType, setSectionType] = useState('')    // controlled dropdown
+  const [lessonParts, setLessonParts] = useState([])    // added parts: {sectionType, title, body, time}
   const [saving, setSaving]           = useState(false)
 
   const handleHeaderClick = () => setShowForm(true)
@@ -26,7 +31,6 @@ export default function NewLesson() {
   const handleAtAGlanceChange = (value, idx) => {
     const arr = [...atAGlance]
     arr[idx] = value
-    // auto-append blank box when typing into last
     if (idx === arr.length - 1 && value.trim() !== '') {
       arr.push('')
     }
@@ -39,7 +43,7 @@ export default function NewLesson() {
       ...parts,
       { sectionType: val, title: '', body: '', time: '' }
     ])
-    setSectionType('')  // reset dropdown
+    setSectionType('')
   }
 
   const handlePartChange = (idx, field, value) => {
@@ -57,7 +61,7 @@ export default function NewLesson() {
         title,
         objective,
         at_a_glance: cleanedGlance,
-        // in a real app you would also send lesson_parts here
+        // in a real implementation you'd also POST lesson_parts
       }
     }
 
@@ -73,7 +77,6 @@ export default function NewLesson() {
       console.log('Saved lesson:', data)
 
       if (mode === 'again') {
-        // reset everything
         setShowForm(false)
         setTitle('')
         setObjective('')
@@ -82,7 +85,7 @@ export default function NewLesson() {
       }
     } catch (err) {
       console.error('Save failed:', err)
-      alert('Failed to save. Check console.')
+      alert('Failed to save. See console.')
     } finally {
       setSaving(false)
     }
@@ -93,6 +96,7 @@ export default function NewLesson() {
       <aside className="lesson-sidebar">Sidebar</aside>
       <div className="new-lesson-page">
 
+        {/* header */}
         <div
           className="new-lesson-header"
           onClick={!showForm ? handleHeaderClick : undefined}
@@ -106,8 +110,10 @@ export default function NewLesson() {
           </h1>
         </div>
 
+        {/* scrollable form */}
         {showForm && (
           <div className="new-lesson-form">
+
             {/* Title */}
             <div className="form-group">
               <label htmlFor="lesson-title">Title</label>
@@ -179,7 +185,7 @@ export default function NewLesson() {
               </div>
             ))}
 
-            {/* Dropdown to add another Lesson Part */}
+            {/* Dropdown to add another part */}
             <div className="form-group">
               <label>Add Lesson Part</label>
               <div className="select-wrapper">
@@ -187,10 +193,8 @@ export default function NewLesson() {
                   value={sectionType}
                   onChange={e => handleAddPart(e.target.value)}
                 >
-                  <option value="" disabled>
-                    Select part…
-                  </option>
-                  <option value="warm_up">Warm Up</option>
+                  <option value="" disabled>Select part…</option>
+                  <option value="warm_up">Warm Ups</option>
                   <option value="bridge_activity">Bridge Activity</option>
                   <option value="main_activity">Main Activity</option>
                   <option value="end_of_lesson">End Of Lesson</option>
@@ -199,7 +203,7 @@ export default function NewLesson() {
               </div>
             </div>
 
-            {/* Actions */}
+            {/* Save buttons */}
             <div className="form-actions">
               <button
                 className="btn-save-view"
