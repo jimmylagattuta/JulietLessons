@@ -128,7 +128,7 @@ export default function NewLesson() {
             )}
 
             <div className="form-group">
-              <label htmlFor="section-type">Section Type</label>
+              <label htmlFor="section-type">Lesson Parts</label>
               <div className="select-wrapper">
                 <select
                   id="section-type"
@@ -136,11 +136,11 @@ export default function NewLesson() {
                   onChange={e => setSectionType(e.target.value)}
                 >
                   <option value="" disabled>
-                    Select section type…
+                    Select part…
                   </option>
-                  <option value="warm_up">Warm Up</option>
-                  <option value="bridge_activity">Bridge Activity</option>
-                  <option value="main_activity">Main Activity</option>
+                  <option value="warm_up">Warm Ups</option>
+                  <option value="bridge_activity">Bridge Activities</option>
+                  <option value="main_activity">Main Activities</option>
                   <option value="end_of_lesson">End Of Lesson</option>
                   <option value="script">Script</option>
                 </select>
