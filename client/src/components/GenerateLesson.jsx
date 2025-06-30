@@ -1,71 +1,73 @@
 // src/components/GenerateLesson.jsx
 
-import React, { useState, useEffect } from 'react';
-import './GenerateLesson.css';
+import React, { useState, useEffect } from 'react'
+import './GenerateLesson.css'
 
 /**
  * GenerateLesson component:
  *  - If `lessonId` prop is set, fetch that specific lesson once.
- *  - Otherwise, fetch random lessons via `onGenerateRandom` when user clicks generate.
+ *  - Otherwise, fetch random lessons from /api/lessons/random.
  *  - Calling onClearView() clears lessonId so subsequent generates are random.
  *
  * Props:
  *  - lessonId: string | null
- *  - onGenerateRandom: () => Promise<any>  // returns a lesson object
  *  - onClearView: () => void
  */
-export default function GenerateLesson({ lessonId = null, onGenerateRandom, onClearView }) {
-  const [lesson, setLesson] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [showGlance, setShowGlance] = useState(false);
-  const [showWarmUps, setShowWarmUps] = useState(false);
-  const [showBridge, setShowBridge] = useState(false);
-  const [showMain, setShowMain] = useState(false);
-  const [showEnd, setShowEnd] = useState(false);
-  const [showScripts, setShowScripts] = useState(false);
+export default function GenerateLesson({ lessonId = null, onClearView }) {
+  const [lesson, setLesson] = useState(null)
+  const [loading, setLoading] = useState(false)
+  const [showGlance, setShowGlance] = useState(false)
+  const [showWarmUps, setShowWarmUps] = useState(false)
+  const [showBridge, setShowBridge] = useState(false)
+  const [showMain, setShowMain] = useState(false)
+  const [showEnd, setShowEnd] = useState(false)
+  const [showScripts, setShowScripts] = useState(false)
 
-  // Fetch a specific lesson by ID when provided
+  // If we're viewing a saved lesson by ID, fetch it once.
   useEffect(() => {
-    if (!lessonId) return;
-    setLoading(true);
+    if (!lessonId) return
+    setLoading(true)
     fetch(`/api/lessons/${lessonId}`)
       .then(res => {
-        if (!res.ok) throw new Error(`Status ${res.status}`);
-        return res.json();
+        if (!res.ok) throw new Error(`Status ${res.status}`)
+        return res.json()
       })
       .then(data => setLesson(data))
       .catch(err => console.error('Error fetching lesson by ID:', err))
-      .finally(() => setLoading(false));
-  }, [lessonId]);
+      .finally(() => setLoading(false))
+  }, [lessonId])
 
-  // Handle random lesson generation
+  // Always fetch a new random lesson when you click
   const handleGenerate = async () => {
-    onClearView && onClearView();
-    setLoading(true);
+    // if we were viewing a specific one, clear that first
+    onClearView && onClearView()
+    setLoading(true)
     try {
-      const randomLesson = await onGenerateRandom();
-      setLesson(randomLesson);
+      const res = await fetch('/api/lessons/random')
+      if (!res.ok) throw new Error(`Status ${res.status}`)
+      const data = await res.json()
+      setLesson(data)
     } catch (err) {
-      console.error('Error fetching random lesson:', err);
+      console.error('Error fetching random lesson:', err)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
-  // Helper arrays for each section
-  const warmUps = lesson?.lesson_parts?.filter(lp => lp.section_type === 'warm_up') || [];
-  const bridgeParts = lesson?.lesson_parts?.filter(lp => lp.section_type === 'bridge_activity') || [];
-  const mainActivities = lesson?.lesson_parts?.filter(lp => lp.section_type === 'main_activity') || [];
-  const endActivities = lesson?.lesson_parts?.filter(lp => lp.section_type === 'end_of_lesson') || [];
-  const scripts = lesson?.lesson_parts?.filter(lp => lp.section_type === 'script') || [];
+  // helpers for each section
+  const warmUps = lesson?.lesson_parts?.filter(lp => lp.section_type === 'warm_up') || []
+  const bridgeParts = lesson?.lesson_parts?.filter(lp => lp.section_type === 'bridge_activity') || []
+  const mainActivities = lesson?.lesson_parts?.filter(lp => lp.section_type === 'main_activity') || []
+  const endActivities = lesson?.lesson_parts?.filter(lp => lp.section_type === 'end_of_lesson') || []
+  const scripts = lesson?.lesson_parts?.filter(lp => lp.section_type === 'script') || []
 
-  const totalWarmUpTime = warmUps.reduce((sum, lp) => sum + (lp.time || 0), 0);
-  const totalBridgeTime = bridgeParts.reduce((sum, lp) => sum + (lp.time || 0), 0);
-  const totalMainTime = mainActivities.reduce((sum, lp) => sum + (lp.time || 0), 0);
-  const totalEndTime = endActivities.reduce((sum, lp) => sum + (lp.time || 0), 0);
+  const totalWarmUpTime = warmUps.reduce((sum, lp) => sum + (lp.time || 0), 0)
+  const totalBridgeTime = bridgeParts.reduce((sum, lp) => sum + (lp.time || 0), 0)
+  const totalMainTime = mainActivities.reduce((sum, lp) => sum + (lp.time || 0), 0)
+  const totalEndTime = endActivities.reduce((sum, lp) => sum + (lp.time || 0), 0)
 
   const sortByPosition = arr =>
-    arr.slice().sort((a, b) => (a.position || 0) - (b.position || 0));
+    arr.slice().sort((a, b) => (a.position || 0) - (b.position || 0))
 
   return (
     <div className="lesson-page">
@@ -75,22 +77,27 @@ export default function GenerateLesson({ lessonId = null, onGenerateRandom, onCl
           onClick={handleGenerate}
           disabled={loading}
         >
-          {loading ? 'Loading…' : (lesson ? 'Generate Again' : 'Generate Random Lesson')}
+          {loading
+            ? 'Loading…'
+            : lesson
+              ? 'Generate Again'
+              : 'Generate Random Lesson'
+          }
         </button>
       </aside>
 
       <div className="lesson-content">
         {lesson ? (
           <div className="lesson-details">
+            {/* -- Title & Objective -- */}
             <div className="lesson-star-block">
               <h1 className="lesson-title showman">{lesson.title}</h1>
             </div>
-
             <div className="lesson-block alternate">
               <h2 className="section-heading">Lesson Objective</h2>
               <p>{lesson.objective}</p>
             </div>
-
+            {/* -- At a Glance -- */}
             <div className="lesson-block alternate">
               <h2
                 className="section-heading glance-toggle"
@@ -107,7 +114,7 @@ export default function GenerateLesson({ lessonId = null, onGenerateRandom, onCl
               )}
             </div>
 
-            {/* Warm Ups */}
+            {/* -- Warm Ups -- */}
             {warmUps.length > 0 && (
               <div className="lesson-block">
                 <h2
@@ -135,9 +142,7 @@ export default function GenerateLesson({ lessonId = null, onGenerateRandom, onCl
                         rel="noopener noreferrer"
                         className="pdf-button"
                       >
-                        <span className="pdf-icon">📄</span>
-                        <span className="pdf-title">{file.filename}</span>
-                        View PDF
+                        📄 {file.filename}
                       </a>
                     </div>
                   ))
@@ -145,7 +150,7 @@ export default function GenerateLesson({ lessonId = null, onGenerateRandom, onCl
               </div>
             )}
 
-            {/* Bridge Activities */}
+            {/* -- Bridge Activities -- */}
             {bridgeParts.length > 0 && (
               <div className="lesson-block">
                 <h2
@@ -173,9 +178,7 @@ export default function GenerateLesson({ lessonId = null, onGenerateRandom, onCl
                         rel="noopener noreferrer"
                         className="pdf-button"
                       >
-                        <span className="pdf-icon">📄</span>
-                        <span className="pdf-title">{file.filename}</span>
-                        View PDF
+                        📄 {file.filename}
                       </a>
                     </div>
                   ))
@@ -183,7 +186,7 @@ export default function GenerateLesson({ lessonId = null, onGenerateRandom, onCl
               </div>
             )}
 
-            {/* Main Activities */}
+            {/* -- Main Activities -- */}
             {mainActivities.length > 0 && (
               <div className="lesson-block">
                 <h2
@@ -211,9 +214,7 @@ export default function GenerateLesson({ lessonId = null, onGenerateRandom, onCl
                         rel="noopener noreferrer"
                         className="pdf-button"
                       >
-                        <span className="pdf-icon">📄</span>
-                        <span className="pdf-title">{file.filename}</span>
-                        View PDF
+                        📄 {file.filename}
                       </a>
                     </div>
                   ))
@@ -221,7 +222,7 @@ export default function GenerateLesson({ lessonId = null, onGenerateRandom, onCl
               </div>
             )}
 
-            {/* End of Lesson */}
+            {/* -- End of Lesson -- */}
             {endActivities.length > 0 && (
               <div className="lesson-block">
                 <h2
@@ -249,9 +250,7 @@ export default function GenerateLesson({ lessonId = null, onGenerateRandom, onCl
                         rel="noopener noreferrer"
                         className="pdf-button"
                       >
-                        <span className="pdf-icon">📄</span>
-                        <span className="pdf-title">{file.filename}</span>
-                        View PDF
+                        📄 {file.filename}
                       </a>
                     </div>
                   ))
@@ -259,7 +258,7 @@ export default function GenerateLesson({ lessonId = null, onGenerateRandom, onCl
               </div>
             )}
 
-            {/* Scripts */}
+            {/* -- Scripts -- */}
             {scripts.length > 0 && (
               <div className="lesson-block">
                 <h2
@@ -287,9 +286,7 @@ export default function GenerateLesson({ lessonId = null, onGenerateRandom, onCl
                         rel="noopener noreferrer"
                         className="pdf-button"
                       >
-                        <span className="pdf-icon">📄</span>
-                        <span className="pdf-title">SCRIPT – {file.filename}</span>
-                        View PDF
+                        📄 {file.filename}
                       </a>
                     </div>
                   ))
@@ -311,5 +308,5 @@ export default function GenerateLesson({ lessonId = null, onGenerateRandom, onCl
         )}
       </div>
     </div>
-  );
+  )
 }
