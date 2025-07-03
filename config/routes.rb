@@ -1,10 +1,13 @@
 # config/routes.rb
 
 Rails.application.routes.draw do
+  namespace :api do
+    get "users/create"
+  end
   get "up" => "rails/health#show", as: :rails_health_check
 
   namespace :api, defaults: { format: :json } do
-    # simplified lesson_planning route
+    # Lesson-planning stub
     get "lesson_planning", to: "lesson_planning#index"
 
     resources :lessons, only: [:create, :show] do
@@ -12,6 +15,7 @@ Rails.application.routes.draw do
     end
 
     resources :lesson_parts, only: [:create]
+    resources :users,        only: [:create]   # ← sign-up endpoint
   end
 
   root "application#index"
