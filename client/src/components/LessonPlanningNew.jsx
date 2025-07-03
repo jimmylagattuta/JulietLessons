@@ -10,11 +10,15 @@ export default function LessonPlanningNew({ lessonPartsApi, onAddToPlan }) {
 
   // 1️⃣ Load parts
   useEffect(() => {
-    fetch(lessonPartsApi)
-      .then(r => r.json())
-      .then(setAllParts)
-  }, [lessonPartsApi])
-
+    fetch('/api/lesson_planning')
+      .then((res) => res.json())
+      .then((data) => {
+        console.log('API call received:', data.message)
+        // Eventually you'll setAllParts(data.parts)
+      })
+      .catch(console.error)
+  }, [])
+  
   // 2️⃣ Filtered list
   const filtered = useMemo(() => {
     return allParts.filter(p => {
