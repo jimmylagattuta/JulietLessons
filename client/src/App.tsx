@@ -1163,6 +1163,19 @@ function App() {0
                 <span>Lesson Planning</span>
               </div>
             </button>
+
+            <button
+              onClick={() => setActiveTab('lessonPlanningNew')}
+              className={`pb-4 px-1 border-b-2 font-medium text-sm ${
+                activeTab === 'lessonPlanningNew'
+                  ? 'border-green-500 text-green-600'
+                  : 'border-transparent text-gray-500 hover:border-gray-300'
+              }`}
+            >
+              <Layout className="w-4 h-4" />
+              <span>Lesson Planning (new)</span>
+            </button>
+
             {authState.user?.role === 'admin' && (<button
               onClick={() => setActiveTab('activities')}
               className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors ${
@@ -1348,6 +1361,10 @@ function App() {0
               /> */}
             {/* </> */}
           </div>
+        )}
+
+        {activeTab === 'lessonPlanningNew' && (
+          <LessonPlanningNew />
         )}
 
         {activeTab === 'activities' && authState.user?.role === 'admin' && (
