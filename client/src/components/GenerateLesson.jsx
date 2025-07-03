@@ -295,15 +295,19 @@ export default function GenerateLesson({ lessonId = null, onClearView }) {
             )}
           </div>
         ) : (
-          <div className="generate-box">
-            <h2 className="generate-title">Juliet's Generator</h2>
-            <button
-              className="generate-button"
-              onClick={handleGenerate}
-              disabled={loading}
-            >
-              {loading ? 'Generating…' : 'Generate Random Lesson'}
-            </button>
+          <div className="flex-1 flex items-center justify-center p-6">
+            <div className="bg-white dark:bg-dark-800 border border-gray-200 dark:border-dark-700 rounded-lg shadow-sm w-full max-w-md p-8 space-y-6">
+              <h2 className="text-2xl font-semibold text-gray-900 dark:text-white text-center">
+                Juliet’s Generator
+              </h2>
+              <button
+                onClick={handleGenerate}
+                disabled={loading}
+                className="w-full bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white font-medium py-3 rounded-lg transition-colors disabled:opacity-50"
+              >
+                {loading ? 'Generating…' : 'Generate Random Lesson'}
+              </button>
+            </div>
           </div>
         )}
       </div>
