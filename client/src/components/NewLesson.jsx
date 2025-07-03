@@ -3,19 +3,29 @@
 import React, { useState, useMemo } from 'react'
 import './NewLesson.css'
 
+/** 
+ * Set DEMO = true while developing to auto-fill 
+ * Title, Objective, and two At a Glance bullets.
+ */
+const DEMO = false
+
 const SECTION_LABELS = {
-  warm_up: 'Warm Ups',
+  warm_up:         'Warm Ups',
   bridge_activity: 'Bridge Activities',
-  main_activity: 'Main Activities',
-  end_of_lesson: 'End Of Lesson',
-  script: 'Scripts',
+  main_activity:   'Main Activities',
+  end_of_lesson:   'End Of Lesson',
+  script:          'Scripts',
 }
 
-const AGE_GROUPS = ['young', 'middle', 'older', 'all']
-const LEVELS = ['Toe Tipper', 'Green Horn', 'Semi-Pro', 'Seasoned Veteran']
-
-export default function NewLesson() {
-  const [showForm, setShowForm] = useState(true)
+export default function NewLesson({ onSwitch, onSaveAndView }) {
+  const [showForm, setShowForm]       = useState(DEMO)
+  const [title, setTitle]             = useState(DEMO ? 'Demo Lesson Title'       : '')
+  const [objective, setObjective]     = useState(DEMO ? 'This is a demo objective' : '')
+  const [atAGlance, setAtAGlance]     = useState(
+    DEMO
+      ? ['There will be a warm up', 'There will be a main activity']
+      : ['']
+  )
   const [sectionType, setSectionType] = useState('')
   const [lessonParts, setLessonParts] = useState([])
   const [pdfsBySection, setPdfsBySection] = useState(() =>
@@ -24,24 +34,30 @@ export default function NewLesson() {
       return acc
     }, {})
   )
-  const [saving, setSaving] = useState(false)
+  const [saving, setSaving]           = useState(false)
 
+  // show form
+  const handleHeaderClick = () => setShowForm(true)
+
+  // at-a-glance dynamic
+  const handleAtAGlanceChange = (val, idx) => {
+    const arr = [...atAGlance]
+    arr[idx] = val
+    if (idx === arr.length - 1 && val.trim() !== '') arr.push('')
+    setAtAGlance(arr)
+  }
+
+  // add part
   const handleAddPart = sectionKey => {
     if (!sectionKey) return
     setLessonParts(ps => [
       ...ps,
-      {
-        sectionType: sectionKey,
-        title: '',
-        body: '',
-        time: '',
-        age_group: '',
-        level: ''
-      }
+      { sectionType: sectionKey, title: '', body: '', time: '' }
     ])
     setSectionType('')
   }
 
+  // change part field
   const handlePartChange = (idx, field, val) => {
     setLessonParts(ps => {
       const copy = [...ps]
@@ -50,10 +66,12 @@ export default function NewLesson() {
     })
   }
 
+  // remove part
   const handleRemovePart = idxToRemove => {
     setLessonParts(ps => ps.filter((_, i) => i !== idxToRemove))
   }
 
+  // when a PDF is picked, update and if last slot, append a new empty slot
   const handlePdfFileChange = (sectionKey, idxSlot, files) => {
     setPdfsBySection(prev => {
       const copy = { ...prev }
@@ -68,6 +86,7 @@ export default function NewLesson() {
     })
   }
 
+  // remove a PDF slot (but always keep at least one)
   const handleRemovePdf = (sectionKey, idxSlot) => {
     setPdfsBySection(prev => {
       const slots = prev[sectionKey].filter((_, i) => i !== idxSlot)
@@ -78,6 +97,7 @@ export default function NewLesson() {
     })
   }
 
+  // group parts by section
   const partsBySection = useMemo(() => {
     return lessonParts.reduce((acc, part, idx) => {
       if (!acc[part.sectionType]) acc[part.sectionType] = []
@@ -86,66 +106,74 @@ export default function NewLesson() {
     }, {})
   }, [lessonParts])
 
-  const handleSave = async () => {
-    const filteredParts = lessonParts.filter(
-      part => part.title.trim() && part.body.trim()
-    )
+  // save all via FormData
+  const handleSave = async mode => {
+    const glance = atAGlance.filter(x => x.trim() !== '')
+    const formData = new FormData()
 
-    if (filteredParts.length === 0) {
-      alert('Add at least one lesson part with a title and body.')
-      return
-    }
+    formData.append('lesson[title]', title)
+    formData.append('lesson[objective]', objective)
+    glance.forEach(g => formData.append('lesson[at_a_glance][]', g))
+
+    // STEP 1: figure out the first part index for each section
+    const firstIndexBySection = {}
+    lessonParts.forEach((p, idx) => {
+      if (firstIndexBySection[p.sectionType] == null) {
+        firstIndexBySection[p.sectionType] = idx
+      }
+    })
+
+    // STEP 2: build nested params, but only attach PDFs on the first index
+    lessonParts.forEach((p, i) => {
+      const base = `lesson[lesson_parts_attributes][${i}]`
+      formData.append(`${base}[section_type]`, p.sectionType)
+      formData.append(`${base}[title]`, p.title)
+      formData.append(`${base}[body]`, p.body)
+      formData.append(`${base}[time]`, p.time)
+      formData.append(`${base}[position]`, i + 1)
+
+      if (firstIndexBySection[p.sectionType] === i) {
+        (pdfsBySection[p.sectionType] || []).forEach(slot => {
+          if (slot.file) {
+            formData.append(`${base}[files][]`, slot.file)
+          }
+        })
+      }
+    })
 
     setSaving(true)
-
     try {
-      for (let i = 0; i < filteredParts.length; i++) {
-        const part = filteredParts[i]
-        const formData = new FormData()
+      const resp = await fetch('/api/lessons', {
+        method: 'POST',
+        body:   formData
+      })
+      if (!resp.ok) throw new Error(`Status ${resp.status}`)
+      const data = await resp.json()
+      console.log('Saved lesson:', data)
 
-        formData.append('lesson_part[section_type]', part.sectionType)
-        formData.append('lesson_part[title]', part.title)
-        formData.append('lesson_part[body]', part.body)
-        formData.append('lesson_part[time]', part.time || '')
-        formData.append('lesson_part[position]', i + 1)
-        formData.append('lesson_part[age_group]', part.age_group)
-        formData.append('lesson_part[level]', part.level)
-
-        const pdfs = pdfsBySection[part.sectionType] || []
-        if (i === lessonParts.findIndex(p => p.sectionType === part.sectionType)) {
-          pdfs.forEach(slot => {
-            if (slot.file) {
-              formData.append('lesson_part[files][]', slot.file)
-            }
-          })
-        }
-
-        const resp = await fetch('/api/lesson_parts', {
-          method: 'POST',
-          body: formData
-        })
-
-        if (!resp.ok) {
-          throw new Error(`Failed to save part ${i + 1}. Status ${resp.status}`)
-        }
-
-        const json = await resp.json()
-        console.log('Created lesson part:', json)
+      if (mode === 'view') {
+        onSaveAndView(data.id)
       }
 
-      alert('All lesson parts created successfully.')
-
-      // Reset form
-      setLessonParts([])
-      setPdfsBySection(
-        Object.keys(SECTION_LABELS).reduce((acc, key) => {
-          acc[key] = [{ file: null }]
-          return acc
-        }, {})
-      )
+      if (mode === 'again') {
+        setTitle(DEMO ? 'Demo Lesson Title' : '')
+        setObjective(DEMO ? 'This is a demo objective' : '')
+        setAtAGlance(
+          DEMO
+            ? ['There will be a warm up', 'There will be a main activity']
+            : ['']
+        )
+        setLessonParts([])
+        setPdfsBySection(
+          Object.keys(SECTION_LABELS).reduce((acc, key) => {
+            acc[key] = [{ file: null }]
+            return acc
+          }, {})
+        )
+      }
     } catch (err) {
       console.error(err)
-      alert('Failed to save one or more parts. See console.')
+      alert('Failed to save. See console.')
     } finally {
       setSaving(false)
     }
@@ -153,142 +181,189 @@ export default function NewLesson() {
 
   return (
     <div className="lesson-page">
+      <aside className="lesson-sidebar">Sidebar</aside>
       <div className="new-lesson-page">
-        <h1 className="new-lesson-title">Add Lesson Parts (Admin Mode)</h1>
 
-        {Object.entries(partsBySection).map(([sectionKey, parts]) => (
-          <div className="lesson-part-group" key={sectionKey}>
-            <h3 className="lesson-part-heading">{SECTION_LABELS[sectionKey]}</h3>
+        {/* Header */}
+        <div
+          className="new-lesson-header"
+          onClick={!showForm ? handleHeaderClick : undefined}
+          role={!showForm ? 'button' : undefined}
+          tabIndex={!showForm ? 0 : undefined}
+          onKeyPress={e => !showForm && e.key === 'Enter' && handleHeaderClick()}
+        >
+          {!showForm && <button className="new-lesson-add">+</button>}
+          <h1 className="new-lesson-title">
+            {showForm ? 'New Lesson' : 'Create a New Lesson'}
+          </h1>
+        </div>
 
-            {parts.map(p => (
-              <div className="lesson-part-row" key={p.idx}>
-                <div className="lesson-part-label">
-                  <label>Title</label>
-                  <input
-                    type="text"
-                    value={p.title}
-                    onChange={e => handlePartChange(p.idx, 'title', e.target.value)}
-                  />
+        {/* Form */}
+        {showForm && (
+          <div className="new-lesson-form">
+
+            {/* Lesson Title */}
+            <div className="form-group">
+              <label htmlFor="lesson-title">Title</label>
+              <input
+                id="lesson-title"
+                type="text"
+                value={title}
+                onChange={e => setTitle(e.target.value)}
+              />
+            </div>
+
+            {/* Objective */}
+            <div className="form-group">
+              <label htmlFor="lesson-objective">Objective</label>
+              <textarea
+                id="lesson-objective"
+                rows={3}
+                value={objective}
+                onChange={e => setObjective(e.target.value)}
+              />
+            </div>
+
+            {/* At a Glance */}
+            <div className="form-group">
+              <label>At a Glance</label>
+              {atAGlance.map((item, i) => (
+                <input
+                  key={i}
+                  className="at-glance-input"
+                  type="text"
+                  value={item}
+                  placeholder="Enter a quick bullet…"
+                  onChange={e => handleAtAGlanceChange(e.target.value, i)}
+                />
+              ))}
+            </div>
+
+            {/* Sections */}
+            {Object.entries(partsBySection).map(([sectionKey, parts]) => (
+              <div className="lesson-part-group" key={sectionKey}>
+
+                <h3 className="lesson-part-heading">
+                  {SECTION_LABELS[sectionKey]}
+                </h3>
+
+                {parts.map(p => (
+                  <div className="lesson-part-row" key={p.idx}>
+                    <div className="lesson-part-label">
+                      <label>Title</label>
+                      <input
+                        type="text"
+                        value={p.title}
+                        onChange={e => handlePartChange(p.idx, 'title', e.target.value)}
+                      />
+                    </div>
+
+                    <div className="lesson-part-label">
+                      <label>Body</label>
+                      <textarea
+                        rows={2}
+                        value={p.body}
+                        onChange={e => handlePartChange(p.idx, 'body', e.target.value)}
+                      />
+                    </div>
+
+                    {sectionKey !== 'script' && (
+                      <div className="lesson-part-label">
+                        <label>Time (min)</label>
+                        <input
+                          type="number"
+                          min="0"
+                          value={p.time}
+                          onChange={e => handlePartChange(p.idx, 'time', e.target.value)}
+                        />
+                      </div>
+                    )}
+
+                    <button
+                      type="button"
+                      className="lesson-part-remove"
+                      onClick={() => handleRemovePart(p.idx)}
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ))}
+
+                {/* PDF uploader slots */}
+                <div className="lesson-part-files">
+                  <label>Attachments (PDF)</label>
+                  {pdfsBySection[sectionKey].map((slot, i) => (
+                    <div className="pdf-slot" key={i}>
+                      <input
+                        type="file"
+                        accept="application/pdf"
+                        onChange={e => handlePdfFileChange(sectionKey, i, e.target.files)}
+                      />
+                      {slot.file && (
+                        <div className="pdf-title">
+                          {slot.file.name}
+                          <button
+                            type="button"
+                            className="pdf-remove"
+                            onClick={() => handleRemovePdf(sectionKey, i)}
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  ))}
                 </div>
 
-                <div className="lesson-part-label">
-                  <label>Body</label>
-                  <textarea
-                    rows={2}
-                    value={p.body}
-                    onChange={e => handlePartChange(p.idx, 'body', e.target.value)}
-                  />
-                </div>
-
-                <div className="lesson-part-label">
-                  <label>Time (min)</label>
-                  <input
-                    type="number"
-                    min="0"
-                    value={p.time}
-                    onChange={e => handlePartChange(p.idx, 'time', e.target.value)}
-                  />
-                </div>
-
-                <div className="lesson-part-label">
-                  <label>Age Group</label>
-                  <select
-                    value={p.age_group || ''}
-                    onChange={e => handlePartChange(p.idx, 'age_group', e.target.value)}
+                {/* Inline “Add Part” */}
+                <div className="lesson-part-add-inline">
+                  <button
+                    type="button"
+                    onClick={() => handleAddPart(sectionKey)}
                   >
-                    <option value="">Select…</option>
-                    {AGE_GROUPS.map(a => (
-                      <option key={a} value={a}>{a}</option>
-                    ))}
-                  </select>
+                    + Add {SECTION_LABELS[sectionKey].replace(/s$/, '')}
+                  </button>
                 </div>
-
-                <div className="lesson-part-label">
-                  <label>Level</label>
-                  <select
-                    value={p.level || ''}
-                    onChange={e => handlePartChange(p.idx, 'level', e.target.value)}
-                  >
-                    <option value="">Select…</option>
-                    {LEVELS.map(l => (
-                      <option key={l} value={l}>{l}</option>
-                    ))}
-                  </select>
-                </div>
-
-                <button
-                  type="button"
-                  className="lesson-part-remove"
-                  onClick={() => handleRemovePart(p.idx)}
-                >
-                  Remove
-                </button>
               </div>
             ))}
 
-            {/* PDF uploader */}
-            <div className="lesson-part-files">
-              <label>Attachments (PDF)</label>
-              {pdfsBySection[sectionKey].map((slot, i) => (
-                <div className="pdf-slot" key={i}>
-                  <input
-                    type="file"
-                    accept="application/pdf"
-                    onChange={e => handlePdfFileChange(sectionKey, i, e.target.files)}
-                  />
-                  {slot.file && (
-                    <div className="pdf-title">
-                      {slot.file.name}
-                      <button
-                        type="button"
-                        className="pdf-remove"
-                        onClick={() => handleRemovePdf(sectionKey, i)}
-                      >
-                        ✕
-                      </button>
-                    </div>
-                  )}
-                </div>
-              ))}
+            {/* Fallback dropdown */}
+            <div className="form-group">
+              <label>Add Lesson Part</label>
+              <div className="select-wrapper">
+                <select
+                  value={sectionType}
+                  onChange={e => handleAddPart(e.target.value)}
+                >
+                  <option value="" disabled>Select part…</option>
+                  <option value="warm_up">Warm Ups</option>
+                  <option value="bridge_activity">Bridge Activities</option>
+                  <option value="main_activity">Main Activities</option>
+                  <option value="end_of_lesson">End Of Lesson</option>
+                  <option value="script">Scripts</option>
+                </select>
+              </div>
             </div>
 
-            <div className="lesson-part-add-inline">
+            {/* Save buttons */}
+            <div className="form-actions">
               <button
-                type="button"
-                onClick={() => handleAddPart(sectionKey)}
+                className="btn-save-view"
+                onClick={() => handleSave('view')}
+                disabled={saving}
               >
-                + Add {SECTION_LABELS[sectionKey].replace(/s$/, '')}
+                {saving ? 'Saving…' : 'Save and View'}
+              </button>
+              <button
+                className="btn-save-again"
+                onClick={() => handleSave('again')}
+                disabled={saving}
+              >
+                {saving ? 'Saving…' : 'Save and Create Again'}
               </button>
             </div>
           </div>
-        ))}
-
-        {/* Dropdown to select a section and add part */}
-        <div className="form-group">
-          <label>Add Lesson Part</label>
-          <div className="select-wrapper">
-            <select
-              value={sectionType}
-              onChange={e => handleAddPart(e.target.value)}
-            >
-              <option value="" disabled>Select part…</option>
-              {Object.entries(SECTION_LABELS).map(([val, label]) => (
-                <option key={val} value={val}>{label}</option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        {/* Save all */}
-        <div className="form-actions">
-          <button
-            className="btn-save-view"
-            onClick={handleSave}
-            disabled={saving}
-          >
-            {saving ? 'Saving…' : 'Save All Lesson Parts'}
-          </button>
-        </div>
+        )}
       </div>
     </div>
   )

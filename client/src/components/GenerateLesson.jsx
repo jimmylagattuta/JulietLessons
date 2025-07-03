@@ -296,7 +296,7 @@ export default function GenerateLesson({ lessonId = null, onClearView }) {
           </div>
         ) : (
           <div className="generate-box">
-            <h2 className="generate-title">Instant Lesson Generator</h2>
+            <h2 className="generate-title">Juliet's Generator</h2>
             <button
               className="generate-button"
               onClick={handleGenerate}
