@@ -1,30 +1,24 @@
-# app/controllers/api/users_controller.rb
 module Api
-  class UsersController < ActionController::API
-    # POST /api/users
+  class UsersController < ApplicationController
+    skip_before_action :verify_authenticity_token
+
+    # POST /api/users/register
     def create
       user = User.new(user_params)
       user.is_active = true
 
       if user.save
-        render json: {
-          id:           user.id,
-          email:        user.email,
-          first_name:   user.first_name,
-          last_name:    user.last_name,
-          role:         user.role,
-          organization: user.organization,
-          created_at:   user.created_at
-        }, status: :created
+        render json: { user: user.as_json(except: [:password_digest]) }, status: :created
       else
-        render json: { errors: user.errors.full_messages }, status: :unprocessable_entity
+        render json: { error: user.errors.full_messages.join(", ") },
+               status: :unprocessable_entity
       end
     end
 
     private
 
     def user_params
-      params.require(:user).permit(
+      params.permit(
         :email,
         :password,
         :first_name,
