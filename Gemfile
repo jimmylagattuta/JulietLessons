@@ -24,6 +24,7 @@ gem "tzinfo-data", platforms: %i[ mswin mswin64 mingw x64_mingw jruby ]
 gem "bootsnap", require: false
 gem "aws-sdk-s3", "~> 1.191"
 gem 'bcrypt', '~> 3.1.18'
+gem 'rack-cors', require: 'rack/cors'
 
 
 # Use Active Storage variants [https://guides.rubyonrails.org/active_storage_overview.html#transforming-images]
