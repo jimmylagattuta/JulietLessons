@@ -1,6 +1,10 @@
 // src/components/LessonPlanningNew.jsx
 import React, { useEffect, useState, useMemo } from 'react'
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
+import {
+  DragDropContext,
+  Droppable,
+  Draggable
+} from 'react-beautiful-dnd'
 
 const SECTION_LABELS = {
   warm_up:         'Warm Ups',
@@ -9,6 +13,7 @@ const SECTION_LABELS = {
   end_of_lesson:   'End Of Lesson',
   script:          'Scripts',
 }
+
 const SECTION_ICONS = {
   warm_up:         '🔥',
   bridge_activity: '🌉',
@@ -24,10 +29,15 @@ export default function LessonPlanningNew({ onAddToPlan }) {
   })
   const [sidebarParts, setSidebarParts] = useState([])
   const [draggingType, setDraggingType] = useState(null)
+  const [invalidDrop, setInvalidDrop] = useState(false)
+  const [invalidSection, setInvalidSection] = useState('')
 
   useEffect(() => {
     fetch('/api/lesson_planning')
-      .then(r => { if (!r.ok) throw new Error(`Status ${r.status}`); return r.json() })
+      .then(r => {
+        if (!r.ok) throw new Error(`Status ${r.status}`)
+        return r.json()
+      })
       .then(data => setAllParts(data.parts || []))
       .catch(err => console.error(err))
   }, [])
@@ -47,19 +57,44 @@ export default function LessonPlanningNew({ onAddToPlan }) {
   function onDragStart(start) {
     const part = allParts.find(p => String(p.id) === start.draggableId)
     setDraggingType(part?.section_type || null)
+    // reset any previous invalid state
+    setInvalidDrop(false)
+    setInvalidSection('')
+  }
+
+  function onDragUpdate(update) {
+    const dest = update.destination?.droppableId
+    if (!dest) {
+      setInvalidDrop(false)
+      setInvalidSection('')
+      return
+    }
+    if (Object.keys(SECTION_LABELS).includes(dest)) {
+      if (dest !== draggingType) {
+        setInvalidDrop(true)
+        setInvalidSection(SECTION_LABELS[dest])
+      } else {
+        setInvalidDrop(false)
+        setInvalidSection('')
+      }
+    } else {
+      setInvalidDrop(false)
+      setInvalidSection('')
+    }
   }
 
   function onDragEnd(result) {
-    setDraggingType(null)
     const { source, destination, draggableId } = result
-    if (!destination) return
+    setDraggingType(null)
+    setInvalidDrop(false)
+    setInvalidSection('')
 
     if (
       source.droppableId === 'parts' &&
-      Object.keys(SECTION_LABELS).includes(destination.droppableId)
+      Object.keys(SECTION_LABELS).includes(destination?.droppableId)
     ) {
       const part = allParts.find(p => String(p.id) === draggableId)
-      if (part) {
+      if (part && destination.droppableId === part.section_type) {
         onAddToPlan(part)
         setSidebarParts(s => [...s, part])
       }
@@ -70,13 +105,21 @@ export default function LessonPlanningNew({ onAddToPlan }) {
   const totalActivities = sidebarParts.length
 
   return (
-    <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
+    <DragDropContext
+      onDragStart={onDragStart}
+      onDragUpdate={onDragUpdate}
+      onDragEnd={onDragEnd}
+    >
       <div className="flex flex-1 overflow-hidden bg-gray-50 dark:bg-dark-900 transition-colors duration-200">
         {/* Sidebar */}
         <aside className="w-96 bg-white dark:bg-dark-800 border-r border-gray-200 dark:border-dark-700 p-6 overflow-auto flex flex-col">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Lesson Plan</h2>
-            <button className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">←</button>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+              Lesson Plan
+            </h2>
+            <button className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
+              ←
+            </button>
           </div>
           <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 space-x-6 mb-4">
             <div>{totalMinutes} min</div>
@@ -88,9 +131,9 @@ export default function LessonPlanningNew({ onAddToPlan }) {
             {Object.entries(SECTION_LABELS).map(([key, label]) => (
               <Droppable droppableId={key} key={key}>
                 {(provided, snapshot) => {
-                  const isMatch = draggingType === key
-                  const borderColor = snapshot.isDraggingOver
-                    ? isMatch
+                  const isMatchZone = draggingType === key
+                  const highlight = snapshot.isDraggingOver
+                    ? isMatchZone
                       ? 'border-blue-400 dark:border-blue-500'
                       : 'border-red-500 dark:border-red-400'
                     : 'border-gray-300 dark:border-dark-600'
@@ -102,30 +145,20 @@ export default function LessonPlanningNew({ onAddToPlan }) {
                       className={`
                         relative border-2 border-dashed rounded-lg p-6
                         flex flex-col items-center text-center space-y-4
-                        min-h-[14rem] ${borderColor}
+                        min-h-[14rem] ${highlight}
                       `}
                     >
                       <span className="text-5xl">{SECTION_ICONS[key]}</span>
                       <h3 className="font-semibold text-lg text-gray-900 dark:text-white">
-                        Add {label.slice(0, -1)}
+                        Add {label}
                       </h3>
                       <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {key === 'warm_up' ? 'Start with an energizing activity'
+                        {key === 'warm_up'          ? 'Start with an energizing activity'
                          : key === 'bridge_activity' ? 'Link warm-up to main'
                          : key === 'main_activity'   ? 'Core learning activities'
                          : key === 'end_of_lesson'   ? 'Wrap up and reflect'
-                         :                            'Attach scripts for actors'}
+                         :                             'Attach scripts for actors'}
                       </p>
-
-                      {/* tooltip for wrong drop */}
-                      {snapshot.isDraggingOver && !isMatch && (
-                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                          <div className="bg-red-600 text-white text-sm px-3 py-1 rounded">
-                            This is a {SECTION_LABELS[key]}
-                          </div>
-                        </div>
-                      )}
-
                       {provided.placeholder}
                     </div>
                   )
@@ -145,7 +178,7 @@ export default function LessonPlanningNew({ onAddToPlan }) {
               className="block w-1/4 px-3 py-2 bg-white dark:bg-dark-700 border border-gray-300 dark:border-dark-600 rounded-lg text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">All Sections</option>
-              {Object.entries(SECTION_LABELS).map(([k, v]) => (
+              {Object.entries(SECTION_LABELS).map(([k,v]) => (
                 <option key={k} value={k}>{v}</option>
               ))}
             </select>
@@ -171,7 +204,9 @@ export default function LessonPlanningNew({ onAddToPlan }) {
               <option value="Toe Tipper">Toe Tipper</option>
               <option value="Green Horn">Green Horn</option>
               <option value="Semi-Pro">Semi-Pro</option>
-              <option value="Seasoned Veteran(all)">Seasoned Veteran(all)</option>
+              <option value="Seasoned Veteran(all)">
+                Seasoned Veteran(all)
+              </option>
             </select>
 
             <input
@@ -184,7 +219,7 @@ export default function LessonPlanningNew({ onAddToPlan }) {
           </div>
 
           {/* Draggable parts grid */}
-          <div className="flex-1 p-4 overflow-auto">
+          <div className="flex-1 p-4 overflow-auto relative">
             <Droppable droppableId="parts">
               {provided => (
                 <div
@@ -193,14 +228,25 @@ export default function LessonPlanningNew({ onAddToPlan }) {
                   className="grid grid-cols-3 gap-4"
                 >
                   {filtered.map((p, idx) => (
-                    <Draggable key={p.id} draggableId={String(p.id)} index={idx}>
-                      {prov => (
+                    <Draggable
+                      key={p.id}
+                      draggableId={String(p.id)}
+                      index={idx}
+                    >
+                      {(providedDr, snapshotDr) => (
                         <div
-                          ref={prov.innerRef}
-                          {...prov.draggableProps}
-                          {...prov.dragHandleProps}
-                          className="p-4 bg-white dark:bg-dark-800 rounded-lg border border-gray-200 dark:border-dark-700 shadow-sm cursor-pointer transition-colors duration-200"
+                          ref={providedDr.innerRef}
+                          {...providedDr.draggableProps}
+                          {...providedDr.dragHandleProps}
+                          className="relative p-4 bg-white dark:bg-dark-800 rounded-lg border border-gray-200 dark:border-dark-700 shadow-sm cursor-pointer transition-colors duration-200"
                         >
+                          {/* if this card is being dragged and invalidDrop=true, show tooltip here */}
+                          {snapshotDr.isDragging && invalidDrop && (
+                            <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-red-600 text-white text-sm px-3 py-1 rounded shadow-lg">
+                              Must drop into “{invalidSection}”
+                            </div>
+                          )}
+
                           <h3 className="font-semibold text-gray-900 dark:text-white">
                             {p.title}
                           </h3>
