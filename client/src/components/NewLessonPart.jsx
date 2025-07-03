@@ -1,5 +1,6 @@
 // src/components/NewLessonPart.jsx
 import React, { useState } from 'react';
+import './NewLesson.css';
 
 const SECTION_LABELS = {
   warm_up: 'Warm Ups',
@@ -8,6 +9,7 @@ const SECTION_LABELS = {
   end_of_lesson: 'End Of Lesson',
   script: 'Scripts',
 };
+
 const AGE_GROUPS = ['Young', 'Middle', 'Older', 'All'];
 const LEVELS = ['Toe Tipper', 'Green Horn', 'Semi-Pro', 'Seasoned Veteran(all)'];
 
@@ -22,47 +24,58 @@ export default function NewLessonPart() {
   const [pdfFiles, setPdfFiles] = useState([{ file: null }]);
   const [saving, setSaving] = useState(false);
 
-  const reset = () => {
-    setSectionType(''); setTitle(''); setBody('');
-    setTime(''); setAgeGroup(''); setLevel('');
+  const handleCancel = () => {
+    setSectionType('');
+    setTitle('');
+    setBody('');
+    setTime('');
+    setAgeGroup('');
+    setLevel('');
     setPdfFiles([{ file: null }]);
-  };
-  const cancel = () => { reset(); setShowForm(false); };
-  const handlePdfChange = (i, files) => {
-    const slots = [...pdfFiles];
-    slots[i].file = files[0] || null;
-    if (i === slots.length - 1 && files[0]) slots.push({ file: null });
-    setPdfFiles(slots);
-  };
-  const removePdf = i => {
-    const slots = pdfFiles.filter((_, idx) => idx !== i);
-    setPdfFiles(slots.length ? slots : [{ file: null }]);
+    setShowForm(false);
   };
 
-  const save = async () => {
+  const handlePdfChange = (index, files) => {
+    const copy = [...pdfFiles];
+    copy[index].file = files[0] || null;
+    if (index === pdfFiles.length - 1 && files[0]) copy.push({ file: null });
+    setPdfFiles(copy);
+  };
+
+  const handleRemovePdf = (index) => {
+    const filtered = pdfFiles.filter((_, i) => i !== index);
+    setPdfFiles(filtered.length ? filtered : [{ file: null }]);
+  };
+
+  const handleSave = async () => {
     if (!sectionType || !title.trim() || !body.trim()) {
       alert('Please complete all required fields.');
       return;
     }
-    const form = new FormData();
-    form.append('lesson_part[section_type]', sectionType);
-    form.append('lesson_part[title]', title);
-    form.append('lesson_part[body]', body);
-    form.append('lesson_part[time]', time);
-    form.append('lesson_part[age_group]', ageGroup);
-    form.append('lesson_part[level]', level);
-    pdfFiles.forEach(s => s.file && form.append('lesson_part[files][]', s.file));
+
+    const formData = new FormData();
+    formData.append('lesson_part[section_type]', sectionType);
+    formData.append('lesson_part[title]', title);
+    formData.append('lesson_part[body]', body);
+    formData.append('lesson_part[time]', time);
+    formData.append('lesson_part[age_group]', ageGroup);
+    formData.append('lesson_part[level]', level);
+    pdfFiles.forEach((slot) => {
+      if (slot.file) formData.append('lesson_part[files][]', slot.file);
+    });
 
     setSaving(true);
     try {
-      const res = await fetch('/api/lesson_parts', { method: 'POST', body: form });
-      if (!res.ok) throw new Error(res.status);
-      await res.json();
+      const resp = await fetch('/api/lesson_parts', {
+        method: 'POST',
+        body: formData,
+      });
+      if (!resp.ok) throw new Error(`Status ${resp.status}`);
+      await resp.json();
       alert('Lesson part saved!');
-      reset();
-      setShowForm(false);
-    } catch (e) {
-      console.error(e);
+      handleCancel();
+    } catch (err) {
+      console.error(err);
       alert('Save failed. See console.');
     } finally {
       setSaving(false);
@@ -70,47 +83,41 @@ export default function NewLessonPart() {
   };
 
   return (
-    <div className="flex h-full bg-gray-50 dark:bg-dark-900 transition-colors">
+    <div className="lesson-page flex h-full">
       {/* Sidebar */}
-      <aside className="w-64 bg-white dark:bg-dark-800 border-r border-gray-200 dark:border-dark-700 p-4">
-        <span className="text-white font-semibold">Sidebar</span>
+      <aside className="lesson-sidebar w-64">
+        Sidebar
       </aside>
 
       {/* Main area */}
-      <div className="flex-1 flex flex-col">
-        {/* Header: always full width */}
+      <div className="flex-1 flex flex-col h-full">
         <header
-          className="flex items-center p-6 bg-white dark:bg-dark-800 border-b border-gray-200 dark:border-dark-700"
+          className="w-full flex items-center gap-3 p-6 bg-white dark:bg-dark-800 border-b border-gray-200 dark:border-dark-700"
           onClick={() => !showForm && setShowForm(true)}
-          role={!showForm ? 'button' : undefined}
-          tabIndex={!showForm ? 0 : undefined}
-          onKeyPress={e => !showForm && e.key === 'Enter' && setShowForm(true)}
         >
           {!showForm && (
-            <div className="text-4xl font-bold text-green-500 mr-3">+</div>
+            <div className="text-4xl font-bold text-green-500 select-none">+</div>
           )}
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white select-none">
             {showForm ? 'New Lesson Part' : 'Create a Lesson Part'}
           </h1>
         </header>
 
-        {/* Form scroll area, centered */}
         {showForm && (
-          <main className="flex-1 overflow-auto py-6">
-            <div className="max-w-2xl mx-auto px-6">
+          <main className="flex-1 overflow-auto p-6">
+            <div className="new-lesson-form max-w-2xl mx-auto">
               {/* Section */}
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Section
-                </label>
+              <div className="form-group">
+                <label>Section</label>
                 <select
                   value={sectionType}
-                  onChange={e => setSectionType(e.target.value)}
-                  className="w-full px-3 py-2 border rounded-lg bg-white dark:bg-dark-700 border-gray-300 dark:border-dark-600 text-gray-700 dark:text-gray-200 focus:ring-2 focus:ring-blue-500"
+                  onChange={(e) => setSectionType(e.target.value)}
                 >
                   <option value="">Select Section…</option>
-                  {Object.entries(SECTION_LABELS).map(([k, v]) => (
-                    <option key={k} value={k}>{v}</option>
+                  {Object.entries(SECTION_LABELS).map(([key, label]) => (
+                    <option key={key} value={key}>
+                      {label}
+                    </option>
                   ))}
                 </select>
               </div>
@@ -118,123 +125,106 @@ export default function NewLessonPart() {
               {sectionType && (
                 <>
                   {/* Title */}
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Title
-                    </label>
+                  <div className="form-group">
+                    <label>Title</label>
                     <input
                       type="text"
                       value={title}
-                      onChange={e => setTitle(e.target.value)}
-                      className="w-full px-3 py-2 border rounded-lg bg-white dark:bg-dark-700 border-gray-300 dark:border-dark-600 focus:ring-2 focus:ring-blue-500 text-gray-700 dark:text-gray-200"
+                      onChange={(e) => setTitle(e.target.value)}
                     />
                   </div>
 
                   {/* Body */}
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Body
-                    </label>
+                  <div className="form-group">
+                    <label>Body</label>
                     <textarea
                       rows={3}
                       value={body}
-                      onChange={e => setBody(e.target.value)}
-                      className="w-full px-3 py-2 border rounded-lg bg-white dark:bg-dark-700 border-gray-300 dark:border-dark-600 focus:ring-2 focus:ring-blue-500 text-gray-700 dark:text-gray-200"
+                      onChange={(e) => setBody(e.target.value)}
                     />
                   </div>
 
                   {/* Time */}
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Time (minutes)
-                    </label>
+                  <div className="form-group">
+                    <label>Time (minutes)</label>
                     <input
                       type="number"
                       value={time}
-                      onChange={e => setTime(e.target.value)}
-                      className="w-full px-3 py-2 border rounded-lg bg-white dark:bg-dark-700 border-gray-300 dark:border-dark-600 focus:ring-2 focus:ring-blue-500 text-gray-700 dark:text-gray-200"
+                      onChange={(e) => setTime(e.target.value)}
                     />
                   </div>
 
                   {/* Age Group */}
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Age Group
-                    </label>
+                  <div className="form-group">
+                    <label>Age Group</label>
                     <select
                       value={ageGroup}
-                      onChange={e => setAgeGroup(e.target.value)}
-                      className="w-full px-3 py-2 border rounded-lg bg-white dark:bg-dark-700 border-gray-300 dark:border-dark-600 focus:ring-2 focus:ring-blue-500 text-gray-700 dark:text-gray-200"
+                      onChange={(e) => setAgeGroup(e.target.value)}
                     >
                       <option value="">Select Age Group…</option>
-                      {AGE_GROUPS.map(g => (
-                        <option key={g} value={g}>{g}</option>
+                      {AGE_GROUPS.map((g) => (
+                        <option key={g} value={g}>
+                          {g}
+                        </option>
                       ))}
                     </select>
                   </div>
 
                   {/* Level */}
-                  <div className="mb-4">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Level
-                    </label>
+                  <div className="form-group">
+                    <label>Level</label>
                     <select
                       value={level}
-                      onChange={e => setLevel(e.target.value)}
-                      className="w-full px-3 py-2 border rounded-lg bg-white dark:bg-dark-700 border-gray-300 dark:border-dark-600 focus:ring-2 focus:ring-blue-500 text-gray-700 dark:text-gray-200"
+                      onChange={(e) => setLevel(e.target.value)}
                     >
                       <option value="">Select Level…</option>
-                      {LEVELS.map(l => (
-                        <option key={l} value={l}>{l}</option>
+                      {LEVELS.map((l) => (
+                        <option key={l} value={l}>
+                          {l}
+                        </option>
                       ))}
                     </select>
                   </div>
 
-                  {/* Attachments */}
-                  <div className="mb-6">
-                    <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                      Attachments (PDF)
-                    </label>
-                    <div className="space-y-2">
-                      {pdfFiles.map((slot, i) => (
-                        <div key={i} className="flex items-center space-x-3">
-                          <input
-                            type="file"
-                            accept="application/pdf"
-                            onChange={e => handlePdfChange(i, e.target.files)}
-                            className="text-gray-700 dark:text-gray-200"
-                          />
-                          {slot.file && (
-                            <div className="flex items-center bg-blue-50 dark:bg-blue-900/20 px-3 py-1 rounded-lg">
-                              <span className="text-sm text-gray-900 dark:text-white">
-                                {slot.file.name}
-                              </span>
-                              <button
-                                onClick={() => removePdf(i)}
-                                className="ml-2 text-red-600 dark:text-red-400 hover:text-red-800"
-                              >
-                                ✕
-                              </button>
-                            </div>
-                          )}
-                        </div>
-                      ))}
-                    </div>
+                  {/* PDF Attachments */}
+                  <div className="lesson-part-files">
+                    <label>Attachments (PDF)</label>
+                    {pdfFiles.map((slot, i) => (
+                      <div className="pdf-slot" key={i}>
+                        <input
+                          type="file"
+                          accept="application/pdf"
+                          onChange={(e) => handlePdfChange(i, e.target.files)}
+                        />
+                        {slot.file && (
+                          <div className="pdf-title">
+                            {slot.file.name}
+                            <button
+                              type="button"
+                              className="pdf-remove"
+                              onClick={() => handleRemovePdf(i)}
+                            >
+                              ✕
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    ))}
                   </div>
 
-                  {/* Buttons */}
-                  <div className="flex justify-center space-x-4">
+                  {/* Actions */}
+                  <div className="form-actions">
                     <button
-                      onClick={save}
+                      className="btn-save-view"
+                      onClick={handleSave}
                       disabled={saving}
-                      className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white px-6 py-2 rounded-lg shadow transition-colors duration-200 disabled:opacity-50"
                     >
                       {saving ? 'Saving…' : 'Save'}
                     </button>
                     <button
-                      onClick={cancel}
+                      className="btn-cancel-view"
+                      onClick={handleCancel}
                       disabled={saving}
-                      className="bg-gray-300 dark:bg-dark-700 hover:bg-gray-400 dark:hover:bg-dark-600 text-gray-900 dark:text-gray-200 px-6 py-2 rounded-lg transition-colors duration-200 disabled:opacity-50"
                     >
                       Cancel
                     </button>
