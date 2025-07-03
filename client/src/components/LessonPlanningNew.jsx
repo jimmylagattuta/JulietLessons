@@ -20,31 +20,25 @@ const SECTION_ICONS = {
 export default function LessonPlanningNew({ onAddToPlan }) {
   const [allParts, setAllParts] = useState([])
   const [filters, setFilters] = useState({
-    section: '',
-    ageGroup: '',
-    level: '',
-    search: '',
+    section: '', ageGroup: '', level: '', search: ''
   })
   const [sidebarParts, setSidebarParts] = useState([])
   const [draggingType, setDraggingType] = useState(null)
 
   useEffect(() => {
     fetch('/api/lesson_planning')
-      .then(r => {
-        if (!r.ok) throw new Error(`Status ${r.status}`)
-        return r.json()
-      })
+      .then(r => { if (!r.ok) throw new Error(`Status ${r.status}`); return r.json() })
       .then(data => setAllParts(data.parts || []))
-      .catch(err => console.error('Error fetching lesson parts:', err))
+      .catch(err => console.error(err))
   }, [])
 
   const filtered = useMemo(() => {
     return allParts.filter(p => {
-      if (filters.section    && p.section_type !== filters.section) return false
-      if (filters.ageGroup   && p.age_group    !== filters.ageGroup)  return false
-      if (filters.level      && p.level        !== filters.level)     return false
+      if (filters.section  && p.section_type !== filters.section) return false
+      if (filters.ageGroup && p.age_group    !== filters.ageGroup)  return false
+      if (filters.level    && p.level        !== filters.level)     return false
       const text = `${p.title} ${p.body}`.toLowerCase()
-      if (filters.search     && !text.includes(filters.search.toLowerCase()))
+      if (filters.search   && !text.includes(filters.search.toLowerCase()))
         return false
       return true
     })
@@ -60,7 +54,6 @@ export default function LessonPlanningNew({ onAddToPlan }) {
     const { source, destination, draggableId } = result
     if (!destination) return
 
-    // only allow drops from the "parts" grid into a matching section
     if (
       source.droppableId === 'parts' &&
       Object.keys(SECTION_LABELS).includes(destination.droppableId)
@@ -82,12 +75,8 @@ export default function LessonPlanningNew({ onAddToPlan }) {
         {/* Sidebar */}
         <aside className="w-96 bg-white dark:bg-dark-800 border-r border-gray-200 dark:border-dark-700 p-6 overflow-auto flex flex-col">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-              Lesson Plan
-            </h2>
-            <button className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
-              ←
-            </button>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Lesson Plan</h2>
+            <button className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">←</button>
           </div>
           <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 space-x-6 mb-4">
             <div>{totalMinutes} min</div>
@@ -99,7 +88,6 @@ export default function LessonPlanningNew({ onAddToPlan }) {
             {Object.entries(SECTION_LABELS).map(([key, label]) => (
               <Droppable droppableId={key} key={key}>
                 {(provided, snapshot) => {
-                  // highlight logic: blue if matching type, red otherwise
                   const isMatch = draggingType === key
                   const borderColor = snapshot.isDraggingOver
                     ? isMatch
@@ -112,10 +100,9 @@ export default function LessonPlanningNew({ onAddToPlan }) {
                       ref={provided.innerRef}
                       {...provided.droppableProps}
                       className={`
-                        border-2 border-dashed rounded-lg p-6
+                        relative border-2 border-dashed rounded-lg p-6
                         flex flex-col items-center text-center space-y-4
-                        min-h-[14rem]
-                        ${borderColor}
+                        min-h-[14rem] ${borderColor}
                       `}
                     >
                       <span className="text-5xl">{SECTION_ICONS[key]}</span>
@@ -123,16 +110,22 @@ export default function LessonPlanningNew({ onAddToPlan }) {
                         Add {label.slice(0, -1)}
                       </h3>
                       <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {label === 'Warm Ups'
-                          ? 'Start with an energizing activity'
-                          : label === 'Bridge Activities'
-                          ? 'Link warm-up to main'
-                          : label === 'Main Activities'
-                          ? 'Core learning activities'
-                          : label === 'End Of Lesson'
-                          ? 'Wrap up and reflect'
-                          : 'Attach scripts for actors'}
+                        {key === 'warm_up' ? 'Start with an energizing activity'
+                         : key === 'bridge_activity' ? 'Link warm-up to main'
+                         : key === 'main_activity'   ? 'Core learning activities'
+                         : key === 'end_of_lesson'   ? 'Wrap up and reflect'
+                         :                            'Attach scripts for actors'}
                       </p>
+
+                      {/* tooltip for wrong drop */}
+                      {snapshot.isDraggingOver && !isMatch && (
+                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                          <div className="bg-red-600 text-white text-sm px-3 py-1 rounded">
+                            This is a {SECTION_LABELS[key]}
+                          </div>
+                        </div>
+                      )}
+
                       {provided.placeholder}
                     </div>
                   )
@@ -152,8 +145,8 @@ export default function LessonPlanningNew({ onAddToPlan }) {
               className="block w-1/4 px-3 py-2 bg-white dark:bg-dark-700 border border-gray-300 dark:border-dark-600 rounded-lg text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">All Sections</option>
-              {Object.entries(SECTION_LABELS).map(([key, label]) => (
-                <option key={key} value={key}>{label}</option>
+              {Object.entries(SECTION_LABELS).map(([k, v]) => (
+                <option key={k} value={k}>{v}</option>
               ))}
             </select>
 
