@@ -39,7 +39,17 @@ export default function NewLessonPart() {
     setPdfFiles(filtered.length ? filtered : [{ file: null }])
   }
 
-  const handleSave = async () => {
+  const resetForm = () => {
+    setTitle('')
+    setBody('')
+    setTime('')
+    setAgeGroup('')
+    setLevel('')
+    setSectionType('')
+    setPdfFiles([{ file: null }])
+  }
+
+  const handleSave = async (mode = 'view') => {
     if (!title.trim() || !body.trim() || !sectionType) {
       alert('Please complete all required fields.')
       return
@@ -69,13 +79,8 @@ export default function NewLessonPart() {
       const data = await resp.json()
       console.log('Created lesson part:', data)
       alert('Lesson part created successfully.')
-      setTitle('')
-      setBody('')
-      setTime('')
-      setAgeGroup('')
-      setLevel('')
-      setSectionType('')
-      setPdfFiles([{ file: null }])
+
+      if (mode === 'again') resetForm()
     } catch (err) {
       console.error(err)
       alert('Failed to save lesson part. See console.')
@@ -102,7 +107,6 @@ export default function NewLessonPart() {
 
         {showForm && (
           <div className="new-lesson-form">
-
             <div className="form-group">
               <label>Section</label>
               <select
@@ -197,10 +201,17 @@ export default function NewLessonPart() {
             <div className="form-actions">
               <button
                 className="btn-save-view"
-                onClick={handleSave}
+                onClick={() => handleSave('view')}
                 disabled={saving}
               >
-                {saving ? 'Saving…' : 'Save Lesson Part'}
+                {saving ? 'Saving…' : 'Save and View'}
+              </button>
+              <button
+                className="btn-save-again"
+                onClick={() => handleSave('again')}
+                disabled={saving}
+              >
+                {saving ? 'Saving…' : 'Save and Create Again'}
               </button>
             </div>
           </div>
