@@ -3,18 +3,18 @@ import React, { useEffect, useState, useMemo } from 'react'
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 
 const SECTION_LABELS = {
-  warm_up:         'Warm Ups',
+  warm_up: 'Warm Ups',
   bridge_activity: 'Bridge Activities',
-  main_activity:   'Main Activities',
-  end_of_lesson:   'End Of Lesson',
-  script:          'Scripts',
+  main_activity: 'Main Activities',
+  end_of_lesson: 'End Of Lesson',
+  script: 'Scripts',
 }
 const SECTION_ICONS = {
-  warm_up:         '🔥',
+  warm_up: '🔥',
   bridge_activity: '🌉',
-  main_activity:   '🎭',
-  end_of_lesson:   '🏁',
-  script:          '📜',
+  main_activity: '🎭',
+  end_of_lesson: '🏁',
+  script: '📜',
 }
 
 export default function LessonPlanningNew({ onAddToPlan }) {
@@ -26,20 +26,20 @@ export default function LessonPlanningNew({ onAddToPlan }) {
     level: '',
   })
   const [sidebarParts, setSidebarParts] = useState([])
+  const [draggingType, setDraggingType] = useState(null)
 
-    useEffect(() => {
+  useEffect(() => {
     fetch('/api/lesson_planning')
-        .then(r => {
+      .then(r => {
         if (!r.ok) throw new Error(`Status ${r.status}`)
         return r.json()
-        })
-        .then(data => {
+      })
+      .then(data => {
         console.log('API call received:', data.message)
         setAllParts(data.parts || [])
-        })
-        .catch(err => console.error('Error fetching lesson parts:', err))
-    }, [])
-
+      })
+      .catch(err => console.error('Error fetching lesson parts:', err))
+  }, [])
 
   const filtered = useMemo(() => {
     return allParts.filter(p => {
@@ -53,14 +53,16 @@ export default function LessonPlanningNew({ onAddToPlan }) {
     })
   }, [allParts, filters])
 
+  function onDragStart(start) {
+    const dragged = allParts.find(p => String(p.id) === start.draggableId)
+    setDraggingType(dragged?.section_type || null)
+  }
+
   function onDragEnd(result) {
+    setDraggingType(null)
     const { source, destination, draggableId } = result
     if (!destination) return
-
-    if (
-      source.droppableId === 'parts' &&
-      destination.droppableId === 'sidebar'
-    ) {
+    if (source.droppableId === 'parts' && destination.droppableId === 'sidebar') {
       const part = allParts.find(p => String(p.id) === draggableId)
       if (part) {
         onAddToPlan(part)
@@ -69,8 +71,7 @@ export default function LessonPlanningNew({ onAddToPlan }) {
     }
   }
 
-  // compute totals
-  const totalMinutes    = sidebarParts.reduce((sum, p) => sum + (p.time || 0), 0)
+  const totalMinutes = sidebarParts.reduce((sum, p) => sum + (p.time || 0), 0)
   const totalActivities = sidebarParts.length
 
   return (
@@ -88,34 +89,57 @@ export default function LessonPlanningNew({ onAddToPlan }) {
           <div>{totalActivities} activities</div>
         </div>
 
-        {/* separator */}
         <div className="border-b border-gray-200 dark:border-dark-700 mb-6" />
 
-        <div className="space-y-6">
-          {Object.entries(SECTION_LABELS).map(([key, label]) => (
-            <div
-              key={key}
-              className="border-2 border-dashed border-gray-300 dark:border-dark-600 
-                         rounded-lg p-6 flex flex-col items-center text-center space-y-4 min-h-[14rem]"
-            >
-              <span className="text-5xl">{SECTION_ICONS[key]}</span>
-              <h3 className="font-semibold text-lg text-gray-900 dark:text-white">
-                Add {label.slice(0, -1)}
-              </h3>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                {label === 'Warm Ups'
-                  ? 'Start with an energizing activity'
-                  : label === 'Main Activities'
-                  ? 'Core learning activities'
-                  : label === 'End Of Lesson'
-                  ? 'Wrap up and reflect'
-                  : label === 'Bridge Activities'
-                  ? 'Link warm-up to main'
-                  : 'Attach scripts for actors'}
-              </p>
-            </div>
-          ))}
-        </div>
+        <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
+          <Droppable droppableId="sidebar" isDropDisabled={true}>
+            {(prov) => (
+              <div ref={prov.innerRef} {...prov.droppableProps} className="space-y-6">
+                {Object.entries(SECTION_LABELS).map(([key, label]) => (
+                  <Droppable key={key} droppableId={key}>
+                    {(provided, snapshot) => {
+                      const isMatch = draggingType === key
+                      const base =
+                        'border-2 border-dashed rounded-lg p-6 flex flex-col items-center text-center space-y-4 min-h-[14rem]'
+                      const color =
+                        snapshot.isDraggingOver
+                          ? isMatch
+                            ? 'border-blue-400 dark:border-blue-500'
+                            : 'border-red-500 dark:border-red-400'
+                          : 'border-gray-300 dark:border-dark-600'
+                      return (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.droppableProps}
+                          className={`${base} ${color}`}
+                        >
+                          <span className="text-5xl">{SECTION_ICONS[key]}</span>
+                          <h3 className="font-semibold text-lg text-gray-900 dark:text-white">
+                            Add {label.slice(0, -1)}
+                          </h3>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            {label === 'Warm Ups'
+                              ? 'Start with an energizing activity'
+                              : label === 'Main Activities'
+                              ? 'Core learning activities'
+                              : label === 'End Of Lesson'
+                              ? 'Wrap up and reflect'
+                              : label === 'Bridge Activities'
+                              ? 'Link warm-up to main'
+                              : 'Attach scripts for actors'}
+                          </p>
+                          {/* show placeholder so drop works */}
+                          {provided.placeholder}
+                        </div>
+                      )
+                    }}
+                  </Droppable>
+                ))}
+                {prov.placeholder}
+              </div>
+            )}
+          </Droppable>
+        </DragDropContext>
       </aside>
 
       {/* Main panel */}
@@ -177,9 +201,9 @@ export default function LessonPlanningNew({ onAddToPlan }) {
 
         {/* Draggable parts grid */}
         <div className="flex-1 p-4 overflow-auto">
-          <DragDropContext onDragEnd={onDragEnd}>
+          <DragDropContext onDragStart={onDragStart} onDragEnd={onDragEnd}>
             <Droppable droppableId="parts">
-              {provided => (
+              {(provided) => (
                 <div
                   ref={provided.innerRef}
                   {...provided.droppableProps}
@@ -191,7 +215,7 @@ export default function LessonPlanningNew({ onAddToPlan }) {
                       draggableId={String(p.id)}
                       index={idx}
                     >
-                      {prov => (
+                      {(prov) => (
                         <div
                           ref={prov.innerRef}
                           {...prov.draggableProps}
