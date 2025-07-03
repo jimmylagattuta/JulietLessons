@@ -93,20 +93,25 @@ export default function GenerateLesson({ lessonId = null, onClearView }) {
             <div className="lesson-star-block">
               <h1 className="lesson-title showman">{lesson.title}</h1>
             </div>
-            <div className="lesson-block alternate">
-              <h2 className="section-heading">Lesson Objective</h2>
-              <p>{lesson.objective}</p>
+            <div className="bg-white dark:bg-dark-800 border border-gray-200 dark:border-dark-700 rounded-lg shadow-sm mb-6 p-6">
+              <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
+                Lesson Objective
+              </h2>
+              <p className="text-gray-700 dark:text-gray-300">
+                {lesson.objective}
+              </p>
             </div>
+
             {/* -- At a Glance -- */}
-            <div className="lesson-block alternate">
+            <div className="bg-white dark:bg-dark-800 border border-gray-200 dark:border-dark-700 rounded-lg shadow-sm mb-6 p-6">
               <h2
-                className="section-heading glance-toggle"
+                className="text-xl font-bold text-gray-900 dark:text-white cursor-pointer select-none flex justify-between"
                 onClick={() => setShowGlance(!showGlance)}
               >
-                At a Glance {showGlance ? '▲' : '▼'}
+                At a Glance <span>{showGlance ? '▲' : '▼'}</span>
               </h2>
               {showGlance && (
-                <ul className="lesson-parts-list">
+                <ul className="mt-4 space-y-2 list-disc list-inside text-gray-700 dark:text-gray-300">
                   {lesson.at_a_glance.map((item, idx) => (
                     <li key={idx}>{item}</li>
                   ))}
@@ -116,181 +121,187 @@ export default function GenerateLesson({ lessonId = null, onClearView }) {
 
             {/* -- Warm Ups -- */}
             {warmUps.length > 0 && (
-              <div className="lesson-block">
+              <div className="bg-white dark:bg-dark-800 border border-gray-200 dark:border-dark-700 rounded-lg shadow-sm mb-6 p-6">
                 <h2
-                  className="section-heading glance-toggle"
+                  className="text-xl font-bold text-gray-900 dark:text-white cursor-pointer select-none flex justify-between"
                   onClick={() => setShowWarmUps(!showWarmUps)}
                 >
-                  Warm Ups — {totalWarmUpTime} min {showWarmUps ? '▲' : '▼'}
+                  Warm Ups — {totalWarmUpTime} min <span>{showWarmUps ? '▲' : '▼'}</span>
                 </h2>
                 {showWarmUps && (
-                  <ul className="lesson-parts-list">
+                  <ul className="mt-4 space-y-4 text-gray-700 dark:text-gray-300">
                     {sortByPosition(warmUps).map((wp, i) => (
                       <li key={i}>
                         <strong>Part {i + 1}:</strong> {wp.title}
-                        {wp.body && <p className="part-body">{wp.body}</p>}
+                        {wp.body && <p className="mt-1 italic text-gray-600 dark:text-gray-400">{wp.body}</p>}
                       </li>
                     ))}
                   </ul>
                 )}
-                {sortByPosition(warmUps).map((wp, i) =>
-                  wp.file_infos?.map((file, j) => (
-                    <div className="pdf-button-wrapper" key={`warmup-pdf-${i}-${j}`}>
+                {/* PDF buttons */}
+                <div className="mt-4 space-y-2">
+                  {sortByPosition(warmUps).flatMap((wp, i) =>
+                    (wp.file_infos || []).map((file, j) => (
                       <a
+                        key={`warmup-pdf-${i}-${j}`}
                         href={file.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="pdf-button"
+                        className="inline-flex items-center bg-gradient-to-r from-blue-600 to-teal-600 hover:from-blue-700 hover:to-teal-700 text-white px-4 py-2 rounded-md transition-colors"
                       >
                         📄 {file.filename}
                       </a>
-                    </div>
-                  ))
-                )}
+                    ))
+                  )}
+                </div>
               </div>
             )}
 
             {/* -- Bridge Activities -- */}
             {bridgeParts.length > 0 && (
-              <div className="lesson-block">
+              <div className="bg-white dark:bg-dark-800 border border-gray-200 dark:border-dark-700 rounded-lg shadow-sm mb-6 p-6">
                 <h2
-                  className="section-heading glance-toggle"
+                  className="text-xl font-bold text-gray-900 dark:text-white cursor-pointer select-none flex justify-between"
                   onClick={() => setShowBridge(!showBridge)}
                 >
-                  Bridge Activities — {totalBridgeTime} min {showBridge ? '▲' : '▼'}
+                  Bridge Activities — {totalBridgeTime} min <span>{showBridge ? '▲' : '▼'}</span>
                 </h2>
                 {showBridge && (
-                  <ul className="lesson-parts-list">
+                  <ul className="mt-4 space-y-4 text-gray-700 dark:text-gray-300">
                     {sortByPosition(bridgeParts).map((bp, i) => (
                       <li key={i}>
                         <strong>Part {i + 1}:</strong> {bp.title}
-                        {bp.body && <p className="part-body">{bp.body}</p>}
+                        {bp.body && <p className="mt-1 italic text-gray-600 dark:text-gray-400">{bp.body}</p>}
                       </li>
                     ))}
                   </ul>
                 )}
-                {sortByPosition(bridgeParts).map((bp, i) =>
-                  bp.file_infos?.map((file, j) => (
-                    <div className="pdf-button-wrapper" key={`bridge-pdf-${i}-${j}`}>
+                <div className="mt-4 space-y-2">
+                  {sortByPosition(bridgeParts).flatMap((bp, i) =>
+                    (bp.file_infos || []).map((file, j) => (
                       <a
+                        key={`bridge-pdf-${i}-${j}`}
                         href={file.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="pdf-button"
+                        className="inline-flex items-center bg-gradient-to-r from-blue-600 to-teal-600 hover:from-blue-700 hover:to-teal-700 text-white px-4 py-2 rounded-md transition-colors"
                       >
                         📄 {file.filename}
                       </a>
-                    </div>
-                  ))
-                )}
+                    ))
+                  )}
+                </div>
               </div>
             )}
 
             {/* -- Main Activities -- */}
             {mainActivities.length > 0 && (
-              <div className="lesson-block">
+              <div className="bg-white dark:bg-dark-800 border border-gray-200 dark:border-dark-700 rounded-lg shadow-sm mb-6 p-6">
                 <h2
-                  className="section-heading glance-toggle"
+                  className="text-xl font-bold text-gray-900 dark:text-white cursor-pointer select-none flex justify-between"
                   onClick={() => setShowMain(!showMain)}
                 >
-                  Main Activities — {totalMainTime} min {showMain ? '▲' : '▼'}
+                  Main Activities — {totalMainTime} min <span>{showMain ? '▲' : '▼'}</span>
                 </h2>
                 {showMain && (
-                  <ul className="lesson-parts-list">
+                  <ul className="mt-4 space-y-4 text-gray-700 dark:text-gray-300">
                     {sortByPosition(mainActivities).map((mp, i) => (
                       <li key={i}>
                         <strong>Part {i + 1}:</strong> {mp.title}
-                        {mp.body && <p className="part-body">{mp.body}</p>}
+                        {mp.body && <p className="mt-1 italic text-gray-600 dark:text-gray-400">{mp.body}</p>}
                       </li>
                     ))}
                   </ul>
                 )}
-                {sortByPosition(mainActivities).map((mp, i) =>
-                  mp.file_infos?.map((file, j) => (
-                    <div className="pdf-button-wrapper" key={`main-pdf-${i}-${j}`}>
+                <div className="mt-4 space-y-2">
+                  {sortByPosition(mainActivities).flatMap((mp, i) =>
+                    (mp.file_infos || []).map((file, j) => (
                       <a
+                        key={`main-pdf-${i}-${j}`}
                         href={file.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="pdf-button"
+                        className="inline-flex items-center bg-gradient-to-r from-blue-600 to-teal-600 hover:from-blue-700 hover:to-teal-700 text-white px-4 py-2 rounded-md transition-colors"
                       >
                         📄 {file.filename}
                       </a>
-                    </div>
-                  ))
-                )}
+                    ))
+                  )}
+                </div>
               </div>
             )}
 
             {/* -- End of Lesson -- */}
             {endActivities.length > 0 && (
-              <div className="lesson-block">
+              <div className="bg-white dark:bg-dark-800 border border-gray-200 dark:border-dark-700 rounded-lg shadow-sm mb-6 p-6">
                 <h2
-                  className="section-heading glance-toggle"
+                  className="text-xl font-bold text-gray-900 dark:text-white cursor-pointer select-none flex justify-between"
                   onClick={() => setShowEnd(!showEnd)}
                 >
-                  End of Lesson — {totalEndTime} min {showEnd ? '▲' : '▼'}
+                  End of Lesson — {totalEndTime} min <span>{showEnd ? '▲' : '▼'}</span>
                 </h2>
                 {showEnd && (
-                  <ul className="lesson-parts-list">
+                  <ul className="mt-4 space-y-4 text-gray-700 dark:text-gray-300">
                     {sortByPosition(endActivities).map((ep, i) => (
                       <li key={i}>
                         <strong>Part {i + 1}:</strong> {ep.title}
-                        {ep.body && <p className="part-body">{ep.body}</p>}
+                        {ep.body && <p className="mt-1 italic text-gray-600 dark:text-gray-400">{ep.body}</p>}
                       </li>
                     ))}
                   </ul>
                 )}
-                {sortByPosition(endActivities).map((ep, i) =>
-                  ep.file_infos?.map((file, j) => (
-                    <div className="pdf-button-wrapper" key={`end-pdf-${i}-${j}`}>
+                <div className="mt-4 space-y-2">
+                  {sortByPosition(endActivities).flatMap((ep, i) =>
+                    (ep.file_infos || []).map((file, j) => (
                       <a
+                        key={`end-pdf-${i}-${j}`}
                         href={file.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="pdf-button"
+                        className="inline-flex items-center bg-gradient-to-r from-blue-600 to-teal-600 hover:from-blue-700 hover:to-teal-700 text-white px-4 py-2 rounded-md transition-colors"
                       >
                         📄 {file.filename}
                       </a>
-                    </div>
-                  ))
-                )}
+                    ))
+                  )}
+                </div>
               </div>
             )}
 
             {/* -- Scripts -- */}
             {scripts.length > 0 && (
-              <div className="lesson-block">
+              <div className="bg-white dark:bg-dark-800 border border-gray-200 dark:border-dark-700 rounded-lg shadow-sm mb-6 p-6">
                 <h2
-                  className="section-heading glance-toggle"
+                  className="text-xl font-bold text-gray-900 dark:text-white cursor-pointer select-none flex justify-between"
                   onClick={() => setShowScripts(!showScripts)}
                 >
-                  Scripts {showScripts ? '▲' : '▼'}
+                  Scripts <span>{showScripts ? '▲' : '▼'}</span>
                 </h2>
                 {showScripts && (
-                  <ul className="lesson-parts-list">
+                  <ul className="mt-4 space-y-4 text-gray-700 dark:text-gray-300">
                     {sortByPosition(scripts).map((sp, i) => (
                       <li key={i}>
                         <strong>Part {i + 1}:</strong> {sp.title}
-                        {sp.body && <p className="part-body">{sp.body}</p>}
+                        {sp.body && <p className="mt-1 italic text-gray-600 dark:text-gray-400">{sp.body}</p>}
                       </li>
                     ))}
                   </ul>
                 )}
-                {sortByPosition(scripts).map((sp, i) =>
-                  sp.file_infos?.map((file, j) => (
-                    <div className="pdf-button-wrapper" key={`script-pdf-${i}-${j}`}>
+                <div className="mt-4 space-y-2">
+                  {sortByPosition(scripts).flatMap((sp, i) =>
+                    (sp.file_infos || []).map((file, j) => (
                       <a
+                        key={`script-pdf-${i}-${j}`}
                         href={file.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="pdf-button"
+                        className="inline-flex items-center bg-gradient-to-r from-blue-600 to-teal-600 hover:from-blue-700 hover:to-teal-700 text-white px-4 py-2 rounded-md transition-colors"
                       >
                         📄 {file.filename}
                       </a>
-                    </div>
-                  ))
-                )}
+                    ))
+                  )}
+                </div>
               </div>
             )}
           </div>
