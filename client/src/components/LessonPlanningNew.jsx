@@ -2,6 +2,21 @@
 import React, { useEffect, useState, useMemo } from 'react'
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
 
+const SECTION_LABELS = {
+  warm_up:         'Warm Ups',
+  bridge_activity: 'Bridge Activities',
+  main_activity:   'Main Activities',
+  end_of_lesson:   'End Of Lesson',
+  script:          'Scripts',
+};
+const SECTION_ICONS = {
+  warm_up:         '🔥',
+  bridge_activity: '🌉',
+  main_activity:   '🎭',
+  end_of_lesson:   '🏁',
+  script:          '📜',
+};
+
 export default function LessonPlanningNew({ onAddToPlan }) {
   const [allParts, setAllParts] = useState([])
   const [filters, setFilters] = useState({
@@ -57,71 +72,57 @@ export default function LessonPlanningNew({ onAddToPlan }) {
   return (
     <div className="flex flex-1 overflow-hidden bg-gray-50 dark:bg-dark-900 transition-colors duration-200">
       {/* Sidebar */}
-      <aside className="w-64 bg-white dark:bg-dark-800 border-r border-gray-200 dark:border-dark-700 p-4 overflow-auto flex flex-col">
-        <div className="flex items-center justify-between mb-2">
-          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+        <aside className="w-80 bg-white dark:bg-dark-800 border-r border-gray-200 dark:border-dark-700 p-6 overflow-auto flex flex-col">
+        <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
             Lesson Plan
-          </h2>
-          <button className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors">
+            </h2>
+            <button className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
             ←
-          </button>
+            </button>
         </div>
-        <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 space-x-4 mb-4">
-          <div>{totalMinutes} min</div>
-          <div>{totalActivities} activities</div>
+
+        <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 space-x-6 mb-6">
+            <div>{sidebarParts.reduce((sum, p) => sum + (p.time||0), 0)} min</div>
+            <div>{sidebarParts.length} activities</div>
         </div>
+
         <button
-          className="w-full mb-6 bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white font-medium py-2 rounded-lg transition-colors"
-          onClick={() => {}}
+            className="w-full mb-8 bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white font-medium py-3 rounded-lg"
+            onClick={() => {/* view activities */}}
         >
-          View Activities
+            View Activities
         </button>
 
-        {/* Sections */}
         <div className="space-y-6">
-          {/* Warm-up */}
-          <div className="border-2 border-dashed border-gray-300 dark:border-dark-600 rounded-lg p-4 flex flex-col items-center text-center space-y-2">
-            <span className="text-3xl">🔥</span>
-            <h3 className="font-medium text-gray-900 dark:text-white">
-              Add Warm-up
-            </h3>
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              Start with an energizing activity
-            </p>
-            <button className="text-pink-500 dark:text-pink-400 hover:underline text-sm">
-              + Add Activity
-            </button>
-          </div>
-
-          {/* Main Activities */}
-          <div className="border-2 border-dashed border-gray-300 dark:border-dark-600 rounded-lg p-4 flex flex-col items-center text-center space-y-2">
-            <span className="text-3xl">🎭</span>
-            <h3 className="font-medium text-gray-900 dark:text-white">
-              Add Main Activity
-            </h3>
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              Core learning activities
-            </p>
-            <button className="text-pink-500 dark:text-pink-400 hover:underline text-sm">
-              + Add Activity
-            </button>
-          </div>
-
-          {/* Cool-down */}
-          <div className="border-2 border-dashed border-gray-300 dark:border-dark-600 rounded-lg p-4 flex flex-col items-center text-center space-y-2">
-            <span className="text-3xl">❄️</span>
-            <h3 className="font-medium text-gray-900 dark:text-white">
-              Add Cool-down
-            </h3>
-            <p className="text-xs text-gray-500 dark:text-gray-400">
-              Wrap up and reflect
-            </p>
-            <button className="text-pink-500 dark:text-pink-400 hover:underline text-sm">
-              + Add Activity
-            </button>
-          </div>
+            {Object.entries(SECTION_LABELS).map(([key, label]) => (
+            <div
+                key={key}
+                className="border-2 border-dashed border-gray-300 dark:border-dark-600 rounded-lg 
+                        p-6 flex flex-col items-center text-center space-y-4 min-h-[14rem]"
+            >
+                <span className="text-5xl">{SECTION_ICONS[key]}</span>
+                <h3 className="font-semibold text-lg text-gray-900 dark:text-white">
+                Add {label.slice(0, -1)}
+                </h3>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                {label === 'Warm Ups'
+                    ? 'Start with an energizing activity'
+                    : label === 'Main Activities'
+                    ? 'Core learning activities'
+                    : label === 'End Of Lesson'
+                    ? 'Wrap up and reflect'
+                    : label === 'Bridge Activities'
+                    ? 'Link warm-up to main'
+                    : 'Attach scripts for actors'}
+                </p>
+                <button className="text-pink-500 dark:text-pink-400 hover:underline text-sm">
+                + Add {label.slice(0, -1)}
+                </button>
+            </div>
+            ))}
         </div>
-      </aside>
+        </aside>
 
       {/* Main panel */}
       <div className="flex-1 flex flex-col overflow-hidden">
