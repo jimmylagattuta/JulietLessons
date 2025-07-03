@@ -10,7 +10,9 @@ Rails.application.routes.draw do
     resources :lessons, only: [:create, :show] do
       get :random, on: :collection
     end
-
+    resources :scripts, only: %i[index show create update destroy] do
+      post :upload, on: :member
+    end
     # Lesson parts
     resources :lesson_parts, only: [:create]
 

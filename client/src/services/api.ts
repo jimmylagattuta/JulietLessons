@@ -22,7 +22,7 @@ export class ApiService {
     const token = AuthService.getAuthToken();
     return {
       ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
-      "ngrok-skip-browser-warning": "69420",
+      // "ngrok-skip-browser-warning": "69420",
       ...(token ? { 'Authorization': `Bearer ${token}` } : {})
     };
   }
