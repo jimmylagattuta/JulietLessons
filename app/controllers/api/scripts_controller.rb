@@ -3,7 +3,6 @@
 module Api
   class ScriptsController < ApplicationController
     # skip CSRF since we’re just stubbing JSON
-    skip_before_action :verify_authenticity_token, if: -> { request.format.json? }
 
     # GET /api/scripts
     def index
