@@ -1,4 +1,3 @@
-// src/components/LessonPlanningNew.jsx
 import React, { useEffect, useState, useMemo } from 'react'
 import {
   DragDropContext,
@@ -27,10 +26,16 @@ export default function LessonPlanningNew({ onAddToPlan }) {
   const [filters, setFilters] = useState({
     section: '', ageGroup: '', level: '', search: ''
   })
-  const [sidebarParts, setSidebarParts] = useState([])
   const [draggingType, setDraggingType] = useState(null)
   const [invalidDrop, setInvalidDrop] = useState(false)
   const [invalidSection, setInvalidSection] = useState('')
+  const [sectionParts, setSectionParts] = useState({
+    warm_up: [],
+    bridge_activity: [],
+    main_activity: [],
+    end_of_lesson: [],
+    script: [],
+  })
 
   useEffect(() => {
     fetch('/api/lesson_planning')
@@ -41,14 +46,6 @@ export default function LessonPlanningNew({ onAddToPlan }) {
       .then(data => setAllParts(data.parts || []))
       .catch(err => console.error(err))
   }, [])
-
-    const [sectionParts, setSectionParts] = useState({
-    warm_up: [],
-    bridge_activity: [],
-    main_activity: [],
-    end_of_lesson: [],
-    script: [],
-    })
 
   const filtered = useMemo(() => {
     return allParts.filter(p => {
@@ -79,7 +76,6 @@ export default function LessonPlanningNew({ onAddToPlan }) {
     if (Object.keys(SECTION_LABELS).includes(dest)) {
       if (dest !== draggingType) {
         setInvalidDrop(true)
-        // use the dragging part's own section label here:
         setInvalidSection(SECTION_LABELS[draggingType])
       } else {
         setInvalidDrop(false)
@@ -102,19 +98,15 @@ export default function LessonPlanningNew({ onAddToPlan }) {
       Object.keys(SECTION_LABELS).includes(destination?.droppableId)
     ) {
       const part = allParts.find(p => String(p.id) === draggableId)
-    if (part && destination.droppableId === part.section_type) {
-    onAddToPlan(part)
-    setSectionParts(prev => ({
-        ...prev,
-        [destination.droppableId]: [...prev[destination.droppableId], part]
-    }))
-    }
-
+      if (part && destination.droppableId === part.section_type) {
+        onAddToPlan(part)
+        setSectionParts(prev => ({
+          ...prev,
+          [destination.droppableId]: [...prev[destination.droppableId], part]
+        }))
+      }
     }
   }
-
-  const totalMinutes    = sidebarParts.reduce((sum, p) => sum + (p.time||0), 0)
-  const totalActivities = sidebarParts.length
 
   return (
     <DragDropContext
@@ -133,10 +125,7 @@ export default function LessonPlanningNew({ onAddToPlan }) {
               ←
             </button>
           </div>
-          <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 space-x-6 mb-4">
-            <div>{totalMinutes} min</div>
-            <div>{totalActivities} activities</div>
-          </div>
+
           <div className="border-b border-gray-200 dark:border-dark-700 mb-6" />
 
           <div className="space-y-6">
@@ -146,7 +135,7 @@ export default function LessonPlanningNew({ onAddToPlan }) {
                   const isMatchZone = draggingType === key
                   const highlight = snapshot.isDraggingOver
                     ? isMatchZone
-                      ? 'border-blue-400 dark:border-blue-500'
+                      ? 'border-green-500 dark:border-green-400'
                       : 'border-red-500 dark:border-red-400'
                     : 'border-gray-300 dark:border-dark-600'
 
@@ -171,14 +160,21 @@ export default function LessonPlanningNew({ onAddToPlan }) {
                          : key === 'end_of_lesson'   ? 'Wrap up and reflect'
                          :                             'Attach scripts for actors'}
                       </p>
+
+                      {/* Render added parts */}
+                      <div className="w-full space-y-2">
                         {sectionParts[key].map((p, idx) => (
-                            <div key={p.id} className="w-full bg-green-50 dark:bg-green-900 p-2 rounded shadow text-sm text-left">
-                                <strong>{p.title}</strong>
-                                <div className="text-xs text-gray-500 dark:text-gray-400">
-                                {p.age_group} · {p.level}
-                                </div>
+                          <div
+                            key={p.id}
+                            className="w-full bg-green-50 dark:bg-green-900 p-2 rounded shadow text-sm text-left"
+                          >
+                            <strong>{p.title}</strong>
+                            <div className="text-xs text-gray-500 dark:text-gray-400">
+                              {p.age_group} · {p.level}
                             </div>
+                          </div>
                         ))}
+                      </div>
 
                       {provided.placeholder}
                     </div>
