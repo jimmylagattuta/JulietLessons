@@ -11,12 +11,12 @@ class LessonPart < ApplicationRecord
     script: 4
   }
 
-  AGE_GROUPS = ['young', 'middle', 'older', 'all'].freeze
+  AGE_GROUPS = ['Young', 'Middle', 'Older', 'All'].freeze
   LEVELS = [
     'Toe Tipper',
     'Green Horn',
     'Semi-Pro',
-    'Seasoned Veteran'
+    'Seasoned Veteran(all)'
   ].freeze
 
   validates :age_group, inclusion: { in: AGE_GROUPS, allow_blank: true }
