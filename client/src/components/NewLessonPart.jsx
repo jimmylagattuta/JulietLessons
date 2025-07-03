@@ -103,7 +103,9 @@ export default function NewLessonPart() {
           onClick={!showForm ? handleHeaderClick : undefined}
           role={!showForm ? 'button' : undefined}
           tabIndex={!showForm ? 0 : undefined}
-          onKeyPress={e => !showForm && e.key === 'Enter' && handleHeaderClick()}
+          onKeyPress={e =>
+            !showForm && e.key === 'Enter' && handleHeaderClick()
+          }
         >
           {!showForm && <button className="new-lesson-add">+</button>}
           <h1 className="new-lesson-title">
@@ -114,6 +116,7 @@ export default function NewLessonPart() {
         {/* Form */}
         {showForm && (
           <div className="new-lesson-form">
+            {/* Always-visible: Section selector */}
             <div className="form-group">
               <label>Section</label>
               <select
@@ -129,104 +132,109 @@ export default function NewLessonPart() {
               </select>
             </div>
 
-            <div className="form-group">
-              <label>Title</label>
-              <input
-                type="text"
-                value={title}
-                onChange={e => setTitle(e.target.value)}
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Body</label>
-              <textarea
-                rows={3}
-                value={body}
-                onChange={e => setBody(e.target.value)}
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Time (minutes)</label>
-              <input
-                type="number"
-                value={time}
-                onChange={e => setTime(e.target.value)}
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Age Group</label>
-              <select
-                value={ageGroup}
-                onChange={e => setAgeGroup(e.target.value)}
-              >
-                <option value="">Select Age Group…</option>
-                {AGE_GROUPS.map(g => (
-                  <option key={g} value={g}>
-                    {g}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label>Level</label>
-              <select
-                value={level}
-                onChange={e => setLevel(e.target.value)}
-              >
-                <option value="">Select Level…</option>
-                {LEVELS.map(l => (
-                  <option key={l} value={l}>
-                    {l}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="lesson-part-files">
-              <label>Attachments (PDF)</label>
-              {pdfFiles.map((slot, i) => (
-                <div className="pdf-slot" key={i}>
+            {/* Only show the rest once a section is chosen */}
+            {sectionType && (
+              <>
+                <div className="form-group">
+                  <label>Title</label>
                   <input
-                    type="file"
-                    accept="application/pdf"
-                    onChange={e => handlePdfChange(i, e.target.files)}
+                    type="text"
+                    value={title}
+                    onChange={e => setTitle(e.target.value)}
                   />
-                  {slot.file && (
-                    <div className="pdf-title">
-                      {slot.file.name}
-                      <button
-                        type="button"
-                        className="pdf-remove"
-                        onClick={() => handleRemovePdf(i)}
-                      >
-                        ✕
-                      </button>
-                    </div>
-                  )}
                 </div>
-              ))}
-            </div>
 
-            <div className="form-actions">
-              <button
-                className="btn-save-view"
-                onClick={() => handleSave('view')}
-                disabled={saving}
-              >
-                {saving ? 'Saving…' : 'Save and View'}
-              </button>
-              <button
-                className="btn-save-again"
-                onClick={() => handleSave('again')}
-                disabled={saving}
-              >
-                {saving ? 'Saving…' : 'Save and Create Again'}
-              </button>
-            </div>
+                <div className="form-group">
+                  <label>Body</label>
+                  <textarea
+                    rows={3}
+                    value={body}
+                    onChange={e => setBody(e.target.value)}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Time (minutes)</label>
+                  <input
+                    type="number"
+                    value={time}
+                    onChange={e => setTime(e.target.value)}
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label>Age Group</label>
+                  <select
+                    value={ageGroup}
+                    onChange={e => setAgeGroup(e.target.value)}
+                  >
+                    <option value="">Select Age Group…</option>
+                    {AGE_GROUPS.map(g => (
+                      <option key={g} value={g}>
+                        {g}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="form-group">
+                  <label>Level</label>
+                  <select
+                    value={level}
+                    onChange={e => setLevel(e.target.value)}
+                  >
+                    <option value="">Select Level…</option>
+                    {LEVELS.map(l => (
+                      <option key={l} value={l}>
+                        {l}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="lesson-part-files">
+                  <label>Attachments (PDF)</label>
+                  {pdfFiles.map((slot, i) => (
+                    <div className="pdf-slot" key={i}>
+                      <input
+                        type="file"
+                        accept="application/pdf"
+                        onChange={e => handlePdfChange(i, e.target.files)}
+                      />
+                      {slot.file && (
+                        <div className="pdf-title">
+                          {slot.file.name}
+                          <button
+                            type="button"
+                            className="pdf-remove"
+                            onClick={() => handleRemovePdf(i)}
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                <div className="form-actions">
+                  <button
+                    className="btn-save-view"
+                    onClick={() => handleSave('view')}
+                    disabled={saving}
+                  >
+                    {saving ? 'Saving…' : 'Save and View'}
+                  </button>
+                  <button
+                    className="btn-save-again"
+                    onClick={() => handleSave('again')}
+                    disabled={saving}
+                  >
+                    {saving ? 'Saving…' : 'Save and Create Again'}
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         )}
       </div>
