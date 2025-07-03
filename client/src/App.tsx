@@ -79,6 +79,7 @@ import { AuthService } from './services/auth';
 import { StripeService } from './services/stripe';
 import GenerateLesson from './components/GenerateLesson';
 import NewLessonPart from './components/NewLessonPart';
+import LessonPlanningNew from './components/LessonPlanningNew';
 
 // Types
 import {
