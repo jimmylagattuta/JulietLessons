@@ -2,7 +2,7 @@ import { User, LoginCredentials, RegisterData, UserStats, UserFilters } from '..
 import { StripeService } from './stripe';
 
 // const API_URL = 'http://52.15.159.45:3001/api'  // Production
-const API_URL = 'https://5872-35-78-107-144.ngrok-free.app/api'  // Production
+const API_URL = '/api'  // Production
 // const API_URL = 'http://localhost:3001/api';
 
  export class AuthService {
