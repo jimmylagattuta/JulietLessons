@@ -57,7 +57,6 @@ export default function LessonPlanningNew({ onAddToPlan }) {
   function onDragStart(start) {
     const part = allParts.find(p => String(p.id) === start.draggableId)
     setDraggingType(part?.section_type || null)
-    // reset any previous invalid state
     setInvalidDrop(false)
     setInvalidSection('')
   }
@@ -72,7 +71,8 @@ export default function LessonPlanningNew({ onAddToPlan }) {
     if (Object.keys(SECTION_LABELS).includes(dest)) {
       if (dest !== draggingType) {
         setInvalidDrop(true)
-        setInvalidSection(SECTION_LABELS[dest])
+        // use the dragging part's own section label here:
+        setInvalidSection(SECTION_LABELS[draggingType])
       } else {
         setInvalidDrop(false)
         setInvalidSection('')
@@ -204,9 +204,7 @@ export default function LessonPlanningNew({ onAddToPlan }) {
               <option value="Toe Tipper">Toe Tipper</option>
               <option value="Green Horn">Green Horn</option>
               <option value="Semi-Pro">Semi-Pro</option>
-              <option value="Seasoned Veteran(all)">
-                Seasoned Veteran(all)
-              </option>
+              <option value="Seasoned Veteran(all)">Seasoned Veteran(all)</option>
             </select>
 
             <input
@@ -240,7 +238,6 @@ export default function LessonPlanningNew({ onAddToPlan }) {
                           {...providedDr.dragHandleProps}
                           className="relative p-4 bg-white dark:bg-dark-800 rounded-lg border border-gray-200 dark:border-dark-700 shadow-sm cursor-pointer transition-colors duration-200"
                         >
-                          {/* if this card is being dragged and invalidDrop=true, show tooltip here */}
                           {snapshotDr.isDragging && invalidDrop && (
                             <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-red-600 text-white text-sm px-3 py-1 rounded shadow-lg">
                               Must drop into “{invalidSection}”
