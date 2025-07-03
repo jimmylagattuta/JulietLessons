@@ -12,7 +12,6 @@ export default function LessonPlanningNew({ onAddToPlan }) {
   })
   const [sidebarParts, setSidebarParts] = useState([])
 
-  // load your parts (for now just logging)
   useEffect(() => {
     fetch('/api/lesson_planning')
       .then(r => r.json())
@@ -51,28 +50,77 @@ export default function LessonPlanningNew({ onAddToPlan }) {
     }
   }
 
+  // compute totals
+  const totalMinutes = sidebarParts.reduce((sum, p) => sum + (p.time || 0), 0)
+  const totalActivities = sidebarParts.length
+
   return (
     <div className="flex flex-1 overflow-hidden bg-gray-50 dark:bg-dark-900 transition-colors duration-200">
       {/* Sidebar */}
-      <aside className="w-64 bg-white dark:bg-dark-800 border-r border-gray-200 dark:border-dark-700 p-4 overflow-auto">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          Current Lesson
-        </h2>
-        <ul className="space-y-3">
-          {sidebarParts.map(p => (
-            <li
-              key={p.id}
-              className="p-3 bg-gray-100 dark:bg-dark-700 rounded-lg shadow-sm"
-            >
-              <h3 className="font-medium text-gray-900 dark:text-white">
-                {p.title}
-              </h3>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                {p.section_type}
-              </p>
-            </li>
-          ))}
-        </ul>
+      <aside className="w-64 bg-white dark:bg-dark-800 border-r border-gray-200 dark:border-dark-700 p-4 overflow-auto flex flex-col">
+        <div className="flex items-center justify-between mb-2">
+          <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
+            Lesson Plan
+          </h2>
+          <button className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 transition-colors">
+            ←
+          </button>
+        </div>
+        <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 space-x-4 mb-4">
+          <div>{totalMinutes} min</div>
+          <div>{totalActivities} activities</div>
+        </div>
+        <button
+          className="w-full mb-6 bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white font-medium py-2 rounded-lg transition-colors"
+          onClick={() => {}}
+        >
+          View Activities
+        </button>
+
+        {/* Sections */}
+        <div className="space-y-6">
+          {/* Warm-up */}
+          <div className="border-2 border-dashed border-gray-300 dark:border-dark-600 rounded-lg p-4 flex flex-col items-center text-center space-y-2">
+            <span className="text-3xl">🔥</span>
+            <h3 className="font-medium text-gray-900 dark:text-white">
+              Add Warm-up
+            </h3>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              Start with an energizing activity
+            </p>
+            <button className="text-pink-500 dark:text-pink-400 hover:underline text-sm">
+              + Add Activity
+            </button>
+          </div>
+
+          {/* Main Activities */}
+          <div className="border-2 border-dashed border-gray-300 dark:border-dark-600 rounded-lg p-4 flex flex-col items-center text-center space-y-2">
+            <span className="text-3xl">🎭</span>
+            <h3 className="font-medium text-gray-900 dark:text-white">
+              Add Main Activity
+            </h3>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              Core learning activities
+            </p>
+            <button className="text-pink-500 dark:text-pink-400 hover:underline text-sm">
+              + Add Activity
+            </button>
+          </div>
+
+          {/* Cool-down */}
+          <div className="border-2 border-dashed border-gray-300 dark:border-dark-600 rounded-lg p-4 flex flex-col items-center text-center space-y-2">
+            <span className="text-3xl">❄️</span>
+            <h3 className="font-medium text-gray-900 dark:text-white">
+              Add Cool-down
+            </h3>
+            <p className="text-xs text-gray-500 dark:text-gray-400">
+              Wrap up and reflect
+            </p>
+            <button className="text-pink-500 dark:text-pink-400 hover:underline text-sm">
+              + Add Activity
+            </button>
+          </div>
+        </div>
       </aside>
 
       {/* Main panel */}
