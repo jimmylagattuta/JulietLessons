@@ -7,6 +7,10 @@ module Api
       user.is_active = true
 
       if user.save
+        # same JWT logic as in SessionsController
+        payload = { user_id: user.id, exp: 24.hours.from_now.to_i }
+        token   = JWT.encode(payload, Rails.application.secret_key_base)
+
         render json: {
           user: {
             id:           user.id,
@@ -19,7 +23,8 @@ module Api
             lastLoginAt:  user.last_login_at,
             createdAt:    user.created_at,
             updatedAt:    user.updated_at
-          }
+          },
+          token: token
         }, status: :created
       else
         render json: { error: user.errors.full_messages.join(", ") },
@@ -29,7 +34,7 @@ module Api
 
     private
 
-    # Permit the incoming camelCase params and map to snake_case
+    # accept the same camelCase keys the front-end sends…
     def user_params
       raw = params.permit(
         :email,
