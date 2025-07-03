@@ -78,7 +78,7 @@ import { ApiService } from './services/api';
 import { AuthService } from './services/auth';
 import { StripeService } from './services/stripe';
 import GenerateLesson from './components/GenerateLesson';
-import NewLesson from './components/NewLesson';
+import NewLessonPart from './components/NewLessonPart';
 
 // Types
 import {
@@ -1246,7 +1246,7 @@ function App() {0
         )}
 
         {activeTab === 'newLesson' && (
-            <NewLesson
+            <NewLessonPart
               onSwitch={setActiveTab}
               onSaveAndView={handleViewSavedLesson}
             />
