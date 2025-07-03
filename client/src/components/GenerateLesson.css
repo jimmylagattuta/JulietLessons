@@ -1,4 +1,5 @@
-/* GenerateLesson.css */
+/* src/components/GenerateLesson.css */
+
 .lesson-page {
   display: flex;
   height: 100vh;
@@ -14,15 +15,9 @@
   align-items: center;
   justify-content: center;
   padding: 1rem;
+  flex-shrink: 0;
 }
 
-/* Placeholder text before lesson loads */
-.sidebar-placeholder {
-  font-size: 1.5rem;
-  color: rgba(255, 255, 255, 0.7);
-}
-
-/* Generate/Generate Again button */
 .sidebar-generate-btn {
   background: linear-gradient(to right, #9333ea, #6b21a8);
   color: white;
@@ -32,12 +27,13 @@
   border-radius: 0.5rem;
   cursor: pointer;
   transition: background 0.2s ease;
+  width: 100%;
+  text-align: center;
 }
 
 .sidebar-generate-btn:hover:not(:disabled) {
   background: linear-gradient(to right, #7e22ce, #581c87);
 }
-
 .sidebar-generate-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
@@ -45,23 +41,27 @@
 
 .lesson-content {
   flex: 1;
-  position: relative;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;          /* allow inner scrolling */
   background: url('https://res.cloudinary.com/djtsuktwb/image/upload/v1751521032/ChatGPT_Image_Jul_2_2025_10_29_03_PM_1_ad024u.jpg')
     no-repeat center center fixed;
   background-size: cover;
-  background-position: center;
+  overflow: hidden;
+}
+
+.lesson-details {
+  flex: 1;
   overflow-y: auto;
   padding: 2rem;
-  box-sizing: border-box;
 }
 
 .generate-box {
-  max-width: 600px;
-  margin: 4rem auto;
-  background: rgba(255, 255, 255, 0.9);
-  padding: 2rem;
-  border-radius: 8px;
-  text-align: center;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
 .generate-title {
@@ -81,28 +81,8 @@
   transition: all 0.2s ease;
 }
 
-.generate-button:hover {
+.generate-button:hover:not(:disabled) {
   background: linear-gradient(to right, #7e22ce, #581c87);
-}
-
-.lesson-details {
-  max-width: 800px;
-  margin: auto;
-}
-
-.lesson-star-block {
-  background: #ffffff;
-  border-radius: 8px;
-  animation: starbeam 4s infinite alternate;
-}
-
-@keyframes starbeam {
-  0% {
-    box-shadow: -30px 0 40px rgba(255, 255, 255, 0.3);
-  }
-  100% {
-    box-shadow: 30px 0 40px rgba(255, 255, 255, 0.3);
-  }
 }
 
 .lesson-block {
@@ -115,47 +95,6 @@
 .lesson-block.alternate {
   background: #f1f5f9;
 }
-
-.lesson-title {
-  font-size: 2.5rem;
-  margin-bottom: 1.5rem;
-  color: #1e293b;
-}
-
-.lesson-title.showman {
-  position: relative;
-  z-index: 1;
-  background: #ffffff;
-  padding: 1rem;
-  border-radius: 8px;
-  font-size: 3rem;
-  text-align: center;
-  font-weight: 800;
-  letter-spacing: 2px;
-  color: #5b21b6;
-  text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.3);
-  overflow: hidden;
-}
-
-.lesson-title.showman::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: -50%;
-  width: 50%;
-  height: 100%;
-  background: radial-gradient(circle, rgba(255,255,255,0.6) 0%, transparent 80%);
-  transform: skewX(-20deg);
-  animation: spotlight 4s infinite alternate;
-  z-index: 0;
-}
-
-@keyframes spotlight {
-  0% { left: -50%; }
-  100% { left: 100%; }
-}
-
-
 
 .section-heading {
   font-size: 1.5rem;
@@ -170,9 +109,8 @@
 }
 
 .lesson-parts-list {
-  list-style: circle;
-  padding-left: 0;
-  margin-top: 1rem;
+  list-style: disc outside;
+  margin-left: 1.5rem;
 }
 
 .lesson-parts-list li {
@@ -206,12 +144,46 @@
   background: #3e6123;
 }
 
-.pdf-icon {
-  margin-right: 0.5rem;
-  font-size: 1.2rem;
+.lesson-star-block {
+  background: #ffffff;
+  border-radius: 8px;
+  animation: starbeam 4s infinite alternate;
+  margin-bottom: 2rem;
 }
 
-.pdf-title {
-  margin-right: 0.5rem;
-  font-weight: 600;
+@keyframes starbeam {
+  0%   { box-shadow: -30px 0 40px rgba(255,255,255,0.3); }
+  100% { box-shadow:  30px 0 40px rgba(255,255,255,0.3); }
+}
+
+.lesson-title.showman {
+  position: relative;
+  z-index: 1;
+  background: #ffffff;
+  padding: 1rem;
+  border-radius: 8px;
+  font-size: 3rem;
+  text-align: center;
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: #5b21b6;
+  text-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+}
+
+.lesson-title.showman::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -50%;
+  width: 50%; height: 100%;
+  background: radial-gradient(circle, rgba(255,255,255,0.6) 0%, transparent 80%);
+  transform: skewX(-20deg);
+  animation: spotlight 4s infinite alternate;
+  z-index: 0;
+}
+
+@keyframes spotlight {
+  0%   { left: -50%; }
+  100% { left: 100%; }
 }
