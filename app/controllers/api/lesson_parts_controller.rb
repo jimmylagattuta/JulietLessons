@@ -7,8 +7,10 @@ module Api
       if lesson_part.save
         render json: lesson_part, status: :created
       else
-        render json: { errors: lesson_part.errors.full_messages },
-               status: :unprocessable_entity
+        # Log to Heroku so you can see in `heroku logs`
+        Rails.logger.error("LessonPart failed to save: #{lesson_part.errors.full_messages.to_sentence}")
+        # Return the errors in JSON so your front-end can inspect them in devtools
+        render json: { errors: lesson_part.errors.full_messages }, status: :unprocessable_entity
       end
     end
 
@@ -17,15 +19,7 @@ module Api
     def lesson_part_params
       params
         .require(:lesson_part)
-        .permit(
-          :section_type,
-          :title,
-          :body,
-          :time,
-          :age_group,
-          :level,
-          files: []
-        )
+        .permit(:section_type, :title, :body, :time, :age_group, :level, files: [])
     end
   end
 end
