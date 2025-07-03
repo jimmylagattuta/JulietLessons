@@ -1,4 +1,3 @@
-# config/routes.rb
 Rails.application.routes.draw do
   get "up" => "rails/health#show", as: :rails_health_check
 
@@ -6,6 +5,8 @@ Rails.application.routes.draw do
     resources :lessons, only: [:create, :show] do
       get :random, on: :collection
     end
+
+    resources :lesson_parts, only: [:create]  # ← ✅ Add this line
   end
 
   root 'application#index'

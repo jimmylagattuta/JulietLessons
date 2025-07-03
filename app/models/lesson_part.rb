@@ -1,5 +1,6 @@
+# app/models/lesson_part.rb
 class LessonPart < ApplicationRecord
-  belongs_to :lesson
+  belongs_to :lesson, optional: true
   has_many_attached :files
 
   enum section_type: {
@@ -9,6 +10,17 @@ class LessonPart < ApplicationRecord
     end_of_lesson: 3,
     script: 4
   }
+
+  AGE_GROUPS = ['young', 'middle', 'older', 'all'].freeze
+  LEVELS = [
+    'Toe Tipper',
+    'Green Horn',
+    'Semi-Pro',
+    'Seasoned Veteran'
+  ].freeze
+
+  validates :age_group, inclusion: { in: AGE_GROUPS, allow_blank: true }
+  validates :level, inclusion: { in: LEVELS, allow_blank: true }
 
   def file_infos
     files.map do |file|
