@@ -1,15 +1,13 @@
+# app/controllers/api/lesson_parts_controller.rb
 module Api
-  class LessonPartsController < ApplicationController
-    # If you’re using cookies-based CSRF, you can disable it for API calls:
-    skip_before_action :verify_authenticity_token
-
+  class LessonPartsController < ActionController::API
     def create
-      @lesson_part = LessonPart.new(lesson_part_params)
+      lesson_part = LessonPart.new(lesson_part_params)
 
-      if @lesson_part.save
-        render json: @lesson_part, status: :created
+      if lesson_part.save
+        render json: lesson_part, status: :created
       else
-        render json: { errors: @lesson_part.errors.full_messages },
+        render json: { errors: lesson_part.errors.full_messages },
                status: :unprocessable_entity
       end
     end
@@ -26,7 +24,7 @@ module Api
           :time,
           :age_group,
           :level,
-          files: []            # permit an array of attached PDFs
+          files: []
         )
     end
   end
