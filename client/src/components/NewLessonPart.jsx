@@ -11,8 +11,8 @@ const SECTION_LABELS = {
   script: 'Scripts',
 }
 
-const AGE_GROUPS = ['young', 'middle', 'older', 'all']
-const LEVELS = ['Toe Tipper', 'Green Horn', 'Semi-Pro', 'Seasoned Veteran']
+const AGE_GROUPS = ['Young', 'Middle', 'Older', 'All']
+const LEVELS = ['Toe Tipper', 'Green Horn', 'Semi-Pro', 'Seasoned Veteran(all)']
 
 export default function NewLessonPart() {
   // form is closed initially

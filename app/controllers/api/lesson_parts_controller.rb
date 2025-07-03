@@ -1,7 +1,6 @@
 module Api
   class LessonPartsController < ApplicationController
     # If you’re using cookies-based CSRF, you can disable it for API calls:
-    protect_from_forgery with: :null_session
 
     def create
       @lesson_part = LessonPart.new(lesson_part_params)
