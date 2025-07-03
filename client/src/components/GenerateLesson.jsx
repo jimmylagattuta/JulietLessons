@@ -72,19 +72,17 @@ export default function GenerateLesson({ lessonId = null, onClearView }) {
   return (
     <div className="lesson-page">
       <aside className="lesson-sidebar">
-        <button
-          className="sidebar-generate-btn"
-          onClick={handleGenerate}
-          disabled={loading}
-        >
-          {loading
-            ? 'Loading…'
-            : lesson
-              ? 'Generate Again'
-              : 'Generate Random Lesson'
-          }
-        </button>
+        {lesson && (
+          <button
+            className="sidebar-generate-btn"
+            onClick={handleGenerate}
+            disabled={loading}
+          >
+            {loading ? 'Loading…' : 'Generate Again'}
+          </button>
+        )}
       </aside>
+
 
       <div className="lesson-content">
         {lesson ? (
