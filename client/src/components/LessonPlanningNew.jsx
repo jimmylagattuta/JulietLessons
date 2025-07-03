@@ -1,7 +1,7 @@
 // src/components/LessonPlanningNew.jsx
 import React, { useEffect, useState, useMemo } from 'react'
 import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd'
-import './LessonPlanning.css' // or reuse NewLesson.css
+import './LessonPlanningNew.css' // or reuse NewLesson.css
 
 export default function LessonPlanningNew({ lessonPartsApi, onAddToPlan }) {
   const [allParts, setAllParts] = useState([])
@@ -18,7 +18,7 @@ export default function LessonPlanningNew({ lessonPartsApi, onAddToPlan }) {
       })
       .catch(console.error)
   }, [])
-  
+
   // 2️⃣ Filtered list
   const filtered = useMemo(() => {
     return allParts.filter(p => {
