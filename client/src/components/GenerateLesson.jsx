@@ -1,5 +1,7 @@
-import React, { useState, useEffect } from 'react';
-import './GenerateLesson.css';
+// src/components/GenerateLesson.jsx
+
+import React, { useState, useEffect } from 'react'
+import './GenerateLesson.css'
 
 /**
  * GenerateLesson component:
@@ -12,59 +14,63 @@ import './GenerateLesson.css';
  *  - onClearView: () => void
  */
 export default function GenerateLesson({ lessonId = null, onClearView }) {
-  const [lesson, setLesson] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [showGlance, setShowGlance]     = useState(false);
-  const [showWarmUps, setShowWarmUps]   = useState(false);
-  const [showBridge, setShowBridge]     = useState(false);
-  const [showMain, setShowMain]         = useState(false);
-  const [showEnd, setShowEnd]           = useState(false);
-  const [showScripts, setShowScripts]   = useState(false);
+  const [lesson, setLesson] = useState(null)
+  const [loading, setLoading] = useState(false)
+  const [showGlance, setShowGlance] = useState(false)
+  const [showWarmUps, setShowWarmUps] = useState(false)
+  const [showBridge, setShowBridge] = useState(false)
+  const [showMain, setShowMain] = useState(false)
+  const [showEnd, setShowEnd] = useState(false)
+  const [showScripts, setShowScripts] = useState(false)
 
   // If we're viewing a saved lesson by ID, fetch it once.
   useEffect(() => {
-    if (!lessonId) return;
-    setLoading(true);
+    if (!lessonId) return
+    setLoading(true)
     fetch(`/api/lessons/${lessonId}`)
       .then(res => {
-        if (!res.ok) throw new Error(`Status ${res.status}`);
-        return res.json();
+        if (!res.ok) throw new Error(`Status ${res.status}`)
+        return res.json()
       })
-      .then(setLesson)
+      .then(data => setLesson(data))
       .catch(err => console.error('Error fetching lesson by ID:', err))
-      .finally(() => setLoading(false));
-  }, [lessonId]);
+      .finally(() => setLoading(false))
+  }, [lessonId])
 
   // Always fetch a new random lesson when you click
   const handleGenerate = async () => {
-    onClearView && onClearView();
-    setLoading(true);
+    // if we were viewing a specific one, clear that first
+    onClearView && onClearView()
+    setLoading(true)
     try {
-      const res = await fetch('/api/lessons/random');
-      if (!res.ok) throw new Error(`Status ${res.status}`);
-      setLesson(await res.json());
+      const res = await fetch('/api/lessons/random')
+      if (!res.ok) throw new Error(`Status ${res.status}`)
+      const data = await res.json()
+      setLesson(data)
     } catch (err) {
-      console.error('Error fetching random lesson:', err);
+      console.error('Error fetching random lesson:', err)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
-  // helpers
-  const partsBy = section_type =>
-    (lesson?.lesson_parts || []).filter(lp => lp.section_type === section_type);
-  const warmUps     = partsBy('warm_up');
-  const bridgeParts = partsBy('bridge_activity');
-  const mainActs    = partsBy('main_activity');
-  const endActs     = partsBy('end_of_lesson');
-  const scripts     = partsBy('script');
+  // helpers for each section
+  const warmUps = lesson?.lesson_parts?.filter(lp => lp.section_type === 'warm_up') || []
+  const bridgeParts = lesson?.lesson_parts?.filter(lp => lp.section_type === 'bridge_activity') || []
+  const mainActivities = lesson?.lesson_parts?.filter(lp => lp.section_type === 'main_activity') || []
+  const endActivities = lesson?.lesson_parts?.filter(lp => lp.section_type === 'end_of_lesson') || []
+  const scripts = lesson?.lesson_parts?.filter(lp => lp.section_type === 'script') || []
 
-  const sumTime = arr => arr.reduce((sum, lp) => sum + (lp.time || 0), 0);
-  const sortByPosition = arr => arr.slice().sort((a, b) => (a.position||0) - (b.position||0));
+  const totalWarmUpTime = warmUps.reduce((sum, lp) => sum + (lp.time || 0), 0)
+  const totalBridgeTime = bridgeParts.reduce((sum, lp) => sum + (lp.time || 0), 0)
+  const totalMainTime = mainActivities.reduce((sum, lp) => sum + (lp.time || 0), 0)
+  const totalEndTime = endActivities.reduce((sum, lp) => sum + (lp.time || 0), 0)
+
+  const sortByPosition = arr =>
+    arr.slice().sort((a, b) => (a.position || 0) - (b.position || 0))
 
   return (
     <div className="lesson-page">
-      {/* Sidebar (fixed width) */}
       <aside className="lesson-sidebar">
         <button
           className="sidebar-generate-btn"
@@ -80,11 +86,10 @@ export default function GenerateLesson({ lessonId = null, onClearView }) {
         </button>
       </aside>
 
-      {/* Main content */}
       <div className="lesson-content">
         {lesson ? (
           <div className="lesson-details">
-            {/* Title & Objective */}
+            {/* -- Title & Objective -- */}
             <div className="lesson-star-block">
               <h1 className="lesson-title showman">{lesson.title}</h1>
             </div>
@@ -92,8 +97,7 @@ export default function GenerateLesson({ lessonId = null, onClearView }) {
               <h2 className="section-heading">Lesson Objective</h2>
               <p>{lesson.objective}</p>
             </div>
-
-            {/* At a Glance */}
+            {/* -- At a Glance -- */}
             <div className="lesson-block alternate">
               <h2
                 className="section-heading glance-toggle"
@@ -110,14 +114,14 @@ export default function GenerateLesson({ lessonId = null, onClearView }) {
               )}
             </div>
 
-            {/* Warm Ups */}
+            {/* -- Warm Ups -- */}
             {warmUps.length > 0 && (
               <div className="lesson-block">
                 <h2
                   className="section-heading glance-toggle"
                   onClick={() => setShowWarmUps(!showWarmUps)}
                 >
-                  Warm Ups — {sumTime(warmUps)} min {showWarmUps ? '▲' : '▼'}
+                  Warm Ups — {totalWarmUpTime} min {showWarmUps ? '▲' : '▼'}
                 </h2>
                 {showWarmUps && (
                   <ul className="lesson-parts-list">
@@ -129,9 +133,9 @@ export default function GenerateLesson({ lessonId = null, onClearView }) {
                     ))}
                   </ul>
                 )}
-                {sortByPosition(warmUps).flatMap((wp, i) =>
-                  (wp.file_infos || []).map((file, j) => (
-                    <div className="pdf-button-wrapper" key={`warmup-${i}-${j}`}>
+                {sortByPosition(warmUps).map((wp, i) =>
+                  wp.file_infos?.map((file, j) => (
+                    <div className="pdf-button-wrapper" key={`warmup-pdf-${i}-${j}`}>
                       <a
                         href={file.url}
                         target="_blank"
@@ -146,14 +150,14 @@ export default function GenerateLesson({ lessonId = null, onClearView }) {
               </div>
             )}
 
-            {/* Bridge Activities */}
+            {/* -- Bridge Activities -- */}
             {bridgeParts.length > 0 && (
               <div className="lesson-block">
                 <h2
                   className="section-heading glance-toggle"
                   onClick={() => setShowBridge(!showBridge)}
                 >
-                  Bridge Activities — {sumTime(bridgeParts)} min {showBridge ? '▲' : '▼'}
+                  Bridge Activities — {totalBridgeTime} min {showBridge ? '▲' : '▼'}
                 </h2>
                 {showBridge && (
                   <ul className="lesson-parts-list">
@@ -165,9 +169,9 @@ export default function GenerateLesson({ lessonId = null, onClearView }) {
                     ))}
                   </ul>
                 )}
-                {sortByPosition(bridgeParts).flatMap((bp, i) =>
-                  (bp.file_infos || []).map((file, j) => (
-                    <div className="pdf-button-wrapper" key={`bridge-${i}-${j}`}>
+                {sortByPosition(bridgeParts).map((bp, i) =>
+                  bp.file_infos?.map((file, j) => (
+                    <div className="pdf-button-wrapper" key={`bridge-pdf-${i}-${j}`}>
                       <a
                         href={file.url}
                         target="_blank"
@@ -182,18 +186,18 @@ export default function GenerateLesson({ lessonId = null, onClearView }) {
               </div>
             )}
 
-            {/* Main Activities */}
-            {mainActs.length > 0 && (
+            {/* -- Main Activities -- */}
+            {mainActivities.length > 0 && (
               <div className="lesson-block">
                 <h2
                   className="section-heading glance-toggle"
                   onClick={() => setShowMain(!showMain)}
                 >
-                  Main Activities — {sumTime(mainActs)} min {showMain ? '▲' : '▼'}
+                  Main Activities — {totalMainTime} min {showMain ? '▲' : '▼'}
                 </h2>
                 {showMain && (
                   <ul className="lesson-parts-list">
-                    {sortByPosition(mainActs).map((mp, i) => (
+                    {sortByPosition(mainActivities).map((mp, i) => (
                       <li key={i}>
                         <strong>Part {i + 1}:</strong> {mp.title}
                         {mp.body && <p className="part-body">{mp.body}</p>}
@@ -201,9 +205,9 @@ export default function GenerateLesson({ lessonId = null, onClearView }) {
                     ))}
                   </ul>
                 )}
-                {sortByPosition(mainActs).flatMap((mp, i) =>
-                  (mp.file_infos || []).map((file, j) => (
-                    <div className="pdf-button-wrapper" key={`main-${i}-${j}`}>
+                {sortByPosition(mainActivities).map((mp, i) =>
+                  mp.file_infos?.map((file, j) => (
+                    <div className="pdf-button-wrapper" key={`main-pdf-${i}-${j}`}>
                       <a
                         href={file.url}
                         target="_blank"
@@ -218,18 +222,18 @@ export default function GenerateLesson({ lessonId = null, onClearView }) {
               </div>
             )}
 
-            {/* End of Lesson */}
-            {endActs.length > 0 && (
+            {/* -- End of Lesson -- */}
+            {endActivities.length > 0 && (
               <div className="lesson-block">
                 <h2
                   className="section-heading glance-toggle"
                   onClick={() => setShowEnd(!showEnd)}
                 >
-                  End of Lesson — {sumTime(endActs)} min {showEnd ? '▲' : '▼'}
+                  End of Lesson — {totalEndTime} min {showEnd ? '▲' : '▼'}
                 </h2>
                 {showEnd && (
                   <ul className="lesson-parts-list">
-                    {sortByPosition(endActs).map((ep, i) => (
+                    {sortByPosition(endActivities).map((ep, i) => (
                       <li key={i}>
                         <strong>Part {i + 1}:</strong> {ep.title}
                         {ep.body && <p className="part-body">{ep.body}</p>}
@@ -237,9 +241,9 @@ export default function GenerateLesson({ lessonId = null, onClearView }) {
                     ))}
                   </ul>
                 )}
-                {sortByPosition(endActs).flatMap((ep, i) =>
-                  (ep.file_infos || []).map((file, j) => (
-                    <div className="pdf-button-wrapper" key={`end-${i}-${j}`}>
+                {sortByPosition(endActivities).map((ep, i) =>
+                  ep.file_infos?.map((file, j) => (
+                    <div className="pdf-button-wrapper" key={`end-pdf-${i}-${j}`}>
                       <a
                         href={file.url}
                         target="_blank"
@@ -254,7 +258,7 @@ export default function GenerateLesson({ lessonId = null, onClearView }) {
               </div>
             )}
 
-            {/* Scripts */}
+            {/* -- Scripts -- */}
             {scripts.length > 0 && (
               <div className="lesson-block">
                 <h2
@@ -273,9 +277,9 @@ export default function GenerateLesson({ lessonId = null, onClearView }) {
                     ))}
                   </ul>
                 )}
-                {sortByPosition(scripts).flatMap((sp, i) =>
-                  (sp.file_infos || []).map((file, j) => (
-                    <div className="pdf-button-wrapper" key={`script-${i}-${j}`}>
+                {sortByPosition(scripts).map((sp, i) =>
+                  sp.file_infos?.map((file, j) => (
+                    <div className="pdf-button-wrapper" key={`script-pdf-${i}-${j}`}>
                       <a
                         href={file.url}
                         target="_blank"
@@ -292,19 +296,17 @@ export default function GenerateLesson({ lessonId = null, onClearView }) {
           </div>
         ) : (
           <div className="generate-box">
-            <div className="lesson-block max-w-lg mx-auto text-center">
-              <h2 className="generate-title mb-4">Juliet's Generator</h2>
-              <button
-                className="generate-button"
-                onClick={handleGenerate}
-                disabled={loading}
-              >
-                {loading ? 'Generating…' : 'Generate Random Lesson'}
-              </button>
-            </div>
+            <h2 className="generate-title">Juliet's Generator</h2>
+            <button
+              className="generate-button"
+              onClick={handleGenerate}
+              disabled={loading}
+            >
+              {loading ? 'Generating…' : 'Generate Random Lesson'}
+            </button>
           </div>
         )}
       </div>
     </div>
-  );
+  )
 }
