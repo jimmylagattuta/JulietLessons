@@ -6,6 +6,7 @@
   width: 100vw;
 }
 
+/* fixed‐width dark sidebar */
 .lesson-sidebar {
   width: 350px;
   background-color: #1e293b;
@@ -30,7 +31,6 @@
   width: 100%;
   text-align: center;
 }
-
 .sidebar-generate-btn:hover:not(:disabled) {
   background: linear-gradient(to right, #7e22ce, #581c87);
 }
@@ -39,63 +39,53 @@
   cursor: not-allowed;
 }
 
+/* main area – transparent bg so underlying app bg shows */
 .lesson-content {
   flex: 1;
   display: flex;
   flex-direction: column;
   min-height: 0;          /* allow inner scrolling */
-  background: url('https://res.cloudinary.com/djtsuktwb/image/upload/v1751521032/ChatGPT_Image_Jul_2_2025_10_29_03_PM_1_ad024u.jpg')
-    no-repeat center center fixed;
-  background-size: cover;
+  background: transparent;
   overflow: hidden;
 }
 
+/* scrollable lesson details */
 .lesson-details {
   flex: 1;
   overflow-y: auto;
   padding: 2rem;
 }
 
+/* “no lesson yet” container centering */
 .generate-box {
   flex: 1;
   display: flex;
-  flex-direction: column;
   align-items: center;
   justify-content: center;
 }
 
-.generate-title {
-  font-size: 2rem;
-  margin-bottom: 1rem;
-  color: #1e293b;
-}
-
-.generate-button {
-  background: linear-gradient(to right, #9333ea, #6b21a8);
-  color: white;
-  font-weight: 600;
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 0.5rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.generate-button:hover:not(:disabled) {
-  background: linear-gradient(to right, #7e22ce, #581c87);
-}
-
+/* white cards everywhere */
 .lesson-block {
   background: #ffffff;
-  padding: 2rem;
-  border-radius: 8px;
-  margin-bottom: 2rem;
+  border: 1px solid #e5e7eb; /* gray-200 */
+  border-radius: 0.5rem;     /* rounded-lg */
+  padding: 1.5rem;           /* p-6 */
+  margin-bottom: 1.5rem;
+}
+.dark .lesson-block {
+  background: #1e293b;      /* dark-800 */
+  border-color: #374151;     /* dark-700 */
 }
 
+/* alternating background for “alternate” sections */
 .lesson-block.alternate {
   background: #f1f5f9;
 }
+.dark .lesson-block.alternate {
+  background: #374151;
+}
 
+/* section headers */
 .section-heading {
   font-size: 1.5rem;
   font-weight: bold;
@@ -103,31 +93,39 @@
   color: #334155;
 }
 
+/* toggle caret */
 .glance-toggle {
   cursor: pointer;
   user-select: none;
 }
 
+/* list styling */
 .lesson-parts-list {
   list-style: disc outside;
   margin-left: 1.5rem;
 }
-
 .lesson-parts-list li {
   margin-bottom: 1rem;
   color: #475569;
 }
+.dark .lesson-parts-list li {
+  color: #cbd5e1;
+}
 
+/* italic detail text */
 .part-body {
   margin-top: 0.5rem;
   font-style: italic;
   color: #374151;
 }
+.dark .part-body {
+  color: #9ca3af;
+}
 
+/* PDF download links */
 .pdf-button-wrapper {
   margin-bottom: 1rem;
 }
-
 .pdf-button {
   display: inline-flex;
   align-items: center;
@@ -139,16 +137,22 @@
   font-weight: 600;
   transition: background 0.2s;
 }
-
 .pdf-button:hover {
   background: #3e6123;
 }
 
+/* flashy “star‐beam” title block */
 .lesson-star-block {
   background: #ffffff;
-  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
   animation: starbeam 4s infinite alternate;
-  margin-bottom: 2rem;
+}
+.dark .lesson-star-block {
+  background: #1e293b;
+  border-color: #374151;
 }
 
 @keyframes starbeam {
@@ -156,12 +160,14 @@
   100% { box-shadow:  30px 0 40px rgba(255,255,255,0.3); }
 }
 
+/* giant lesson title */
 .lesson-title.showman {
   position: relative;
   z-index: 1;
   background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
   padding: 1rem;
-  border-radius: 8px;
   font-size: 3rem;
   text-align: center;
   font-weight: 800;
@@ -171,7 +177,10 @@
   margin-bottom: 1.5rem;
   overflow: hidden;
 }
-
+.dark .lesson-title.showman {
+  background: #1e293b;
+  border-color: #374151;
+}
 .lesson-title.showman::before {
   content: '';
   position: absolute;
@@ -182,8 +191,22 @@
   animation: spotlight 4s infinite alternate;
   z-index: 0;
 }
-
 @keyframes spotlight {
   0%   { left: -50%; }
   100% { left: 100%; }
+}
+
+/* the “Generate Random Lesson” button */
+.generate-button {
+  background: linear-gradient(to right, #9333ea, #6b21a8);
+  color: white;
+  font-weight: 600;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+.generate-button:hover:not(:disabled) {
+  background: linear-gradient(to right, #7e22ce, #581c87);
 }
