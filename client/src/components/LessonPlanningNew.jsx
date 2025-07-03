@@ -27,15 +27,19 @@ export default function LessonPlanningNew({ onAddToPlan }) {
   })
   const [sidebarParts, setSidebarParts] = useState([])
 
-  useEffect(() => {
+    useEffect(() => {
     fetch('/api/lesson_planning')
-      .then(r => r.json())
-      .then(data => {
+        .then(r => {
+        if (!r.ok) throw new Error(`Status ${r.status}`)
+        return r.json()
+        })
+        .then(data => {
         console.log('API call received:', data.message)
-        // TODO: setAllParts(data.parts)
-      })
-      .catch(console.error)
-  }, [])
+        setAllParts(data.parts || [])
+        })
+        .catch(err => console.error('Error fetching lesson parts:', err))
+    }, [])
+
 
   const filtered = useMemo(() => {
     return allParts.filter(p => {
@@ -77,9 +81,6 @@ export default function LessonPlanningNew({ onAddToPlan }) {
           <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
             Lesson Plan
           </h2>
-          <button className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
-            ←
-          </button>
         </div>
 
         <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 space-x-6 mb-4">
@@ -112,9 +113,6 @@ export default function LessonPlanningNew({ onAddToPlan }) {
                   ? 'Link warm-up to main'
                   : 'Attach scripts for actors'}
               </p>
-              <button className="text-pink-500 dark:text-pink-400 hover:underline text-sm">
-                + Add {label.slice(0, -1)}
-              </button>
             </div>
           ))}
         </div>

@@ -2,11 +2,22 @@
 module Api
   class LessonPlanningController < ActionController::API
     def index
-      puts "*" * 100
-      puts "params for new lesson planning"
-      puts params.inspect
-      puts "*" * 100
-      render json: { message: 'API call received' }
+      parts = LessonPart.all.map do |p|
+        {
+          id:           p.id,
+          title:        p.title,
+          body:         p.body,
+          section_type: p.section_type,
+          age_group:    p.age_group,
+          level:        p.level,
+          time:         p.time
+        }
+      end
+
+      render json: {
+        message: 'API call received',
+        parts:   parts
+      }
     end
   end
 end
