@@ -230,7 +230,7 @@ export default function NewLessonPart() {
                     {saving ? 'Saving…' : 'Save'}
                   </button>
                   <button
-                    className="btn-cancel-view"
+                    className="btn-save-view"
                     onClick={handleCancel}
                     disabled={saving}
                   >
