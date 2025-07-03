@@ -2,14 +2,26 @@
 module Api
   class SessionsController < ActionController::API
     # POST /api/users/login
-    #   { email: "...", password: "..." }
+    #   body: { email: "...", password: "..." }
     def create
       user = User.find_by(email: params[:email])
 
       if user&.authenticate(params[:password])
         token = jwt_encode(user_id: user.id)
+
         render json: {
-          user:  user.as_json(except: [:password_digest]),
+          user: {
+            id:           user.id,
+            email:        user.email,
+            firstName:    user.first_name,
+            lastName:     user.last_name,
+            role:         user.role,
+            organization: user.organization,
+            isActive:     user.is_active,
+            lastLoginAt:  user.last_login_at,
+            createdAt:    user.created_at,
+            updatedAt:    user.updated_at
+          },
           token: token
         }
       else
@@ -26,9 +38,21 @@ module Api
       user    = User.find_by(id: payload['user_id'])
 
       if user
-        render json: user.as_json(except: [:password_digest])
+        render json: {
+          id:           user.id,
+          email:        user.email,
+          firstName:    user.first_name,
+          lastName:     user.last_name,
+          role:         user.role,
+          organization: user.organization,
+          isActive:     user.is_active,
+          lastLoginAt:  user.last_login_at,
+          createdAt:    user.created_at,
+          updatedAt:    user.updated_at
+        }
       else
-        render json: { error: "User not found" }, status: :unauthorized
+        render json: { error: "User not found" },
+               status: :unauthorized
       end
     rescue JWT::DecodeError
       render json: { error: "Invalid token" }, status: :unauthorized

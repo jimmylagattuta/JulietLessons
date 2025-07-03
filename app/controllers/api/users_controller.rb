@@ -7,7 +7,20 @@ module Api
       user.is_active = true
 
       if user.save
-        render json: { user: user.as_json(except: [:password_digest]) }, status: :created
+        render json: {
+          user: {
+            id:           user.id,
+            email:        user.email,
+            firstName:    user.first_name,
+            lastName:     user.last_name,
+            role:         user.role,
+            organization: user.organization,
+            isActive:     user.is_active,
+            lastLoginAt:  user.last_login_at,
+            createdAt:    user.created_at,
+            updatedAt:    user.updated_at
+          }
+        }, status: :created
       else
         render json: { error: user.errors.full_messages.join(", ") },
                status: :unprocessable_entity
@@ -16,8 +29,7 @@ module Api
 
     private
 
-    # Permit the camelCase keys from your front-end, then build the hash that
-    # ActiveRecord expects (snake_case).
+    # Permit the incoming camelCase params and map to snake_case
     def user_params
       raw = params.permit(
         :email,
@@ -29,12 +41,12 @@ module Api
       ).to_h
 
       {
-        email:        raw['email'],
-        password:     raw['password'],
-        first_name:   raw['firstName'],
-        last_name:    raw['lastName'],
-        role:         raw['role'],
-        organization: raw['organization']
+        email:        raw["email"],
+        password:     raw["password"],
+        first_name:   raw["firstName"],
+        last_name:    raw["lastName"],
+        role:         raw["role"],
+        organization: raw["organization"]
       }
     end
   end
