@@ -15,7 +15,7 @@ const AGE_GROUPS = ['young', 'middle', 'older', 'all']
 const LEVELS = ['Toe Tipper', 'Green Horn', 'Semi-Pro', 'Seasoned Veteran']
 
 export default function NewLessonPart() {
-  // start closed
+  // form is closed initially
   const [showForm, setShowForm] = useState(false)
   const [sectionType, setSectionType] = useState('')
   const [title, setTitle] = useState('')
@@ -27,6 +27,21 @@ export default function NewLessonPart() {
   const [saving, setSaving] = useState(false)
 
   const handleHeaderClick = () => setShowForm(true)
+
+  const resetForm = () => {
+    setSectionType('')
+    setTitle('')
+    setBody('')
+    setTime('')
+    setAgeGroup('')
+    setLevel('')
+    setPdfFiles([{ file: null }])
+  }
+
+  const handleCancel = () => {
+    resetForm()
+    setShowForm(false)
+  }
 
   const handlePdfChange = (index, files) => {
     const copy = [...pdfFiles]
@@ -42,18 +57,8 @@ export default function NewLessonPart() {
     setPdfFiles(filtered.length ? filtered : [{ file: null }])
   }
 
-  const resetForm = () => {
-    setSectionType('')
-    setTitle('')
-    setBody('')
-    setTime('')
-    setAgeGroup('')
-    setLevel('')
-    setPdfFiles([{ file: null }])
-  }
-
-  const handleSave = async (mode = 'view') => {
-    if (!title.trim() || !body.trim() || !sectionType) {
+  const handleSave = async () => {
+    if (!sectionType || !title.trim() || !body.trim()) {
       alert('Please complete all required fields.')
       return
     }
@@ -65,7 +70,6 @@ export default function NewLessonPart() {
     formData.append('lesson_part[time]', time)
     formData.append('lesson_part[age_group]', ageGroup)
     formData.append('lesson_part[level]', level)
-
     pdfFiles.forEach(slot => {
       if (slot.file) {
         formData.append('lesson_part[files][]', slot.file)
@@ -76,18 +80,17 @@ export default function NewLessonPart() {
     try {
       const resp = await fetch('/api/lesson_parts', {
         method: 'POST',
-        body: formData
+        body: formData,
       })
       if (!resp.ok) throw new Error(`Status ${resp.status}`)
       await resp.json()
-      alert('Lesson part created successfully.')
-
-      if (mode === 'again') {
-        resetForm()
-      }
+      alert('Lesson part saved!')
+      // after saving, clear and close
+      resetForm()
+      setShowForm(false)
     } catch (err) {
       console.error(err)
-      alert('Failed to save lesson part. See console.')
+      alert('Save failed. See console.')
     } finally {
       setSaving(false)
     }
@@ -97,7 +100,7 @@ export default function NewLessonPart() {
     <div className="lesson-page">
       <aside className="lesson-sidebar">Sidebar</aside>
       <div className="new-lesson-page">
-        {/* Header */}
+        {/* Header: green "+" when closed */}
         <div
           className="new-lesson-header"
           onClick={!showForm ? handleHeaderClick : undefined}
@@ -116,7 +119,7 @@ export default function NewLessonPart() {
         {/* Form */}
         {showForm && (
           <div className="new-lesson-form">
-            {/* Always-visible: Section selector */}
+            {/* Section selector: always visible */}
             <div className="form-group">
               <label>Section</label>
               <select
@@ -124,15 +127,15 @@ export default function NewLessonPart() {
                 onChange={e => setSectionType(e.target.value)}
               >
                 <option value="">Select Section…</option>
-                {Object.entries(SECTION_LABELS).map(([val, label]) => (
-                  <option key={val} value={val}>
+                {Object.entries(SECTION_LABELS).map(([key, label]) => (
+                  <option key={key} value={key}>
                     {label}
                   </option>
                 ))}
               </select>
             </div>
 
-            {/* Only show the rest once a section is chosen */}
+            {/* Rest of fields only after section chosen */}
             {sectionType && (
               <>
                 <div className="form-group">
@@ -217,20 +220,21 @@ export default function NewLessonPart() {
                   ))}
                 </div>
 
+                {/* Save & Cancel */}
                 <div className="form-actions">
                   <button
-                    className="btn-save-view"
-                    onClick={() => handleSave('view')}
+                    className="btn-save"
+                    onClick={handleSave}
                     disabled={saving}
                   >
-                    {saving ? 'Saving…' : 'Save and View'}
+                    {saving ? 'Saving…' : 'Save'}
                   </button>
                   <button
-                    className="btn-save-again"
-                    onClick={() => handleSave('again')}
+                    className="btn-cancel"
+                    onClick={handleCancel}
                     disabled={saving}
                   >
-                    {saving ? 'Saving…' : 'Save and Create Again'}
+                    Cancel
                   </button>
                 </div>
               </>
