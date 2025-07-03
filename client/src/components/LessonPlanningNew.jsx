@@ -52,7 +52,11 @@ export default function LessonPlanningNew({ onAddToPlan }) {
   function onDragEnd(result) {
     const { source, destination, draggableId } = result
     if (!destination) return
-    if (source.droppableId === 'parts' && destination.droppableId === 'sidebar') {
+
+    if (
+      source.droppableId === 'parts' &&
+      destination.droppableId === 'sidebar'
+    ) {
       const part = allParts.find(p => String(p.id) === draggableId)
       if (part) {
         onAddToPlan(part)
@@ -61,6 +65,7 @@ export default function LessonPlanningNew({ onAddToPlan }) {
     }
   }
 
+  // compute totals
   const totalMinutes    = sidebarParts.reduce((sum, p) => sum + (p.time || 0), 0)
   const totalActivities = sidebarParts.length
 
@@ -87,37 +92,30 @@ export default function LessonPlanningNew({ onAddToPlan }) {
 
         <div className="space-y-6">
           {Object.entries(SECTION_LABELS).map(([key, label]) => (
-            <Droppable key={key} droppableId={`sidebar-${key}`}>
-              {(prov, snap) => (
-                <div
-                  ref={prov.innerRef}
-                  {...prov.droppableProps}
-                  className={`
-                    border-2 border-dashed border-gray-300 dark:border-dark-600 
-                    rounded-lg p-6 flex flex-col items-center text-center space-y-4 
-                    min-h-[14rem]
-                    ${snap.isDraggingOver ? 'bg-gray-100 dark:bg-dark-700' : ''}
-                  `}
-                >
-                  <span className="text-5xl">{SECTION_ICONS[key]}</span>
-                  <h3 className="font-semibold text-lg text-gray-900 dark:text-white">
-                    {label}
-                  </h3>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                    {label === 'Warm Ups'
-                      ? 'Start with an energizing activity'
-                      : label === 'Main Activities'
-                      ? 'Core learning activities'
-                      : label === 'End Of Lesson'
-                      ? 'Wrap up and reflect'
-                      : label === 'Bridge Activities'
-                      ? 'Link warm-up to main'
-                      : 'Attach scripts for actors'}
-                  </p>
-                  {prov.placeholder}
-                </div>
-              )}
-            </Droppable>
+            <div
+              key={key}
+              className="border-2 border-dashed border-gray-300 dark:border-dark-600 
+                         rounded-lg p-6 flex flex-col items-center text-center space-y-4 min-h-[14rem]"
+            >
+              <span className="text-5xl">{SECTION_ICONS[key]}</span>
+              <h3 className="font-semibold text-lg text-gray-900 dark:text-white">
+                Add {label.slice(0, -1)}
+              </h3>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                {label === 'Warm Ups'
+                  ? 'Start with an energizing activity'
+                  : label === 'Main Activities'
+                  ? 'Core learning activities'
+                  : label === 'End Of Lesson'
+                  ? 'Wrap up and reflect'
+                  : label === 'Bridge Activities'
+                  ? 'Link warm-up to main'
+                  : 'Attach scripts for actors'}
+              </p>
+              <button className="text-pink-500 dark:text-pink-400 hover:underline text-sm">
+                + Add {label.slice(0, -1)}
+              </button>
+            </div>
           ))}
         </div>
       </aside>
@@ -128,7 +126,9 @@ export default function LessonPlanningNew({ onAddToPlan }) {
         <div className="flex gap-2 items-center p-4 bg-white dark:bg-dark-800 border-b border-gray-200 dark:border-dark-700">
           <select
             value={filters.section}
-            onChange={e => setFilters(f => ({ ...f, section: e.target.value }))}
+            onChange={e =>
+              setFilters(f => ({ ...f, section: e.target.value }))
+            }
             className="block w-1/4 px-3 py-2 bg-white dark:bg-dark-700 border border-gray-300 dark:border-dark-600 rounded-lg text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="">All Sections</option>
@@ -141,7 +141,9 @@ export default function LessonPlanningNew({ onAddToPlan }) {
 
           <select
             value={filters.ageGroup}
-            onChange={e => setFilters(f => ({ ...f, ageGroup: e.target.value }))}
+            onChange={e =>
+              setFilters(f => ({ ...f, ageGroup: e.target.value }))
+            }
             className="block w-1/4 px-3 py-2 bg-white dark:bg-dark-700 border border-gray-300 dark:border-dark-600 rounded-lg text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="">All Ages</option>
@@ -152,7 +154,9 @@ export default function LessonPlanningNew({ onAddToPlan }) {
 
           <select
             value={filters.level}
-            onChange={e => setFilters(f => ({ ...f, level: e.target.value }))}
+            onChange={e =>
+              setFilters(f => ({ ...f, level: e.target.value }))
+            }
             className="block w-1/4 px-3 py-2 bg-white dark:bg-dark-700 border border-gray-300 dark:border-dark-600 rounded-lg text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="">All Levels</option>
@@ -165,7 +169,9 @@ export default function LessonPlanningNew({ onAddToPlan }) {
           <input
             type="text"
             value={filters.search}
-            onChange={e => setFilters(f => ({ ...f, search: e.target.value }))}
+            onChange={e =>
+              setFilters(f => ({ ...f, search: e.target.value }))
+            }
             placeholder="Search..."
             className="flex-1 px-3 py-2 bg-white dark:bg-dark-700 border border-gray-300 dark:border-dark-600 rounded-lg text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
@@ -182,7 +188,11 @@ export default function LessonPlanningNew({ onAddToPlan }) {
                   className="grid grid-cols-3 gap-4"
                 >
                   {filtered.map((p, idx) => (
-                    <Draggable key={p.id} draggableId={String(p.id)} index={idx}>
+                    <Draggable
+                      key={p.id}
+                      draggableId={String(p.id)}
+                      index={idx}
+                    >
                       {prov => (
                         <div
                           ref={prov.innerRef}
