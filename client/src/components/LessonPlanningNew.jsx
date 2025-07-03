@@ -8,14 +8,14 @@ const SECTION_LABELS = {
   main_activity:   'Main Activities',
   end_of_lesson:   'End Of Lesson',
   script:          'Scripts',
-};
+}
 const SECTION_ICONS = {
   warm_up:         '🔥',
   bridge_activity: '🌉',
   main_activity:   '🎭',
   end_of_lesson:   '🏁',
   script:          '📜',
-};
+}
 
 export default function LessonPlanningNew({ onAddToPlan }) {
   const [allParts, setAllParts] = useState([])
@@ -52,11 +52,7 @@ export default function LessonPlanningNew({ onAddToPlan }) {
   function onDragEnd(result) {
     const { source, destination, draggableId } = result
     if (!destination) return
-
-    if (
-      source.droppableId === 'parts' &&
-      destination.droppableId === 'sidebar'
-    ) {
+    if (source.droppableId === 'parts' && destination.droppableId === 'sidebar') {
       const part = allParts.find(p => String(p.id) === draggableId)
       if (part) {
         onAddToPlan(part)
@@ -65,64 +61,66 @@ export default function LessonPlanningNew({ onAddToPlan }) {
     }
   }
 
-  // compute totals
-  const totalMinutes = sidebarParts.reduce((sum, p) => sum + (p.time || 0), 0)
+  const totalMinutes    = sidebarParts.reduce((sum, p) => sum + (p.time || 0), 0)
   const totalActivities = sidebarParts.length
 
   return (
     <div className="flex flex-1 overflow-hidden bg-gray-50 dark:bg-dark-900 transition-colors duration-200">
       {/* Sidebar */}
-        <aside className="w-80 bg-white dark:bg-dark-800 border-r border-gray-200 dark:border-dark-700 p-6 overflow-auto flex flex-col">
+      <aside className="w-96 bg-white dark:bg-dark-800 border-r border-gray-200 dark:border-dark-700 p-6 overflow-auto flex flex-col">
         <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
             Lesson Plan
-            </h2>
-            <button className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
+          </h2>
+          <button className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">
             ←
-            </button>
+          </button>
         </div>
 
-        <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 space-x-6 mb-6">
-            <div>{sidebarParts.reduce((sum, p) => sum + (p.time||0), 0)} min</div>
-            <div>{sidebarParts.length} activities</div>
+        <div className="flex items-center text-sm text-gray-600 dark:text-gray-400 space-x-6 mb-4">
+          <div>{totalMinutes} min</div>
+          <div>{totalActivities} activities</div>
         </div>
 
-        <button
-            className="w-full mb-8 bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-600 hover:to-purple-600 text-white font-medium py-3 rounded-lg"
-            onClick={() => {/* view activities */}}
-        >
-            View Activities
-        </button>
+        {/* separator */}
+        <div className="border-b border-gray-200 dark:border-dark-700 mb-6" />
 
         <div className="space-y-6">
-            {Object.entries(SECTION_LABELS).map(([key, label]) => (
-            <div
-                key={key}
-                className="border-2 border-dashed border-gray-300 dark:border-dark-600 rounded-lg 
-                        p-6 flex flex-col items-center text-center space-y-4 min-h-[14rem]"
-            >
-                <span className="text-5xl">{SECTION_ICONS[key]}</span>
-                <h3 className="font-semibold text-lg text-gray-900 dark:text-white">
-                Add {label.slice(0, -1)}
-                </h3>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                {label === 'Warm Ups'
-                    ? 'Start with an energizing activity'
-                    : label === 'Main Activities'
-                    ? 'Core learning activities'
-                    : label === 'End Of Lesson'
-                    ? 'Wrap up and reflect'
-                    : label === 'Bridge Activities'
-                    ? 'Link warm-up to main'
-                    : 'Attach scripts for actors'}
-                </p>
-                <button className="text-pink-500 dark:text-pink-400 hover:underline text-sm">
-                + Add {label.slice(0, -1)}
-                </button>
-            </div>
-            ))}
+          {Object.entries(SECTION_LABELS).map(([key, label]) => (
+            <Droppable key={key} droppableId={`sidebar-${key}`}>
+              {(prov, snap) => (
+                <div
+                  ref={prov.innerRef}
+                  {...prov.droppableProps}
+                  className={`
+                    border-2 border-dashed border-gray-300 dark:border-dark-600 
+                    rounded-lg p-6 flex flex-col items-center text-center space-y-4 
+                    min-h-[14rem]
+                    ${snap.isDraggingOver ? 'bg-gray-100 dark:bg-dark-700' : ''}
+                  `}
+                >
+                  <span className="text-5xl">{SECTION_ICONS[key]}</span>
+                  <h3 className="font-semibold text-lg text-gray-900 dark:text-white">
+                    {label}
+                  </h3>
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    {label === 'Warm Ups'
+                      ? 'Start with an energizing activity'
+                      : label === 'Main Activities'
+                      ? 'Core learning activities'
+                      : label === 'End Of Lesson'
+                      ? 'Wrap up and reflect'
+                      : label === 'Bridge Activities'
+                      ? 'Link warm-up to main'
+                      : 'Attach scripts for actors'}
+                  </p>
+                  {prov.placeholder}
+                </div>
+              )}
+            </Droppable>
+          ))}
         </div>
-        </aside>
+      </aside>
 
       {/* Main panel */}
       <div className="flex-1 flex flex-col overflow-hidden">
@@ -130,40 +128,20 @@ export default function LessonPlanningNew({ onAddToPlan }) {
         <div className="flex gap-2 items-center p-4 bg-white dark:bg-dark-800 border-b border-gray-200 dark:border-dark-700">
           <select
             value={filters.section}
-            onChange={e =>
-              setFilters(f => ({ ...f, section: e.target.value }))
-            }
+            onChange={e => setFilters(f => ({ ...f, section: e.target.value }))}
             className="block w-1/4 px-3 py-2 bg-white dark:bg-dark-700 border border-gray-300 dark:border-dark-600 rounded-lg text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="">All Sections</option>
-            {Object.entries({
-              warm_up: 'Warm Ups',
-              bridge_activity: 'Bridge Activities',
-              main_activity: 'Main Activities',
-              end_of_lesson: 'End Of Lesson',
-              script: 'Scripts',
-            }).map(([key, label]) => (
+            {Object.entries(SECTION_LABELS).map(([key, label]) => (
               <option key={key} value={key}>
                 {label}
               </option>
             ))}
           </select>
 
-          <input
-            type="text"
-            value={filters.search}
-            onChange={e =>
-              setFilters(f => ({ ...f, search: e.target.value }))
-            }
-            placeholder="Search..."
-            className="flex-1 px-3 py-2 bg-white dark:bg-dark-700 border border-gray-300 dark:border-dark-600 rounded-lg text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
-
           <select
             value={filters.ageGroup}
-            onChange={e =>
-              setFilters(f => ({ ...f, ageGroup: e.target.value }))
-            }
+            onChange={e => setFilters(f => ({ ...f, ageGroup: e.target.value }))}
             className="block w-1/4 px-3 py-2 bg-white dark:bg-dark-700 border border-gray-300 dark:border-dark-600 rounded-lg text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="">All Ages</option>
@@ -174,9 +152,7 @@ export default function LessonPlanningNew({ onAddToPlan }) {
 
           <select
             value={filters.level}
-            onChange={e =>
-              setFilters(f => ({ ...f, level: e.target.value }))
-            }
+            onChange={e => setFilters(f => ({ ...f, level: e.target.value }))}
             className="block w-1/4 px-3 py-2 bg-white dark:bg-dark-700 border border-gray-300 dark:border-dark-600 rounded-lg text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <option value="">All Levels</option>
@@ -185,6 +161,14 @@ export default function LessonPlanningNew({ onAddToPlan }) {
             <option value="Semi-Pro">Semi-Pro</option>
             <option value="Seasoned Veteran">Seasoned Veteran</option>
           </select>
+
+          <input
+            type="text"
+            value={filters.search}
+            onChange={e => setFilters(f => ({ ...f, search: e.target.value }))}
+            placeholder="Search..."
+            className="flex-1 px-3 py-2 bg-white dark:bg-dark-700 border border-gray-300 dark:border-dark-600 rounded-lg text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
         </div>
 
         {/* Draggable parts grid */}
@@ -198,11 +182,7 @@ export default function LessonPlanningNew({ onAddToPlan }) {
                   className="grid grid-cols-3 gap-4"
                 >
                   {filtered.map((p, idx) => (
-                    <Draggable
-                      key={p.id}
-                      draggableId={String(p.id)}
-                      index={idx}
-                    >
+                    <Draggable key={p.id} draggableId={String(p.id)} index={idx}>
                       {prov => (
                         <div
                           ref={prov.innerRef}
