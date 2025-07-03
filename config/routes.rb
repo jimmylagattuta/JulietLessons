@@ -1,8 +1,4 @@
 Rails.application.routes.draw do
-  namespace :api do
-    get "sessions/create"
-    get "sessions/profile"
-  end
   # Health check
   get "up" => "rails/health#show", as: :rails_health_check
 

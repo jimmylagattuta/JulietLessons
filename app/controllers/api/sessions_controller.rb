@@ -1,11 +1,11 @@
+# app/controllers/api/sessions_controller.rb
 module Api
-  class SessionsController < ApplicationController
-
-
+  class SessionsController < ActionController::API
     # POST /api/users/login
-    # { email: "...", password: "..." }
+    #   { email: "...", password: "..." }
     def create
       user = User.find_by(email: params[:email])
+
       if user&.authenticate(params[:password])
         token = jwt_encode(user_id: user.id)
         render json: {
@@ -19,17 +19,16 @@ module Api
     end
 
     # GET /api/users/profile
-    # Header: Authorization: Bearer <token>
+    #   Header: Authorization: Bearer <token>
     def profile
-      token = request.headers['Authorization']&.split(' ')&.last
+      token   = request.headers['Authorization']&.split(' ')&.last
       payload = jwt_decode(token)
       user    = User.find_by(id: payload['user_id'])
 
       if user
         render json: user.as_json(except: [:password_digest])
       else
-        render json: { error: "User not found" },
-               status: :unauthorized
+        render json: { error: "User not found" }, status: :unauthorized
       end
     rescue JWT::DecodeError
       render json: { error: "Invalid token" }, status: :unauthorized
