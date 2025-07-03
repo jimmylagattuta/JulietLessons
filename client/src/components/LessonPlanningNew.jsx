@@ -42,6 +42,14 @@ export default function LessonPlanningNew({ onAddToPlan }) {
       .catch(err => console.error(err))
   }, [])
 
+    const [sectionParts, setSectionParts] = useState({
+    warm_up: [],
+    bridge_activity: [],
+    main_activity: [],
+    end_of_lesson: [],
+    script: [],
+    })
+
   const filtered = useMemo(() => {
     return allParts.filter(p => {
       if (filters.section  && p.section_type !== filters.section) return false
@@ -94,10 +102,14 @@ export default function LessonPlanningNew({ onAddToPlan }) {
       Object.keys(SECTION_LABELS).includes(destination?.droppableId)
     ) {
       const part = allParts.find(p => String(p.id) === draggableId)
-      if (part && destination.droppableId === part.section_type) {
-        onAddToPlan(part)
-        setSidebarParts(s => [...s, part])
-      }
+    if (part && destination.droppableId === part.section_type) {
+    onAddToPlan(part)
+    setSectionParts(prev => ({
+        ...prev,
+        [destination.droppableId]: [...prev[destination.droppableId], part]
+    }))
+    }
+
     }
   }
 
@@ -159,6 +171,15 @@ export default function LessonPlanningNew({ onAddToPlan }) {
                          : key === 'end_of_lesson'   ? 'Wrap up and reflect'
                          :                             'Attach scripts for actors'}
                       </p>
+                        {sectionParts[key].map((p, idx) => (
+                            <div key={p.id} className="w-full bg-green-50 dark:bg-green-900 p-2 rounded shadow text-sm text-left">
+                                <strong>{p.title}</strong>
+                                <div className="text-xs text-gray-500 dark:text-gray-400">
+                                {p.age_group} · {p.level}
+                                </div>
+                            </div>
+                        ))}
+
                       {provided.placeholder}
                     </div>
                   )
