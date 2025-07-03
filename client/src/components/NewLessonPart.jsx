@@ -223,14 +223,14 @@ export default function NewLessonPart() {
                 {/* Save & Cancel */}
                 <div className="form-actions">
                   <button
-                    className="btn-save"
+                    className="btn-save-view"
                     onClick={handleSave}
                     disabled={saving}
                   >
                     {saving ? 'Saving…' : 'Save'}
                   </button>
                   <button
-                    className="btn-cancel"
+                    className="btn-cancel-view"
                     onClick={handleCancel}
                     disabled={saving}
                   >
