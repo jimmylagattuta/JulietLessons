@@ -1,0 +1,9 @@
+#!/bin/bash
+echo "🧹 Cleaning old assets..."
+bundle exec rails assets:clobber
+
+echo "🛠️ Precompiling new assets..."
+bundle exec rails assets:precompile
+
+echo "🚀 Starting Rails server..."
+bundle exec rails s

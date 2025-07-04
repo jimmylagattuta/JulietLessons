@@ -7,11 +7,15 @@ Rails.application.routes.draw do
     get  "lesson_planning", to: "lesson_planning#index"
 
     # Lessons
-    resources :lessons, only: [:create, :show] do
+    resources :lessons, only: [:index, :create, :show] do
       get :random, on: :collection
     end
+
     resources :scripts, only: %i[index show create update destroy] do
       post :upload, on: :member
+    end
+    namespace :stripe do
+      resources :subscriptions, only: [:show, :create]
     end
     # Lesson parts
     resources :lesson_parts, only: [:create]
@@ -20,6 +24,9 @@ Rails.application.routes.draw do
     post 'users/register', to: 'users#create'
     post 'users/login',    to: 'sessions#create'
     get  'users/profile',  to: 'sessions#profile'
+    get 'users/stats', to: 'users#stats'
+    get 'users/:id', to: 'users#show'
+    get  'users', to: 'users#index'
   end
 
   # All other paths fall back to your front-end

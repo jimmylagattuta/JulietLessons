@@ -2,7 +2,7 @@ import { Activity, Script } from '../types';
 import { AuthService } from './auth';
 
 // const API_BASE_URL = 'http://52.15.159.45:3001/api'  // Production
-const API_BASE_URL = 'https://5872-35-78-107-144.ngrok-free.app/api'  // Production
+const API_BASE_URL = '/api'  // Production
 // const API_BASE_URL = 'http://localhost:3001/api';
 
 export class ApiError extends Error {

@@ -1,6 +1,17 @@
 # app/controllers/api/lessons_controller.rb
 class Api::LessonsController < ApplicationController
-  # GET /api/lessons/random
+  def index
+    lessons = Lesson.includes(lesson_parts: { files_attachments: :blob })
+
+    # Optional: filter by user ID (if you want to support ?userId=123)
+    if params[:userId]
+      lessons = lessons.joins(:users).where(users: { id: params[:userId] }).distinct
+    end
+
+    render json: lessons,
+           include: { lesson_parts: { methods: :file_infos } }
+  end
+
   def random
     lesson = Lesson.includes(lesson_parts: { files_attachments: :blob })
                    .order('RANDOM()')
@@ -23,6 +34,12 @@ class Api::LessonsController < ApplicationController
   def create
     lesson = Lesson.new(lesson_params)
 
+    # Associate user if user_id is passed (e.g. from frontend session or payload)
+    if params[:user_id].present?
+      user = User.find_by(id: params[:user_id])
+      lesson.users << user if user
+    end
+
     if lesson.save
       render json: lesson,
              status: :created,
@@ -40,8 +57,6 @@ class Api::LessonsController < ApplicationController
       :title,
       :objective,
       at_a_glance: [],
-
-      # allow nested lesson_parts + attachments
       lesson_parts_attributes: [
         :section_type,
         :title,
@@ -49,7 +64,7 @@ class Api::LessonsController < ApplicationController
         :time,
         :position,
         :_destroy,
-        files: []          # if you’re sending PDFs in multipart
+        files: []  # accepts attached files
       ]
     )
   end

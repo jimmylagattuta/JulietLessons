@@ -49,7 +49,7 @@ export function UserManagementPanel({
 }: UserManagementPanelProps) {
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
   const [showDropdown, setShowDropdown] = useState<string | null>(null);
-
+  
   const updateFilter = (key: keyof UserFilters, value: any) => {
     onFiltersChange({ ...filters, [key]: value || undefined });
   };

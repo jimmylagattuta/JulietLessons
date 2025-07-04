@@ -10,7 +10,7 @@ import { AuthService } from '../services/auth';
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 // const API_BASE_URL = 'http://52.15.159.45:3001/api'  // Production
-const API_BASE_URL = 'https://5872-35-78-107-144.ngrok-free.app/api'  // Production
+const API_BASE_URL = '/api'  // Production
 // const API_BASE_URL = 'http://localhost:3001/api';
 
 interface SubscriptionModalProps {

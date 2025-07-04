@@ -412,11 +412,17 @@ function App() {0
 
   // Load users (admin only)
   const loadUsers = async () => {
-    if (authState.user?.role !== 'admin') return;
-    
     try {
+      if (!authState?.user || authState.user.role !== 'admin') {
+        console.warn('User is not admin or authState is undefined');
+        return;
+      }
+
       setUsersLoading(true);
       const data = await AuthService.getAllUsers(userFilters);
+
+      console.log('Fetched users data:', data); // 👈 Add this to inspect the response
+
       setUsers(data);
     } catch (err) {
       console.error('Error loading users:', err);
@@ -424,6 +430,7 @@ function App() {0
       setUsersLoading(false);
     }
   };
+
 
   // Load user stats (admin only)
   const loadUserStats = async () => {

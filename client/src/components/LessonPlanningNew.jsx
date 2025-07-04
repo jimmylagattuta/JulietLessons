@@ -3,7 +3,7 @@ import {
   DragDropContext,
   Droppable,
   Draggable
-} from 'react-beautiful-dnd'
+} from '@hello-pangea/dnd'
 
 const SECTION_LABELS = {
   warm_up:         'Warm Ups',
@@ -47,6 +47,11 @@ export default function LessonPlanningNew({ onAddToPlan }) {
       .catch(err => console.error(err))
   }, [])
 
+    useEffect(() => {
+    console.log("✅ Component mounted");
+    }, []);
+
+
   const filtered = useMemo(() => {
     return allParts.filter(p => {
       if (filters.section  && p.section_type !== filters.section) return false
@@ -59,54 +64,117 @@ export default function LessonPlanningNew({ onAddToPlan }) {
     })
   }, [allParts, filters])
 
-  function onDragStart(start) {
-    const part = allParts.find(p => String(p.id) === start.draggableId)
-    setDraggingType(part?.section_type || null)
-    setInvalidDrop(false)
-    setInvalidSection('')
-  }
 
-  function onDragUpdate(update) {
-    const dest = update.destination?.droppableId
-    if (!dest) {
-      setInvalidDrop(false)
-      setInvalidSection('')
-      return
-    }
-    if (Object.keys(SECTION_LABELS).includes(dest)) {
-      if (dest !== draggingType) {
-        setInvalidDrop(true)
-        setInvalidSection(SECTION_LABELS[draggingType])
-      } else {
+    function onDragStart(start) {
+    try {
+        console.log("🟢 onDragStart", start)
+        const part = allParts.find(p => String(p.id) === start.draggableId)
+        setDraggingType(part?.section_type || null)
         setInvalidDrop(false)
         setInvalidSection('')
-      }
-    } else {
-      setInvalidDrop(false)
-      setInvalidSection('')
+    } catch (error) {
+        console.error("❌ Error in onDragStart:", error)
     }
-  }
-
-  function onDragEnd(result) {
-    const { source, destination, draggableId } = result
-    setDraggingType(null)
-    setInvalidDrop(false)
-    setInvalidSection('')
-
-    if (
-      source.droppableId === 'parts' &&
-      Object.keys(SECTION_LABELS).includes(destination?.droppableId)
-    ) {
-      const part = allParts.find(p => String(p.id) === draggableId)
-      if (part && destination.droppableId === part.section_type) {
-        onAddToPlan(part)
-        setSectionParts(prev => ({
-          ...prev,
-          [destination.droppableId]: [...prev[destination.droppableId], part]
-        }))
-      }
     }
-  }
+
+
+    function onDragUpdate(update) {
+    try {
+        console.log("🟡 onDragUpdate triggered", update)
+
+        const dest = update.destination?.droppableId
+
+        if (!dest) {
+        setInvalidDrop(false)
+        setInvalidSection('')
+        return
+        }
+
+        if (Object.keys(SECTION_LABELS).includes(dest)) {
+        if (dest !== draggingType) {
+            setInvalidDrop(true)
+            setInvalidSection(SECTION_LABELS[draggingType] || 'Unknown')
+        } else {
+            setInvalidDrop(false)
+            setInvalidSection('')
+        }
+        } else {
+        setInvalidDrop(false)
+        setInvalidSection('')
+        }
+    } catch (error) {
+        console.error("❌ Error in onDragUpdate:", error)
+    }
+    }
+
+
+    function onDragEnd(result) {
+        const { source, destination, draggableId } = result
+        console.log('🟡 Drag Ended')
+        console.log('Source:', source)
+        console.log('Destination:', destination)
+        console.log('Draggable ID:', draggableId)
+
+        setDraggingType(null)
+        setInvalidDrop(false)
+        setInvalidSection('')
+
+        // 🔴 Drop outside any droppable
+        if (!destination) {
+            console.warn('❌ Dropped outside a valid droppable area')
+            return
+        }
+
+        // 🔴 Not from the pool to a section block
+        if (source.droppableId !== 'parts') {
+            console.warn('❌ Dragged from an invalid source:', source.droppableId)
+            return
+        }
+
+        // 🔴 Not dropped into a valid section
+        if (!Object.keys(SECTION_LABELS).includes(destination.droppableId)) {
+            console.warn('❌ Dropped into an unknown section:', destination.droppableId)
+            return
+        }
+
+        const part = allParts.find(p => String(p.id) === draggableId)
+        if (!part) {
+            console.warn('❌ Part not found for draggableId:', draggableId)
+            return
+        }
+
+        // 🔴 Mismatched section drop
+        if (destination.droppableId !== part.section_type) {
+            console.warn(`❌ Invalid section drop. Expected ${part.section_type}, got ${destination.droppableId}`)
+            return
+        }
+
+        // ✅ Valid drop – proceed
+        console.log(`✅ Droppedd ${part.title} into correct section: ${destination.droppableId}`)
+        // onAddToPlan(part)
+        setSectionParts(prev => {
+        const existing = prev[destination.droppableId]
+        console.log("🧱 Current section parts before drop:", existing)
+        console.log("📦 Incoming part:", part)
+
+        const alreadyAdded = existing.some(p => p.id === part.id)
+        if (alreadyAdded) {
+            console.warn("⚠️ Part already added to this section. Skipping.")
+            return prev
+        }
+
+        const updated = {
+            ...prev,
+            [destination.droppableId]: [...existing, part],
+        }
+
+        console.log("✅ Updated sectionParts after drop:", updated)
+        return updated
+        })
+
+    }
+
+    console.log("🔧 Hooking onDragEnd:", onDragEnd.name)
 
   return (
     <DragDropContext
