@@ -44,7 +44,7 @@ export const selectedScriptAtom = atom<Script | null>(null);
 export const selectedUserAtom = atom<User | null>(null);
 
 // UI state
-export const activeTabAtom = atom<'generate' | 'activities' | 'scripts' | 'lessons' | 'lessonPlanningNew' | 'users' | 'newLesson'>('generate');
+export const activeTabAtom = atom<'generate' | 'activities' | 'scripts' | 'lessons' | 'lessonPlanningNew' | 'users' | 'lessonPartBuilder'>('generate');
 export const showCreateModalAtom = atom(false);
 export const showSaveLessonModalAtom = atom(false);
 export const showUserModalAtom = atom(false);

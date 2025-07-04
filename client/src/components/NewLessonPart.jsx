@@ -145,7 +145,15 @@ export default function NewLessonPart() {
         )}
 
         {showEditForm && (
-          <div className="w-full h-full min-h-screen flex flex-col bg-white dark:bg-dark-900 p-6 space-y-6">
+          <div className="w-full h-full min-h-screen flex flex-col bg-white dark:bg-dark-900 p-6 space-y-0">
+            <div className="mb-0">
+              <button
+                onClick={() => setShowEditForm(false)}
+                className="text-blue-600 hover:underline font-medium mb-2"
+              >
+                ← Back
+              </button>
+            </div>
             <EditLessonPart />
           </div>
         )}
@@ -155,6 +163,14 @@ export default function NewLessonPart() {
         {/* Form */}
         {showForm && (
           <div className="flex-1 overflow-auto p-6 max-w-2xl mx-auto">
+            <div className="mb-4">
+              <button
+                onClick={() => setShowForm(false)}
+                className="text-blue-600 hover:underline font-medium mb-2"
+              >
+                ← Back
+              </button>
+            </div>
             {/* Section */}
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
