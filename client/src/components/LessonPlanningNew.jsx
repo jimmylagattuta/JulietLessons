@@ -311,103 +311,141 @@ function onDragEnd(result) {
 
   {/* Preview toolbar or grid */}
   <div className="flex-1 p-4 overflow-auto relative">
-{showPreview && (
-  <div className="w-full flex justify-center mt-6">
-    <div className="flex flex-col gap-6 px-8 py-8 border-2 border-blue-500/40 bg-dark-700 rounded-xl shadow-lg w-full max-w-5xl">
+    {showPreview && (
+    <div className="w-full flex justify-center mt-6">
+        <div className="flex flex-col gap-6 px-10 py-10 border-2 border-sky-400/40 bg-gradient-to-br from-dark-700 via-dark-800 to-dark-700 rounded-2xl shadow-xl w-full max-w-6xl transition-all duration-300">
 
-      <h2 className="text-2xl font-bold text-white text-center">Finalize Lesson</h2>
+        <h2 className="text-3xl font-extrabold text-white text-center tracking-wide">
+            ✨ Finalize Your Lesson Plan
+        </h2>
 
-      {/* Editable title + objective + at-a-glance */}
-      <div className="space-y-4">
-        <div>
-          <label className="block text-sm font-semibold text-white mb-1">Title</label>
-          <input
-            type="text"
-            value={previewTitle}
-            onChange={e => setPreviewTitle(e.target.value)}
-            placeholder="Enter a title for this lesson..."
-            className="w-full px-4 py-2 rounded-md border border-dark-500 bg-dark-600 text-white placeholder-gray-400"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-semibold text-white mb-1">Objective</label>
-          <textarea
-            value={previewObjective}
-            onChange={e => setPreviewObjective(e.target.value)}
-            rows={3}
-            placeholder="What’s the learning goal of this lesson?"
-            className="w-full px-4 py-2 rounded-md border border-dark-500 bg-dark-600 text-white placeholder-gray-400"
-          />
-        </div>
-
-        <div>
-          <label className="block text-sm font-semibold text-white mb-1">At a Glance</label>
-          {previewBullets.map((b, i) => (
+        {/* Editable title, objective, and bullets */}
+        <div className="space-y-6">
+            <div>
+            <label className="block text-sm font-semibold text-white mb-1">Lesson Title</label>
             <input
-              key={i}
-              type="text"
-              value={b}
-              onChange={e => {
-                const copy = [...previewBullets]
-                copy[i] = e.target.value
-                if (i === copy.length - 1 && e.target.value.trim() !== '') {
-                  copy.push('')
-                }
-                setPreviewBullets(copy)
-              }}
-              placeholder="Add a quick bullet..."
-              className="w-full mb-2 px-4 py-2 rounded-md border border-dark-500 bg-dark-600 text-white placeholder-gray-400"
+                type="text"
+                value={previewTitle}
+                onChange={e => setPreviewTitle(e.target.value)}
+                placeholder="e.g. Exploring Imagination Through Movement"
+                className="w-full px-5 py-3 rounded-lg border border-sky-500 bg-dark-600 text-white placeholder-sky-200 shadow-inner focus:outline-none focus:ring-2 focus:ring-sky-500"
             />
-          ))}
-        </div>
-      </div>
+            </div>
 
-      {/* Lesson parts by section (read-only) */}
-    {Object.entries(sectionParts).map(([sectionType, parts]) => (
-        <div key={sectionType} className="mt-6">
-          <h3 className="text-lg font-semibold text-sky-300 border-b border-sky-500/30 pb-1 mb-3 uppercase tracking-wider">
-            {SECTION_LABELS[sectionType]}
-          </h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {parts.map(p => (
-              <div key={p.id || p.tempId} className="bg-dark-800 border border-dark-600 rounded-lg p-4 shadow-sm">
-                <h4 className="text-white font-bold text-lg mb-1">{p.title}</h4>
-                {p.time && (
-                  <p className="text-sm text-gray-300 mb-1">
-                    <span className="text-white/70 font-semibold">Time:</span> {p.time} min
-                  </p>
-                )}
-                <p className="text-sm text-gray-400 leading-relaxed whitespace-pre-line">
-                  {p.body}
-                </p>
-              </div>
+            <div>
+            <label className="block text-sm font-semibold text-white mb-1">Objective</label>
+            <textarea
+                value={previewObjective}
+                onChange={e => setPreviewObjective(e.target.value)}
+                rows={4}
+                placeholder="What should students learn or experience from this lesson?"
+                className="w-full px-5 py-3 rounded-lg border border-sky-500 bg-dark-600 text-white placeholder-sky-200 shadow-inner focus:outline-none focus:ring-2 focus:ring-sky-500"
+            />
+            </div>
+
+            <div>
+            <label className="block text-sm font-semibold text-white mb-2">At a Glance</label>
+            {previewBullets.map((b, i) => (
+                <input
+                key={i}
+                type="text"
+                value={b}
+                onChange={e => {
+                    const copy = [...previewBullets]
+                    copy[i] = e.target.value
+                    if (i === copy.length - 1 && e.target.value.trim() !== '') {
+                    copy.push('')
+                    }
+                    setPreviewBullets(copy)
+                }}
+                placeholder="• Add a key takeaway..."
+                className="w-full mb-2 px-5 py-2.5 rounded-lg border border-sky-400 bg-dark-600 text-white placeholder-sky-300 shadow-sm focus:outline-none focus:ring-1 focus:ring-sky-400"
+                />
             ))}
-          </div>
+            </div>
         </div>
-      ))}
 
-      {/* Action buttons */}
-      <div className="flex gap-4 mt-8 justify-center">
-        <button
-          onClick={() => {
-            alert("Lesson saved!") // Replace with your actual save handler
-            setShowPreview(false)
-          }}
-          className="flex-1 px-4 py-2 rounded-md bg-blue-600 hover:bg-blue-500 text-white font-semibold"
-        >
-          Save
-        </button>
-        <button
-          onClick={() => setShowPreview(false)}
-          className="flex-1 px-4 py-2 rounded-md bg-gray-700 hover:bg-gray-600 text-white font-semibold"
-        >
-          Cancel
-        </button>
-      </div>
+        {/* Lesson parts by section (read-only) */}
+        {Object.entries(sectionParts).map(([sectionType, parts]) => (
+            <div key={sectionType} className="mt-4">
+            <h3 className="text-lg font-bold text-sky-300 uppercase tracking-wide mb-3 border-b border-sky-600 pb-1">
+                {SECTION_LABELS[sectionType]}
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                {parts.map(p => (
+                    <div
+                    key={p.id || p.tempId}
+                    className="rounded-xl bg-dark-800 border border-dark-600 hover:border-sky-500/40 transition-shadow duration-200 p-6 shadow-sm hover:shadow-md"
+                    >
+                    {/* Title & Time */}
+                    <div className="flex justify-between items-start mb-2">
+                        <div className="flex items-center gap-2">
+                        <span className="text-xl">
+                            {SECTION_ICONS[p.section_type] || '🎯'}
+                        </span>
+                        <h4 className="text-lg font-bold text-white">{p.title}</h4>
+                        </div>
+                        {p.time && (
+                        <span className="flex items-center gap-1 text-sm text-sky-300 font-medium">
+                            ⏱ {p.time} min
+                        </span>
+                        )}
+                    </div>
+
+                    {/* Description */}
+                    <p className="text-sm text-gray-300 leading-relaxed mb-3">{p.body}</p>
+
+                    {/* Attributes */}
+                    <div className="flex flex-wrap gap-2 text-xs font-medium">
+                        {p.age_group && (
+                        <span className="px-2 py-0.5 rounded-full bg-sky-700/30 text-sky-200">
+                            🧒 {p.age_group}
+                        </span>
+                        )}
+                        {p.level && (
+                        <span className="px-2 py-0.5 rounded-full bg-indigo-700/30 text-indigo-200">
+                            📈 {p.level}
+                        </span>
+                        )}
+                        {(p.tags || []).map((tag, i) => (
+                        <span
+                            key={i}
+                            className="px-2 py-0.5 rounded-full bg-gray-700/30 text-gray-300"
+                        >
+                            #{tag}
+                        </span>
+                        ))}
+                    </div>
+                    </div>
+
+
+                ))}
+            </div>
+            </div>
+        ))}
+
+        {/* Fancy Buttons */}
+        <div className="flex gap-6 mt-10 justify-center">
+            <button
+            onClick={() => {
+                alert("Lesson saved!")
+                setShowPreview(false)
+            }}
+            className="flex-1 px-6 py-3 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold shadow-md hover:from-blue-500 hover:to-indigo-500 transition"
+            >
+                Save Lesson
+            </button>
+            <button
+            onClick={() => setShowPreview(false)}
+            className="flex-1 px-6 py-3 rounded-lg bg-gray-700 text-white font-semibold shadow-md hover:bg-gray-600 transition"
+            >
+                Cancel
+            </button>
+        </div>
+        </div>
     </div>
-  </div>
-)}
+    )}
+
 
 
 
