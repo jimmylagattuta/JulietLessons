@@ -121,16 +121,36 @@ function onDragEnd(result) {
     }))
   }
 
+  const totalActivities = Object.values(sectionParts).reduce(
+    (acc, arr) => acc + arr.length, 0
+    )
+
+    const totalMinutes = Object.values(sectionParts).reduce(
+    (acc, arr) => acc + arr.reduce((sum, p) => sum + (p.time || 0), 0), 0
+    )
+
+
   return (
     <DragDropContext onDragStart={onDragStart} onDragUpdate={onDragUpdate} onDragEnd={onDragEnd}>
       <div className="flex flex-1 overflow-hidden bg-gray-50 dark:bg-dark-900 transition-colors duration-200">
 
         {/* Sidebar */}
         <aside className="w-96 bg-white dark:bg-dark-800 border-r border-gray-200 dark:border-dark-700 p-6 overflow-auto flex flex-col">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Lesson Plan</h2>
-            <button className="text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200">←</button>
-          </div>
+<div className="mb-4">
+  <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-1">Lesson Plan</h2>
+  <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-300">
+    <div className="flex items-center gap-1.5">
+      <span className="text-xs">⏱️</span>
+      <span className="font-medium">{totalMinutes} min</span>
+    </div>
+    <div className="flex items-center gap-1.5">
+      <span className="text-xs">👥</span>
+      <span className="font-medium">{totalActivities} activities</span>
+    </div>
+  </div>
+</div>
+
+
           <div className="border-b border-gray-200 dark:border-dark-700 mb-6" />
           <div className="space-y-6">
             {Object.entries(SECTION_LABELS).map(([key, label]) => (
