@@ -14,6 +14,15 @@ module Api
       end
     end
 
+    def update
+      lesson_part = LessonPart.find(params[:id])
+      if lesson_part.update(lesson_part_params)
+        render json: { message: "Lesson Part updated successfully", part: lesson_part }, status: :ok
+      else
+        render json: { message: "Update failed", errors: lesson_part.errors.full_messages }, status: :unprocessable_entity
+      end
+    end
+
     private
 
     def lesson_part_params

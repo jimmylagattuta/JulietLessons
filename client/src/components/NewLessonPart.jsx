@@ -1,5 +1,6 @@
 // src/components/NewLessonPart.jsx
 import React, { useState } from 'react';
+import EditLessonPart from './EditLessonPart';
 
 const SECTION_LABELS = {
   warm_up:         'Warm Ups',
@@ -22,6 +23,7 @@ export default function NewLessonPart() {
   const [level, setLevel]           = useState('');
   const [pdfFiles, setPdfFiles]     = useState([{ file: null }]);
   const [saving, setSaving]         = useState(false);
+  const [showEditForm, setShowEditForm] = useState(false);
 
   const resetForm = () => {
     setSectionType('');
@@ -90,20 +92,65 @@ export default function NewLessonPart() {
       {/* Main area */}
       <div className="flex-1 flex flex-col min-h-0">
         {/* Header */}
-        <div className="p-6 bg-white dark:bg-dark-800 border-b border-gray-200 dark:border-dark-700">
-          <div
-            className="flex items-center space-x-3 cursor-pointer"
-            onClick={() => !showForm && setShowForm(true)}
-            role={!showForm ? 'button' : undefined}
-            tabIndex={!showForm ? 0 : undefined}
-            onKeyPress={e => !showForm && e.key === 'Enter' && setShowForm(true)}
-          >
-            {!showForm && <div className="text-4xl font-bold text-green-500">+</div>}
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-              {showForm ? 'New Lesson Part' : 'Create a Lesson Part'}
-            </h1>
+        {/* Show Create Header ONLY if not editing */}
+        {!showEditForm && (
+          <div className="p-6 bg-white dark:bg-dark-800 border-b border-gray-200 dark:border-dark-700">
+            <div
+              className="flex items-center space-x-3 cursor-pointer"
+              onClick={() => {
+                setShowForm(true);
+                setShowEditForm(false);
+              }}
+              role={!showForm ? 'button' : undefined}
+              tabIndex={!showForm ? 0 : undefined}
+              onKeyPress={e => {
+                if (!showForm && e.key === 'Enter') {
+                  setShowForm(true);
+                  setShowEditForm(false);
+                }
+              }}
+            >
+              {!showForm && <div className="text-4xl font-bold text-green-500">+</div>}
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                {showForm ? 'New Lesson Part' : 'Create a Lesson Part'}
+              </h1>
+            </div>
           </div>
-        </div>
+        )}
+
+        {/* Show Edit Header ONLY if not creating */}
+        {!showForm && (
+          <div className="p-6 bg-white dark:bg-dark-800 border-b border-gray-200 dark:border-dark-700">
+            <div
+              className="flex items-center space-x-3 cursor-pointer"
+              onClick={() => {
+                setShowEditForm(true);
+                setShowForm(false);
+              }}
+              role={!showEditForm ? 'button' : undefined}
+              tabIndex={!showEditForm ? 0 : undefined}
+              onKeyPress={e => {
+                if (!showEditForm && e.key === 'Enter') {
+                  setShowEditForm(true);
+                  setShowForm(false);
+                }
+              }}
+            >
+              {!showEditForm && <div className="text-4xl font-bold text-yellow-400">✎</div>}
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                {showEditForm ? 'Edit a Lesson Part' : 'Edit a Lesson Part'}
+              </h1>
+            </div>
+          </div>
+        )}
+
+        {showEditForm && (
+          <div className="w-full h-full min-h-screen flex flex-col bg-white dark:bg-dark-900 p-6 space-y-6">
+            <EditLessonPart />
+          </div>
+        )}
+
+
 
         {/* Form */}
         {showForm && (

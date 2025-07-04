@@ -18,7 +18,7 @@ Rails.application.routes.draw do
       resources :subscriptions, only: [:show, :create]
     end
     # Lesson parts
-    resources :lesson_parts, only: [:create]
+    resources :lesson_parts, only: [:create, :update]
 
     # ---- Auth endpoints ----
     post 'users/register', to: 'users#create'
