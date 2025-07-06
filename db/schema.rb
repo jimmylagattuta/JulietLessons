@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_07_03_235836) do
+ActiveRecord::Schema[7.2].define(version: 2025_07_05_052355) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -43,7 +43,6 @@ ActiveRecord::Schema[7.2].define(version: 2025_07_03_235836) do
   end
 
   create_table "lesson_parts", force: :cascade do |t|
-    t.bigint "lesson_id"
     t.integer "section_type"
     t.string "title"
     t.text "body"
@@ -54,7 +53,13 @@ ActiveRecord::Schema[7.2].define(version: 2025_07_03_235836) do
     t.datetime "updated_at", null: false
     t.string "age_group"
     t.string "level"
-    t.index ["lesson_id"], name: "index_lesson_parts_on_lesson_id"
+  end
+
+  create_table "lesson_parts_lessons", id: false, force: :cascade do |t|
+    t.bigint "lesson_id", null: false
+    t.bigint "lesson_part_id", null: false
+    t.index ["lesson_id", "lesson_part_id"], name: "index_lesson_parts_lessons_on_lesson_id_and_lesson_part_id", unique: true
+    t.index ["lesson_part_id", "lesson_id"], name: "index_lesson_parts_lessons_on_lesson_part_id_and_lesson_id"
   end
 
   create_table "lessons", force: :cascade do |t|
@@ -98,6 +103,5 @@ ActiveRecord::Schema[7.2].define(version: 2025_07_03_235836) do
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
-  add_foreign_key "lesson_parts", "lessons"
   add_foreign_key "subscriptions", "users"
 end

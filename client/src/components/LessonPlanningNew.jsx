@@ -37,6 +37,7 @@ export default function LessonPlanningNew({ onAddToPlan }) {
   const [previewTitle, setPreviewTitle] = useState('')
   const [previewObjective, setPreviewObjective] = useState('')
   const [previewBullets, setPreviewBullets] = useState([''])
+  const [isSaving, setIsSaving] = useState(false)
 
   useEffect(() => {
     fetch('/api/lesson_planning')
@@ -89,6 +90,50 @@ function onDragUpdate(update) {
       setInvalidDrop(false)
       setInvalidSection('')
     }
+  }
+}
+
+const handleSaveLesson = async () => {
+  setIsSaving(true)
+
+  // 🔍 Flatten all selected parts and extract their IDs
+  const lessonPartIds = Object.values(sectionParts)
+    .flat()
+    .map(part => part.id)
+    .filter(Boolean) // in case any don't have IDs (e.g. unsaved parts)
+
+  const payload = {
+    lesson: {
+      title: previewTitle,
+      objective: previewObjective,
+      at_a_glance: previewBullets.filter(b => b.trim() !== ''),
+      lesson_part_ids: lessonPartIds,
+    }
+  }
+
+  console.log("🟢 Final payload to POST:", payload)
+
+  try {
+    const res = await fetch('/api/lessons', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+
+    console.log("📬 Response status:", res.status)
+
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+
+    const data = await res.json()
+    console.log("✅ Response JSON:", data)
+
+    alert("Lesson saved! 🎉")
+    setShowPreview(false)
+  } catch (err) {
+    console.error('❌ Failed to save lesson:', err)
+    alert('There was an error saving the lesson.')
+  } finally {
+    setIsSaving(false)
   }
 }
 
@@ -428,7 +473,7 @@ function onDragEnd(result) {
         <div className="flex gap-6 mt-10 justify-center">
             <button
             onClick={() => {
-                alert("Lesson saved!")
+                handleSaveLesson()
                 setShowPreview(false)
             }}
             className="flex-1 px-6 py-3 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold shadow-md hover:from-blue-500 hover:to-indigo-500 transition"

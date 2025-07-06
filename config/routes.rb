@@ -7,7 +7,7 @@ Rails.application.routes.draw do
     get  "lesson_planning", to: "lesson_planning#index"
 
     # Lessons
-    resources :lessons, only: [:index, :create, :show] do
+    resources :lessons, only: [:index, :create, :show, :update, :destroy] do
       get :random, on: :collection
     end
 

@@ -1,6 +1,6 @@
 # app/models/lesson_part.rb
 class LessonPart < ApplicationRecord
-  belongs_to :lesson, optional: true
+  has_and_belongs_to_many :lessons
   has_many_attached :files
 
   enum section_type: {
