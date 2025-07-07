@@ -128,14 +128,63 @@ export default function LessonNotebook({ userId }) {
   return (
     <div className="flex w-full min-h-screen bg-dark-900 text-white">
       {/* Sidebar */}
-      <aside className="w-96 bg-white dark:bg-dark-800 border-r border-gray-200 dark:border-dark-700 p-6">
-        <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
-          Lesson Notebook
-        </h2>
-        <p className="text-sm text-gray-600 dark:text-gray-300">
-          Review and manage your saved lessons here.
-        </p>
+  <aside className="w-96 bg-white dark:bg-dark-800 border-r border-gray-200 dark:border-dark-700 p-6">
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Lesson Notebook</h2>
+        <p className="text-sm text-gray-600 dark:text-gray-300">Review and manage your saved lessons here.</p>
         <div className="border-b border-gray-200 dark:border-dark-700 my-6" />
+
+        {/* Sidebar Filters */}
+        <div className="space-y-4">
+          <button
+            onClick={() => setShowFavorites(f => !f)}
+            className={`w-full px-3 py-2 rounded-md text-sm font-medium transition ${
+              showFavorites ? 'bg-green-600 text-white' : 'border border-green-600 text-green-600'
+            }`}
+          >
+            {showFavorites ? 'Show Only Favorites: On' : 'Show Only Favorites: Off'}
+          </button>
+
+          <select
+            value={filters.tag}
+            onChange={e => setFilters(f => ({ ...f, tag: e.target.value }))}
+            className="w-full px-3 py-2 bg-white dark:bg-dark-700 border rounded-lg text-gray-700 dark:text-gray-200"
+          >
+            <option value="">All Tags</option>
+            {AVAILABLE_TAGS.map(tag => <option key={tag} value={tag}>{tag}</option>)}
+          </select>
+
+          <select
+            value={filters.ageGroup}
+            onChange={e => setFilters(f => ({ ...f, ageGroup: e.target.value }))}
+            className="w-full px-3 py-2 bg-white dark:bg-dark-700 border rounded-lg text-gray-700 dark:text-gray-200"
+          >
+            <option value="">All Ages</option>
+            <option value="Young">Young</option>
+            <option value="Middle">Middle</option>
+            <option value="Older">Older</option>
+            <option value="All">All</option>
+          </select>
+
+          <select
+            value={filters.level}
+            onChange={e => setFilters(f => ({ ...f, level: e.target.value }))}
+            className="w-full px-3 py-2 bg-white dark:bg-dark-700 border rounded-lg text-gray-700 dark:text-gray-200"
+          >
+            <option value="">All Levels</option>
+            <option value="Toe Tipper">Toe Tipper</option>
+            <option value="Green Horn">Green Horn</option>
+            <option value="Semi-Pro">Semi-Pro</option>
+            <option value="Seasoned Veteran(all)">Seasoned Veteran(all)</option>
+          </select>
+
+          <input
+            type="text"
+            value={filters.search}
+            onChange={e => setFilters(f => ({ ...f, search: e.target.value }))}
+            placeholder="Search..."
+            className="w-full px-3 py-2 bg-white dark:bg-dark-700 border rounded-lg text-gray-700 dark:text-gray-200"
+          />
+        </div>
       </aside>
 
       {/* Main Content */}
@@ -151,67 +200,7 @@ export default function LessonNotebook({ userId }) {
           </div>
         )}
 
-        {/* Filters */}
-        <div className="w-full grid grid-cols-1 sm:grid-cols-5 gap-4 bg-white dark:bg-dark-800 border border-gray-200 dark:border-dark-700 p-4 mb-6">
-          {/* Favorites toggle */}
-          <button
-            onClick={() => setShowFavorites(f => !f)}
-            className={`px-3 py-2 rounded-md text-sm font-medium transition ${
-              showFavorites
-                ? 'bg-green-600 text-white'
-                : 'border border-green-600 text-green-600'
-            }`}
-          >
-            {showFavorites ? 'Show Only Favorites: On' : 'Show Only Favorites: Off'}
-          </button>
 
-          {/* Section Filter */}
-         <select
-            value={filters.tag}
-            onChange={e => setFilters(f => ({ ...f, tag: e.target.value }))}
-            className="w-full px-3 py-2 bg-white dark:bg-dark-700 border rounded-lg text-gray-700 dark:text-gray-200"
-          >
-            <option value="">All Tags</option>
-            {AVAILABLE_TAGS.map(tag => (
-              <option key={tag} value={tag}>{tag}</option>
-            ))}
-          </select>
-
-          {/* Age Filter */}
-          <select
-            value={filters.ageGroup}
-            onChange={e => setFilters(f => ({ ...f, ageGroup: e.target.value }))}
-            className="w-full px-3 py-2 bg-white dark:bg-dark-700 border rounded-lg text-gray-700 dark:text-gray-200"
-          >
-            <option value="">All Ages</option>
-            <option value="Young">Young</option>
-            <option value="Middle">Middle</option>
-            <option value="Older">Older</option>
-            <option value="All">All</option>
-          </select>
-
-          {/* Level Filter */}
-          <select
-            value={filters.level}
-            onChange={e => setFilters(f => ({ ...f, level: e.target.value }))}
-            className="w-full px-3 py-2 bg-white dark:bg-dark-700 border rounded-lg text-gray-700 dark:text-gray-200"
-          >
-            <option value="">All Levels</option>
-            <option value="Toe Tipper">Toe Tipper</option>
-            <option value="Green Horn">Green Horn</option>
-            <option value="Semi-Pro">Semi-Pro</option>
-            <option value="Seasoned Veteran(all)">Seasoned Veteran(all)</option>
-          </select>
-
-          {/* Search Input */}
-          <input
-            type="text"
-            value={filters.search}
-            onChange={e => setFilters(f => ({ ...f, search: e.target.value }))}
-            placeholder="Search..."
-            className="w-full px-3 py-2 bg-white dark:bg-dark-700 border rounded-lg text-gray-700 dark:text-gray-200"
-          />
-        </div>
 
         {/* Lesson List */}
         {filteredLessons.length === 0 ? (

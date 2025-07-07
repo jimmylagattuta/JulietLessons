@@ -1161,20 +1161,6 @@ function App() {0
             )}
 
             <button
-              onClick={() => setActiveTab('lessons')}
-              className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors ${
-                activeTab === 'lessons'
-                  ? 'border-purple-500 text-purple-600 dark:text-purple-400'
-                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
-              }`}
-            >
-              <div className="flex items-center space-x-2">
-                <Layout className="w-4 h-4" />
-                <span>Lesson Planning</span>
-              </div>
-            </button>
-
-            <button
               onClick={() => setActiveTab('lessonPlanningNew')}
               className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors ${
                 activeTab === 'lessonPlanningNew'
@@ -1184,7 +1170,7 @@ function App() {0
             >
               <div className="flex items-center space-x-2">
                 <Layout className="w-4 h-4" />
-                <span>Lesson Planning (new)</span>
+                <span>Lesson Planning</span>
               </div>
             </button>
 
@@ -1289,104 +1275,6 @@ function App() {0
               onSwitch={setActiveTab}
               onSaveAndView={handleViewSavedLesson}
             />
-        )}
-
-        {activeTab === 'lessons' && (
-          <div className="flex-1 flex">
-              {/* Lesson Plan Sidebar */}
-              <LessonPreviewPanel
-                lessonPlan={currentLessonPlan}
-                onAddActivity={handleAddActivityToLesson}
-                onRemoveActivity={handleRemoveActivityFromLesson}
-                onViewScript={handleViewScript}
-                onGenerateLesson={handleGenerateLesson}
-                onSaveLesson={() => setShowSaveLessonModal(true)}
-                onShowSavedLessons={() => setShowSavedLessons(!showSavedLessons)}
-                isGenerating={lessonGenerationState === 'generating'}
-                showSavedLessons={showSavedLessons}
-                isCollapsed={lessonPlanCollapsed}
-                onToggleCollapse={() => setLessonPlanCollapsed(!lessonPlanCollapsed)}
-                targetSection={targetSection}
-              />
-              
-              <main className="flex-1 overflow-y-auto p-6">
-                {/* Subscription Banner */}
-                <SubscriptionBanner
-                  subscription={authState.user?.subscription || null}
-                  onUpgrade={() => setShowSubscriptionModal(true)}
-                />
-
-                {error && (
-                  <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg flex items-center space-x-3">
-                    <AlertCircle className="w-5 h-5 text-red-600 dark:text-red-400 flex-shrink-0" />
-                    <div>
-                      <p className="text-red-800 dark:text-red-200 font-medium">Error</p>
-                      <p className="text-red-700 dark:text-red-300 text-sm">{error}</p>
-                    </div>
-                  </div>
-                )}
-
-                {showSavedLessons ? (
-                  <div>
-                    <div className="mb-6">
-                      <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Saved Lessons</h2>
-                      <p className="text-gray-600 dark:text-gray-400">Load a previously saved lesson plan</p>
-                    </div>
-                    <SavedLessonsPanel
-                      savedLessons={savedLessons}
-                      onLoadLesson={handleLoadLesson}
-                      onDeleteLesson={handleDeleteLesson}
-                      onViewLesson={handleViewLesson}
-                      loading={savedLessonsLoading}
-                    />
-                  </div>
-                ) : (
-                  <div>
-                    <div className="mb-6">
-                      <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">Available Activities</h2>
-                      <p className="text-gray-600 dark:text-gray-400">Select activities to build your lesson plan</p>
-                    </div>
-
-                    {/* Filters */}
-                    <SearchFilters
-                      filters={lessonSearchFilters}
-                      onFiltersChange={handleLessonFiltersChange}
-                      showLevel={true}
-                      showPlayOrCraft={true}
-                    />
-
-                    <ActivityGrid
-                      activities={filteredActivities}
-                      onSelectActivity={handleSelectActivity}
-                      selectedActivities={getCurrentActivities()}
-                      loading={activitiesLoading}
-                      scripts={scripts}
-                      onViewPDF={handleViewPDF}
-                      onViewScript={handleViewScript}
-                      viewMode={lessonPlanningViewMode}
-                      onViewModeChange={setLessonPlanningViewMode}
-                      showViewToggle={true}
-                      isLessonPlanning={true}
-                      onDelete={handleDeleteActivity}
-                      targetSection={targetSection}
-                    />
-                  </div>
-                )}
-              </main>
-
-              {/* <LessonPreviewPanel
-                lessonPlan={currentLessonPlan}
-                onAddActivity={handleAddActivityToLesson}
-                onRemoveActivity={handleRemoveActivityFromLesson}
-                onViewScript={handleViewScript}
-                onGenerateLesson={handleGenerateLesson}
-                onSaveLesson={() => setShowSaveLessonModal(true)}
-                onShowSavedLessons={() => setShowSavedLessons(!showSavedLessons)}
-                isGenerating={lessonGenerationState === 'generating'}
-                showSavedLessons={showSavedLessons}
-              /> */}
-            {/* </> */}
-          </div>
         )}
 
         {activeTab === 'lessonPlanningNew' && (
