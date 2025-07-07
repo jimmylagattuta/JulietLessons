@@ -25,10 +25,11 @@ module Api
 
     private
 
-    def lesson_part_params
-      params
-        .require(:lesson_part)
-        .permit(:section_type, :title, :body, :time, :age_group, :level, files: [])
-    end
+  def lesson_part_params
+    params
+      .require(:lesson_part)
+      .permit(:section_type, :title, :body, :time, :age_group, :level, tags: [], files: [])
+  end
+
   end
 end

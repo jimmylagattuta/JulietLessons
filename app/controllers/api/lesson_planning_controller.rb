@@ -10,7 +10,8 @@ module Api
           section_type: p.section_type,
           age_group:    p.age_group,
           level:        p.level,
-          time:         p.time
+          time:         p.time,
+          tags:         p.tags
         }
       end
 

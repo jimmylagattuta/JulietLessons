@@ -262,24 +262,52 @@ function onDragEnd(result) {
                             >
                             Remove
                             </button>
-                            <h4 className="text-lg font-extrabold text-white mb-1">{p.title}</h4>
-                            {p.body && (
-                            <p className="text-sm text-green-100 mb-3 leading-snug">
-                                {p.body}
-                            </p>
-                            )}
-                            <div className="flex flex-wrap gap-2 mt-2">
-                            {typeof p.time === 'number' && (
-                                <span className="px-2 py-0.5 text-xs rounded-full bg-white/20 text-white font-medium shadow-sm">
-                                {p.time} min
+
+                            {/* Muted pills row */}
+                            <div className="flex flex-wrap gap-2 mb-1 mt-2">
+                              {typeof p.time === 'number' && (
+                                <span className="px-2 py-0.5 text-xs rounded-full bg-emerald-700/30 text-emerald-100 font-medium shadow-sm border border-emerald-600/30">
+                                  ⏱ {p.time} min
                                 </span>
-                            )}
-                            <span className="px-2 py-0.5 text-xs rounded-full bg-white/20 text-white font-medium shadow-sm">
+                              )}
+                              <span className="px-2 py-0.5 text-xs rounded-full bg-emerald-700/30 text-emerald-100 font-medium shadow-sm border border-emerald-600/30">
                                 {p.age_group}
-                            </span>
-                            <span className="px-2 py-0.5 text-xs rounded-full bg-white/20 text-white font-medium shadow-sm">
+                              </span>
+                              <span className="px-2 py-0.5 text-xs rounded-full bg-emerald-700/30 text-emerald-100 font-medium shadow-sm border border-emerald-600/30">
                                 {p.level}
-                            </span>
+                              </span>
+                            </div>
+                            <h4 className="text-lg font-extrabold text-white mb-4">{p.title}</h4>
+
+                            {/* Body text */}
+                            {p.body && (
+                              <p className="text-sm text-green-100 mb-3 leading-snug">
+                                {p.body}
+                              </p>
+                            )}
+
+                           
+                            <div className="flex flex-wrap gap-2 mt-2">
+                              {Array.isArray(p.tags) && p.tags.length > 0 &&
+                                p.tags.map(tag => (
+                                  <span
+                                    key={tag}
+                                    className="text-xs px-2.5 py-1 rounded-full font-medium text-white tracking-wide shadow-sm animate-pulse"
+                                    style={{
+                                      background: 'linear-gradient(145deg, #6b21a8, #a21caf, #7e22ce)',
+                                      backgroundSize: '200% 200%',
+                                      animation: 'shine 5s ease infinite',
+                                      border: '1px solid rgba(255, 255, 255, 0.05)',
+                                      boxShadow:
+                                        'inset 0 0 6px rgba(255, 255, 255, 0.05), 0 2px 6px rgba(126, 34, 206, 0.3)',
+                                      backdropFilter: 'blur(3px)',
+                                      textTransform: 'none',
+                                    }}
+                                  >
+                                    ✨ {tag}
+                                  </span>
+                                ))
+                              }
                             </div>
                         </div>
                         ))}
@@ -572,6 +600,30 @@ function onDragEnd(result) {
                           {p.body}
                         </p>
                       )}
+
+                      {Array.isArray(p.tags) && p.tags.length > 0 && (
+                        <div className="flex flex-wrap gap-2 pt-3 border-t border-white/10 mt-3">
+                          {p.tags.map(tag => (
+                            <span
+                              key={tag}
+                              className="text-sm px-3 py-1 rounded-full font-medium text-white tracking-wide shadow-sm animate-pulse"
+                              style={{
+                                background: 'linear-gradient(145deg, #6b21a8, #a21caf, #7e22ce)',
+                                backgroundSize: '200% 200%',
+                                animation: 'shine 5s ease infinite',
+                                border: '1px solid rgba(255, 255, 255, 0.05)',
+                                boxShadow:
+                                  'inset 0 0 6px rgba(255, 255, 255, 0.05), 0 2px 6px rgba(126, 34, 206, 0.3)',
+                                backdropFilter: 'blur(3px)',
+                                textTransform: 'none',
+                              }}
+                            >
+                              ✨ {tag}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+
                     </div>
                   </div>
                 )}

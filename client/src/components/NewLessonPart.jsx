@@ -12,6 +12,20 @@ const SECTION_LABELS = {
 
 const AGE_GROUPS = ['Young', 'Middle', 'Older', 'All'];
 const LEVELS     = ['Toe Tipper', 'Green Horn', 'Semi-Pro', 'Seasoned Veteran(all)'];
+const AVAILABLE_TAGS = [
+  'Commedia Principals',
+  'Character Dynamics',
+  'Meisner',
+  'Impro Games',
+  'Vocal Acrobatics',
+  'Physical Theater',
+  'Planned Projects',
+  'Shakespeare',
+  'Pantomime',
+  'Playmaking',
+  'Acting Challenges',
+  'Ensemble Work',
+];
 
 export default function NewLessonPart() {
   const [showForm, setShowForm]     = useState(false);
@@ -24,6 +38,9 @@ export default function NewLessonPart() {
   const [pdfFiles, setPdfFiles]     = useState([{ file: null }]);
   const [saving, setSaving]         = useState(false);
   const [showEditForm, setShowEditForm] = useState(false);
+  const [editingPart, setEditingPart] = useState(null);
+  const [successMessage, setSuccessMessage] = useState('');
+  const [tags, setTags] = useState([]);
 
   const resetForm = () => {
     setSectionType('');
@@ -32,6 +49,7 @@ export default function NewLessonPart() {
     setTime('');
     setAgeGroup('');
     setLevel('');
+    setTags([]);
     setPdfFiles([{ file: null }]);
   };
 
@@ -64,6 +82,8 @@ export default function NewLessonPart() {
     form.append('lesson_part[time]', time);
     form.append('lesson_part[age_group]', ageGroup);
     form.append('lesson_part[level]', level);
+    tags.forEach(tag => form.append('lesson_part[tags][]', tag));
+
     pdfFiles.forEach(s => s.file && form.append('lesson_part[files][]', s.file));
 
     setSaving(true);
@@ -71,7 +91,8 @@ export default function NewLessonPart() {
       const res = await fetch('/api/lesson_parts', { method: 'POST', body: form });
       if (!res.ok) throw new Error(`Status ${res.status}`);
       await res.json();
-      alert('Lesson part saved!');
+      setSuccessMessage('✅ Lesson part saved!');
+      setTimeout(() => setSuccessMessage(''), 3000);
       resetForm();
       setShowForm(false);
     } catch (e) {
@@ -84,6 +105,11 @@ export default function NewLessonPart() {
 
   return (
     <div className="flex flex-1 overflow-hidden bg-gray-50 dark:bg-dark-900 transition-colors duration-200">
+      {successMessage && (
+        <div className="fixed top-4 left-1/2 transform -translate-x-1/2 bg-green-600 text-white px-4 py-2 rounded shadow z-50">
+          {successMessage}
+        </div>
+      )}
       {/* Sidebar */}
       <aside className="w-64 bg-white dark:bg-dark-800 border-r border-gray-200 dark:border-dark-700 p-4 flex-shrink-0">
         <h2 className="text-lg font-semibold text-gray-900 dark:text-white">Sidebar</h2>
@@ -148,13 +174,19 @@ export default function NewLessonPart() {
           <div className="w-full h-full min-h-screen flex flex-col bg-white dark:bg-dark-900 p-6 space-y-0">
             <div className="mb-0">
               <button
-                onClick={() => setShowEditForm(false)}
+                onClick={() => {
+                  if (editingPart) {
+                    setEditingPart(null); // just close the current lesson part editing view
+                  } else {
+                    setShowEditForm(false); // fully exit edit mode
+                  }
+                }}
                 className="text-blue-600 hover:underline font-medium mb-2"
               >
                 ← Back
               </button>
             </div>
-            <EditLessonPart />
+            <EditLessonPart editingPart={editingPart} setEditingPart={setEditingPart} />
           </div>
         )}
 
@@ -261,6 +293,49 @@ export default function NewLessonPart() {
                       <option key={l} value={l}>{l}</option>
                     ))}
                   </select>
+                </div>
+
+                {/* Tags */}
+                <div className="mb-6">
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    Tags
+                  </label>
+                  <div className="flex flex-wrap gap-2">
+                    {AVAILABLE_TAGS.map(tag => {
+                      const isSelected = tags.includes(tag);
+                      return (
+                        <button
+                          type="button"
+                          key={tag}
+                          onClick={() => {
+                            setTags(prev =>
+                              isSelected ? prev.filter(t => t !== tag) : [...prev, tag]
+                            );
+                          }}
+                          className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 shadow-sm ${
+                            isSelected
+                              ? 'text-white'
+                              : 'text-gray-300 border border-gray-500 bg-dark-700 hover:bg-dark-600'
+                          }`}
+                          style={
+                            isSelected
+                              ? {
+                                  background: 'linear-gradient(135deg, #6b21a8, #9d174d)',
+                                  backgroundSize: '160% 160%',
+                                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                                  boxShadow:
+                                    'inset 0 0 6px rgba(255, 255, 255, 0.05), 0 2px 6px rgba(109, 40, 217, 0.4)',
+                                  backdropFilter: 'blur(3px)',
+                                }
+                              : {}
+                          }
+                        >
+                          {isSelected ? '✨ ' : ''}
+                          {tag}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
 
                 {/* PDF slots */}

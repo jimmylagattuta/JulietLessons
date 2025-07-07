@@ -16,7 +16,22 @@ const SECTION_ICONS = {
   script: '📜',
 }
 
-export default function EditLessonPart() {
+const AVAILABLE_TAGS = [
+  'Commedia Principals',
+  'Character Dynamics',
+  'Meisner',
+  'Impro Games',
+  'Vocal Acrobatics',
+  'Physical Theater',
+  'Planned Projects',
+  'Shakespeare',
+  'Pantomime',
+  'Playmaking',
+  'Acting Challenges',
+  'Ensemble Work',
+];
+
+export default function EditLessonPart({ editingPart, setEditingPart }) {
   const [allParts, setAllParts] = useState([])
   const [filters, setFilters] = useState({
     section: '',
@@ -24,17 +39,32 @@ export default function EditLessonPart() {
     level: '',
     search: ''
   })
-  const [editingPart, setEditingPart] = useState(null)
   const [editFields, setEditFields] = useState({ title: '', body: '', age_group: '', level: '', time: '' })
   const [loading, setLoading] = useState(false)
   const [successMessage, setSuccessMessage] = useState('')
+  const [tags, setTags] = useState([]);
 
-  useEffect(() => {
+    useEffect(() => {
+    console.log("🔄 useEffect triggered with editingPart:", editingPart)
+
+    if (editingPart) {
+      setEditFields({
+        title: editingPart.title,
+        body: editingPart.body,
+        age_group: editingPart.age_group,
+        level: editingPart.level,
+        time: editingPart.time,
+      })
+
+      console.log("📌 Setting tags from editingPart.tags:", editingPart.tags)
+      setTags(editingPart.tags || [])
+    }
+
     fetch('/api/lesson_planning')
       .then(res => res.json())
       .then(data => setAllParts(data.parts || []))
       .catch(console.error)
-  }, [])
+  }, [editingPart])
 
   const handleSave = () => {
     setLoading(true)
@@ -43,7 +73,7 @@ export default function EditLessonPart() {
         headers: {
         'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ lesson_part: editFields }),
+        body: JSON.stringify({ lesson_part: { ...editFields, tags } }),
     })
         .then(res => res.json())
         .then(data => {
@@ -88,6 +118,7 @@ export default function EditLessonPart() {
       level: part.level,
       time: part.time,
     })
+    setTags(part.tags || []);
   }
 
   const handleChange = e => {
@@ -208,6 +239,8 @@ export default function EditLessonPart() {
                       <span className="text-gray-100">{p.time} min</span>
                     </p>
                   )}
+                  <div>
+                </div>
                 </div>
 
                 {p.body && (
@@ -215,6 +248,28 @@ export default function EditLessonPart() {
                     {p.body}
                   </p>
                 )}
+
+               {Array.isArray(p.tags) && p.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-3 pt-3 border-t border-white/10 mt-3">
+                    {p.tags.map(tag => (
+                      <span
+                        key={tag}
+                        className="text-sm px-4 py-1.5 rounded-full font-medium text-white transition-shadow hover:shadow-lg"
+                        style={{
+                          background: 'linear-gradient(135deg, #6b21a8, #9d174d)',
+                          backgroundSize: '160% 160%',
+                          border: '1px solid rgba(255, 255, 255, 0.08)',
+                          boxShadow:
+                            'inset 0 0 6px rgba(255, 255, 255, 0.05), 0 2px 6px rgba(109, 40, 217, 0.4)',
+                          backdropFilter: 'blur(3px)',
+                        }}
+                      >
+                        ✨ {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
               </div>
             </div>
           ))}
@@ -293,6 +348,45 @@ export default function EditLessonPart() {
                 className="w-full px-3 py-2 rounded bg-dark-700 text-white border border-dark-500"
                 />
             </div>
+
+              <label className="block text-sm font-medium text-white mb-1">Tags</label>
+              <div className="flex flex-wrap gap-2">
+                {AVAILABLE_TAGS.map(tag => {
+                  const isSelected = tags.includes(tag);
+                  return (
+                    <button
+                      type="button"
+                      key={tag}
+                      onClick={() => {
+                        setTags(prev =>
+                          isSelected ? prev.filter(t => t !== tag) : [...prev, tag]
+                        );
+                      }}
+                      className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 shadow-sm ${
+                        isSelected
+                          ? 'text-white'
+                          : 'text-gray-300 border border-gray-500 bg-dark-700 hover:bg-dark-600'
+                      }`}
+                      style={
+                        isSelected
+                          ? {
+                              background: 'linear-gradient(135deg, #6b21a8, #9d174d)',
+                              backgroundSize: '160% 160%',
+                              border: '1px solid rgba(255, 255, 255, 0.08)',
+                              boxShadow:
+                                'inset 0 0 6px rgba(255, 255, 255, 0.05), 0 2px 6px rgba(109, 40, 217, 0.4)',
+                              backdropFilter: 'blur(3px)',
+                            }
+                          : {}
+                      }
+                    >
+                      {isSelected ? '✨ ' : ''}
+                      {tag}
+                    </button>
+                  );
+                })}
+              </div>
+
             </div>
 
             <div className="mt-6 flex justify-end gap-4">
