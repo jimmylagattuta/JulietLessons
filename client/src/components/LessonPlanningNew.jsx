@@ -21,7 +21,7 @@ const SECTION_ICONS = {
   script:          '📜',
 }
 
-export default function LessonPlanningNew({ onAddToPlan }) {
+export default function LessonPlanningNew({ userId, onAddToPlan }) {
   const [allParts, setAllParts] = useState([])
   const [filters, setFilters] = useState({
     section: '', ageGroup: '', level: '', search: ''
@@ -96,11 +96,10 @@ function onDragUpdate(update) {
 const handleSaveLesson = async () => {
   setIsSaving(true)
 
-  // 🔍 Flatten all selected parts and extract their IDs
   const lessonPartIds = Object.values(sectionParts)
     .flat()
     .map(part => part.id)
-    .filter(Boolean) // in case any don't have IDs (e.g. unsaved parts)
+    .filter(Boolean)
 
   const payload = {
     lesson: {
@@ -108,7 +107,8 @@ const handleSaveLesson = async () => {
       objective: previewObjective,
       at_a_glance: previewBullets.filter(b => b.trim() !== ''),
       lesson_part_ids: lessonPartIds,
-    }
+    },
+    user_id: userId     // ← Add this line
   }
 
   console.log("🟢 Final payload to POST:", payload)
@@ -121,12 +121,10 @@ const handleSaveLesson = async () => {
     })
 
     console.log("📬 Response status:", res.status)
-
     if (!res.ok) throw new Error(`HTTP ${res.status}`)
 
     const data = await res.json()
     console.log("✅ Response JSON:", data)
-
     alert("Lesson saved! 🎉")
     setShowPreview(false)
   } catch (err) {
@@ -136,6 +134,7 @@ const handleSaveLesson = async () => {
     setIsSaving(false)
   }
 }
+
 
 
 

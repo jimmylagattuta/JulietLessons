@@ -1390,7 +1390,7 @@ function App() {0
         )}
 
         {activeTab === 'lessonPlanningNew' && (
-          <LessonPlanningNew />
+          <LessonPlanningNew userId={authState.user.id} />
         )}
 
         {activeTab === 'lessonNotebook' && (
