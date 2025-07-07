@@ -481,13 +481,24 @@ function onDragEnd(result) {
                         </span>
                         )}
                         {(p.tags || []).map((tag, i) => (
-                        <span
+                          <span
                             key={i}
-                            className="px-2 py-0.5 rounded-full bg-gray-700/30 text-gray-300"
-                        >
-                            #{tag}
-                        </span>
+                            className="text-xs px-2.5 py-1 rounded-full font-medium text-white tracking-wide shadow-sm animate-pulse"
+                            style={{
+                              background: 'linear-gradient(145deg, #6b21a8, #a21caf, #7e22ce)',
+                              backgroundSize: '200% 200%',
+                              animation: 'shine 5s ease infinite',
+                              border: '1px solid rgba(255, 255, 255, 0.05)',
+                              boxShadow:
+                                'inset 0 0 6px rgba(255, 255, 255, 0.05), 0 2px 6px rgba(126, 34, 206, 0.3)',
+                              backdropFilter: 'blur(3px)',
+                              textTransform: 'none',
+                            }}
+                          >
+                            ✨ {tag}
+                          </span>
                         ))}
+
                     </div>
                     </div>
 

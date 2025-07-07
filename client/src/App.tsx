@@ -81,6 +81,7 @@ import { StripeService } from './services/stripe';
 import GenerateLesson from './components/GenerateLesson';
 import NewLessonPart from './components/NewLessonPart';
 import LessonPlanningNew from './components/LessonPlanningNew';
+import LessonNotebook from './components/LessonNotebook';
 
 // Types
 import {
@@ -1187,6 +1188,20 @@ function App() {0
               </div>
             </button>
 
+            <button
+              onClick={() => setActiveTab('lessonNotebook')}
+              className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors ${
+                activeTab === 'lessonNotebook'
+                  ? 'border-purple-500 text-purple-600 dark:text-purple-400'
+                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
+              }`}
+            >
+              <div className="flex items-center space-x-2">
+                <BookOpen className="w-4 h-4" />
+                <span>Lesson Notebook</span>
+              </div>
+            </button>
+
             {authState.user?.role === 'admin' && (<button
               onClick={() => setActiveTab('activities')}
               className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors ${
@@ -1376,6 +1391,10 @@ function App() {0
 
         {activeTab === 'lessonPlanningNew' && (
           <LessonPlanningNew />
+        )}
+
+        {activeTab === 'lessonNotebook' && (
+          <LessonNotebook userId={authState.user.id} />
         )}
 
         {activeTab === 'activities' && authState.user?.role === 'admin' && (
