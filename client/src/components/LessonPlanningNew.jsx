@@ -21,10 +21,25 @@ const SECTION_ICONS = {
   script:          '📜',
 }
 
-export default function LessonPlanningNew({ userId, onAddToPlan }) {
+const AVAILABLE_TAGS = [
+  'Commedia Principals',
+  'Character Dynamics',
+  'Meisner',
+  'Impro Games',
+  'Vocal Acrobatics',
+  'Physical Theater',
+  'Planned Projects',
+  'Shakespeare',
+  'Pantomime',
+  'Playmaking',
+  'Acting Challenges',
+  'Ensemble Work',
+];
+
+export default function LessonPlanningNew({ userId, onAddToPlan, onRunLesson }) {
   const [allParts, setAllParts] = useState([])
   const [filters, setFilters] = useState({
-    section: '', ageGroup: '', level: '', search: ''
+    section: '', ageGroup: '', level: '', tag: '', search: ''
   })
   const [draggingType, setDraggingType] = useState(null)
   const [dragOverlayMessage, setDragOverlayMessage] = useState('')
@@ -59,6 +74,8 @@ export default function LessonPlanningNew({ userId, onAddToPlan }) {
       if (filters.section  && p.section_type !== filters.section) return false
       if (filters.ageGroup && p.age_group    !== filters.ageGroup) return false
       if (filters.level    && p.level        !== filters.level)     return false
+      if (filters.tag && (!Array.isArray(p.tags) || !p.tags.includes(filters.tag))) return false
+
       const text = `${p.title} ${p.body}`.toLowerCase()
       if (filters.search && !text.includes(filters.search.toLowerCase()))
         return false
@@ -94,12 +111,12 @@ function onDragUpdate(update) {
 }
 
 const handleSaveLesson = async () => {
-  setIsSaving(true)
+  setIsSaving(true);
 
   const lessonPartIds = Object.values(sectionParts)
     .flat()
     .map(part => part.id)
-    .filter(Boolean)
+    .filter(Boolean);
 
   const payload = {
     lesson: {
@@ -108,32 +125,29 @@ const handleSaveLesson = async () => {
       at_a_glance: previewBullets.filter(b => b.trim() !== ''),
       lesson_part_ids: lessonPartIds,
     },
-    user_id: userId     // ← Add this line
-  }
-
-  console.log("🟢 Final payload to POST:", payload)
+    user_id: userId,
+  };
 
   try {
     const res = await fetch('/api/lessons', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    })
-
-    console.log("📬 Response status:", res.status)
-    if (!res.ok) throw new Error(`HTTP ${res.status}`)
-
-    const data = await res.json()
-    console.log("✅ Response JSON:", data)
-    alert("Lesson saved! 🎉")
-    setShowPreview(false)
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    alert("Lesson saved! 🎉");
+    setShowPreview(false);
+    return data;            // ◀︎ return the saved lesson object
   } catch (err) {
-    console.error('❌ Failed to save lesson:', err)
-    alert('There was an error saving the lesson.')
+    console.error(err);
+    alert("There was an error saving the lesson.");
+    return null;
   } finally {
-    setIsSaving(false)
+    setIsSaving(false);
   }
-}
+};
+
 
 
 
@@ -285,28 +299,46 @@ function onDragEnd(result) {
                               </p>
                             )}
 
+                            {Array.isArray(p.file_infos) && p.file_infos.length > 0 && (
+                              <div className="mt-3 border-t border-white/10 pt-3">
+                                <h4 className="text-xs font-semibold uppercase text-gray-400 tracking-wide mb-2">
+                                  Scripts
+                                </h4>
+                                <div className="flex flex-wrap gap-2">
+                                  {p.file_infos.map(({ url, filename }) => (
+                                    <a
+                                      key={url}
+                                      href={url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="inline-flex items-center space-x-1 px-3 py-1 rounded-full bg-gradient-to-r from-yellow-600 to-yellow-400 text-sm font-medium text-gray-900 shadow-sm hover:shadow-md transition"
+                                    >
+                                      <span className="text-lg leading-none">📜</span>
+                                      <span>{filename}</span>
+                                    </a>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
                            
                             <div className="flex flex-wrap gap-2 mt-2">
-                              {Array.isArray(p.tags) && p.tags.length > 0 &&
-                                p.tags.map(tag => (
-                                  <span
-                                    key={tag}
-                                    className="text-xs px-2.5 py-1 rounded-full font-medium text-white tracking-wide shadow-sm animate-pulse"
-                                    style={{
-                                      background: 'linear-gradient(145deg, #6b21a8, #a21caf, #7e22ce)',
-                                      backgroundSize: '200% 200%',
-                                      animation: 'shine 5s ease infinite',
-                                      border: '1px solid rgba(255, 255, 255, 0.05)',
-                                      boxShadow:
-                                        'inset 0 0 6px rgba(255, 255, 255, 0.05), 0 2px 6px rgba(126, 34, 206, 0.3)',
-                                      backdropFilter: 'blur(3px)',
-                                      textTransform: 'none',
-                                    }}
-                                  >
-                                    ✨ {tag}
-                                  </span>
-                                ))
-                              }
+                              {Array.isArray(p.tags) && p.tags.length > 0 && (
+                                <div className="mt-4 border-t border-white/10 pt-3">
+                                  <h4 className="text-xs font-semibold uppercase text-gray-400 tracking-wide mb-2">
+                                    Tags
+                                  </h4>
+                                  <div className="flex flex-wrap gap-2">
+                                    {p.tags.map(tag => (
+                                      <span
+                                        key={tag}
+                                        className="inline-flex items-center px-3 py-1 rounded-full bg-gradient-to-r from-purple-600 to-pink-500 text-sm font-medium text-white shadow-sm hover:shadow-md transition"
+                                      >
+                                        {tag}
+                                      </span>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
                             </div>
                         </div>
                         ))}
@@ -371,6 +403,19 @@ function onDragEnd(result) {
       <option value="Semi-Pro">Semi-Pro</option>
       <option value="Seasoned Veteran(all)">Seasoned Veteran(all)</option>
     </select>
+
+    <select
+      value={filters.tag}
+      onChange={e => setFilters(f => ({ ...f, tag: e.target.value }))}
+      disabled={showPreview}
+      className="block w-1/4 px-3 py-2 bg-white dark:bg-dark-700 border rounded-lg text-gray-700 dark:text-gray-200 disabled:opacity-50"
+    >
+      <option value="">All Tags</option>
+      {AVAILABLE_TAGS.map(t => (
+        <option key={t} value={t}>{t}</option>
+      ))}
+    </select>
+
     <input
       type="text"
       value={filters.search}
@@ -437,94 +482,124 @@ function onDragEnd(result) {
             </div>
         </div>
 
-        {/* Lesson parts by section (read-only) */}
         {Object.entries(sectionParts).map(([sectionType, parts]) => (
-            <div key={sectionType} className="mt-4">
+          <div key={sectionType} className="mt-4">
             <h3 className="text-lg font-bold text-sky-300 uppercase tracking-wide mb-3 border-b border-sky-600 pb-1">
-                {SECTION_LABELS[sectionType]}
+              {SECTION_LABELS[sectionType]}
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                {parts.map(p => (
-                    <div
-                    key={p.id || p.tempId}
-                    className="rounded-xl bg-dark-800 border border-dark-600 hover:border-sky-500/40 transition-shadow duration-200 p-6 shadow-sm hover:shadow-md"
-                    >
-                    {/* Title & Time */}
-                    <div className="flex justify-between items-start mb-2">
-                        <div className="flex items-center gap-2">
-                        <span className="text-xl">
-                            {SECTION_ICONS[p.section_type] || '🎯'}
-                        </span>
-                        <h4 className="text-lg font-bold text-white">{p.title}</h4>
-                        </div>
-                        {p.time && (
-                        <span className="flex items-center gap-1 text-sm text-sky-300 font-medium">
-                            ⏱ {p.time} min
-                        </span>
-                        )}
+              {parts.map(p => (
+                <div
+                  key={p.id || p.tempId}
+                  className="rounded-xl bg-dark-800 border border-dark-600 hover:border-sky-500/40 transition-shadow duration-200 p-6 shadow-sm hover:shadow-md"
+                >
+                  {/* Title & Time */}
+                  <div className="flex justify-between items-start mb-2">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xl">{SECTION_ICONS[p.section_type]}</span>
+                      <h4 className="text-lg font-bold text-white">{p.title}</h4>
                     </div>
+                    {p.time && (
+                      <span className="flex items-center gap-1 text-sm text-sky-300 font-medium">
+                        ⏱ {p.time} min
+                      </span>
+                    )}
+                  </div>
 
-                    {/* Description */}
+                  {/* Description */}
+                  {p.body && (
                     <p className="text-sm text-gray-300 leading-relaxed mb-3">{p.body}</p>
+                  )}
 
-                    {/* Attributes */}
-                    <div className="flex flex-wrap gap-2 text-xs font-medium">
-                        {p.age_group && (
-                        <span className="px-2 py-0.5 rounded-full bg-sky-700/30 text-sky-200">
-                            🧒 {p.age_group}
-                        </span>
-                        )}
-                        {p.level && (
-                        <span className="px-2 py-0.5 rounded-full bg-indigo-700/30 text-indigo-200">
-                            📈 {p.level}
-                        </span>
-                        )}
-                        {(p.tags || []).map((tag, i) => (
-                          <span
-                            key={i}
-                            className="text-xs px-2.5 py-1 rounded-full font-medium text-white tracking-wide shadow-sm animate-pulse"
-                            style={{
-                              background: 'linear-gradient(145deg, #6b21a8, #a21caf, #7e22ce)',
-                              backgroundSize: '200% 200%',
-                              animation: 'shine 5s ease infinite',
-                              border: '1px solid rgba(255, 255, 255, 0.05)',
-                              boxShadow:
-                                'inset 0 0 6px rgba(255, 255, 255, 0.05), 0 2px 6px rgba(126, 34, 206, 0.3)',
-                              backdropFilter: 'blur(3px)',
-                              textTransform: 'none',
-                            }}
+                  {/* Scripts */}
+                  {Array.isArray(p.file_infos) && p.file_infos.length > 0 && (
+                    <div className="mt-4 border-t border-white/10 pt-3">
+                      <h4 className="text-xs font-semibold uppercase text-gray-400 tracking-wide mb-2">
+                        Scripts
+                      </h4>
+                      <div className="flex flex-wrap gap-2">
+                        {p.file_infos.map(({ url, filename }) => (
+                          <a
+                            key={url}
+                            href={url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center space-x-1 px-3 py-1 rounded-full bg-gradient-to-r from-yellow-600 to-yellow-400 text-sm font-medium text-gray-900 shadow-sm hover:shadow-md transition"
                           >
-                            ✨ {tag}
+                            <span className="text-lg leading-none">📜</span>
+                            <span>{filename}</span>
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Tags */}
+                  {Array.isArray(p.tags) && p.tags.length > 0 && (
+                    <div className="mt-4 border-t border-white/10 pt-3">
+                      <h4 className="text-xs font-semibold uppercase text-gray-400 tracking-wide mb-2">
+                        Tags
+                      </h4>
+                      <div className="flex flex-wrap gap-2">
+                        {p.tags.map(tag => (
+                          <span
+                            key={tag}
+                            className="inline-flex items-center px-3 py-1 rounded-full bg-gradient-to-r from-purple-600 to-pink-500 text-sm font-medium text-white shadow-sm hover:shadow-md transition"
+                          >
+                            {tag}
                           </span>
                         ))}
-
+                      </div>
                     </div>
-                    </div>
-
-
-                ))}
+                  )}
+                </div>
+              ))}
             </div>
-            </div>
+          </div>
         ))}
 
+
         {/* Fancy Buttons */}
+        {/* Save • Save & Run • Cancel */}
         <div className="flex gap-6 mt-10 justify-center">
-            <button
-            onClick={() => {
-                handleSaveLesson()
-                setShowPreview(false)
+          {/* 1) Just Save */}
+          <button
+            onClick={async () => {
+              await handleSaveLesson();
+              setShowPreview(false);
             }}
             className="flex-1 px-6 py-3 rounded-lg bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold shadow-md hover:from-blue-500 hover:to-indigo-500 transition"
-            >
-                Save Lesson
-            </button>
-            <button
+            disabled={isSaving}
+          >
+            Save Lesson
+          </button>
+
+          {/* 2) Save & Run */}
+          <button
+            onClick={async () => {
+              const saved = await handleSaveLesson();
+              if (saved && saved.id && onRunLesson) {
+                onRunLesson(saved.id);
+              }
+            }}
+            disabled={isSaving}
+            className="flex-1 px-6 py-3 rounded-lg bg-gradient-to-r from-purple-600 to-pink-500 hover:from-purple-500 hover:to-pink-400 text-white font-semibold shadow-md transition"
+          >
+            ▶️ Save & Run Lesson
+          </button>
+
+
+          {/* 3) Cancel */}
+          <button
             onClick={() => setShowPreview(false)}
             className="flex-1 px-6 py-3 rounded-lg bg-gray-700 text-white font-semibold shadow-md hover:bg-gray-600 transition"
-            >
-                Cancel
-            </button>
+            disabled={isSaving}
+          >
+            Cancel
+          </button>
         </div>
+
+
         </div>
     </div>
     )}
@@ -611,26 +686,43 @@ function onDragEnd(result) {
                         </p>
                       )}
 
+                      {Array.isArray(p.file_infos) && p.file_infos.length > 0 && (
+                        <div className="mt-3 border-t border-white/10 pt-3">
+                          <h4 className="text-xs font-semibold uppercase text-gray-400 tracking-wide mb-2">
+                            Scripts
+                          </h4>
+                          <div className="flex flex-wrap gap-2">
+                            {p.file_infos.map(({ url, filename }) => (
+                              <a
+                                key={url}
+                                href={url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center space-x-1 px-3 py-1 rounded-full bg-gradient-to-r from-yellow-600 to-yellow-400 text-sm font-medium text-gray-900 shadow-sm hover:shadow-md transition"
+                              >
+                                <span className="text-lg leading-none">📜</span>
+                                <span>{filename}</span>
+                              </a>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
                       {Array.isArray(p.tags) && p.tags.length > 0 && (
-                        <div className="flex flex-wrap gap-2 pt-3 border-t border-white/10 mt-3">
-                          {p.tags.map(tag => (
-                            <span
-                              key={tag}
-                              className="text-sm px-3 py-1 rounded-full font-medium text-white tracking-wide shadow-sm animate-pulse"
-                              style={{
-                                background: 'linear-gradient(145deg, #6b21a8, #a21caf, #7e22ce)',
-                                backgroundSize: '200% 200%',
-                                animation: 'shine 5s ease infinite',
-                                border: '1px solid rgba(255, 255, 255, 0.05)',
-                                boxShadow:
-                                  'inset 0 0 6px rgba(255, 255, 255, 0.05), 0 2px 6px rgba(126, 34, 206, 0.3)',
-                                backdropFilter: 'blur(3px)',
-                                textTransform: 'none',
-                              }}
-                            >
-                              ✨ {tag}
-                            </span>
-                          ))}
+                        <div className="mt-4 border-t border-white/10 pt-4">
+                          <h4 className="text-xs font-semibold uppercase text-gray-400 tracking-wide mb-2">
+                            Tags
+                          </h4>
+                          <div className="flex flex-wrap gap-2">
+                            {p.tags.map(tag => (
+                              <span
+                                key={tag}
+                                className="inline-flex items-center px-3 py-1 rounded-full bg-gradient-to-r from-purple-600 to-pink-500 text-sm font-medium text-white shadow-sm hover:shadow-md transition"
+                              >
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
                         </div>
                       )}
 

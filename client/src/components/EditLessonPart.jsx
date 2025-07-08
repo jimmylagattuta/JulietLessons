@@ -37,12 +37,16 @@ export default function EditLessonPart({ editingPart, setEditingPart }) {
     section: '',
     ageGroup: '',
     level: '',
+    tag: '',
     search: ''
   })
   const [editFields, setEditFields] = useState({ title: '', body: '', age_group: '', level: '', time: '' })
   const [loading, setLoading] = useState(false)
   const [successMessage, setSuccessMessage] = useState('')
   const [tags, setTags] = useState([]);
+  const [newFiles, setNewFiles] = useState([]); 
+  const [existingFiles, setExistingFiles]   = useState([]);  
+  const [removeFileIds, setRemoveFileIds]   = useState([]);
 
     useEffect(() => {
     console.log("🔄 useEffect triggered with editingPart:", editingPart)
@@ -57,7 +61,10 @@ export default function EditLessonPart({ editingPart, setEditingPart }) {
       })
 
       console.log("📌 Setting tags from editingPart.tags:", editingPart.tags)
-      setTags(editingPart.tags || [])
+      setTags(editingPart.tags || []);
+      setExistingFiles(editingPart.file_infos || []);
+      setRemoveFileIds([]);
+      setNewFiles([]) 
     }
 
     fetch('/api/lesson_planning')
@@ -68,33 +75,49 @@ export default function EditLessonPart({ editingPart, setEditingPart }) {
 
   const handleSave = () => {
     setLoading(true)
+    const fd = new FormData()
+    // scalar fields
+    Object.entries(editFields).forEach(([k, v]) =>
+      fd.append(`lesson_part[${k}]`, v)
+    )
+    // tags array
+    tags.forEach(tag => fd.append('lesson_part[tags][]', tag))
+    // new files
+    // append new uploads
+    newFiles.forEach(file =>
+      fd.append('lesson_part[files][]', file)
+    );
+
+    // append deletions
+    removeFileIds.forEach(id =>
+      fd.append('remove_file_ids[]', id)
+    );
+
+
     fetch(`/api/lesson_parts/${editingPart.id}`, {
-        method: 'PUT',
-        headers: {
-        'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ lesson_part: { ...editFields, tags } }),
+      method: 'PUT',
+      body: fd,
     })
-        .then(res => res.json())
-        .then(data => {
+      .then(res => res.json())
+      .then(data => {
         setSuccessMessage(data.message || 'Update completed')
         setTimeout(() => setSuccessMessage(''), 3000)
-        // Re-fetch parts
         fetch('/api/lesson_planning')
-            .then(res => res.json())
-            .then(data => {
+          .then(res => res.json())
+          .then(data => {
             setAllParts(data.parts || [])
             setEditingPart(null)
             setLoading(false)
-            })
-        })
-        .catch(err => {
+          })
+      })
+      .catch(err => {
         console.error(err)
         setSuccessMessage('❌ Update failed. Please try again.')
         setTimeout(() => setSuccessMessage(''), 3000)
         setLoading(false)
-        })
-    }
+      })
+  }
+
 
 
 
@@ -103,6 +126,7 @@ export default function EditLessonPart({ editingPart, setEditingPart }) {
       if (filters.section && p.section_type !== filters.section) return false
       if (filters.ageGroup && p.age_group !== filters.ageGroup) return false
       if (filters.level && p.level !== filters.level) return false
+      if (filters.tag      && ! (p.tags||[]).includes(filters.tag)) return false 
       const text = `${p.title} ${p.body}`.toLowerCase()
       if (filters.search && !text.includes(filters.search.toLowerCase())) return false
       return true
@@ -179,6 +203,17 @@ export default function EditLessonPart({ editingPart, setEditingPart }) {
             <option value="Seasoned Veteran(all)">Seasoned Veteran(all)</option>
           </select>
 
+          <select
+            value={filters.tag}
+            onChange={e => setFilters(f => ({ ...f, tag: e.target.value }))}
+            className="px-3 py-2 rounded bg-white dark:bg-dark-700 border border-gray-300 dark:border-dark-600 text-sm text-gray-800 dark:text-gray-200"
+          >
+            <option value="">All Tags</option>
+            {AVAILABLE_TAGS.map(t =>
+              <option key={t} value={t}>{t}</option>
+            )}
+          </select>
+
           <input
             type="text"
             value={filters.search}
@@ -248,6 +283,30 @@ export default function EditLessonPart({ editingPart, setEditingPart }) {
                     {p.body}
                   </p>
                 )}
+
+                {/* if there are any file_infos, show them */}
+                {Array.isArray(p.file_infos) && p.file_infos.length > 0 && (
+                  <div className="mt-4 border-t border-white/10 pt-4">
+                    <h4 className="text-xs font-semibold uppercase text-gray-400 tracking-wide mb-2">
+                      Scripts
+                    </h4>
+                    <div className="flex flex-wrap gap-2">
+                      {p.file_infos.map(({ url, filename }) => (
+                        <a
+                          key={url}
+                          href={url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center space-x-1 px-3 py-1 rounded-full bg-gradient-to-r from-yellow-600 to-yellow-400 text-sm font-medium text-gray-900 shadow-sm hover:shadow-md transition"
+                        >
+                          <span className="text-lg leading-none">📜</span>
+                          <span>{filename}</span>
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
 
                {Array.isArray(p.tags) && p.tags.length > 0 && (
                   <div className="flex flex-wrap gap-3 pt-3 border-t border-white/10 mt-3">
@@ -348,6 +407,67 @@ export default function EditLessonPart({ editingPart, setEditingPart }) {
                 className="w-full px-3 py-2 rounded bg-dark-700 text-white border border-dark-500"
                 />
             </div>
+
+              {existingFiles.length > 0 && (
+                <div className="mb-4">
+                  <h3 className="text-white font-medium mb-2">Existing Scripts</h3>
+                  <ul className="list-disc list-inside text-gray-200 space-y-1">
+                    {existingFiles.map(f => (
+                      <li key={f.id} className="flex justify-between items-center">
+                        <a href={f.url} target="_blank" rel="noopener noreferrer" className="underline">
+                          {f.filename}
+                        </a>
+                        <button
+                          type="button"
+                          className="text-red-400 hover:text-red-600 text-sm"
+                          onClick={() => {
+                            setRemoveFileIds(ids => [...ids, f.id]);
+                            setExistingFiles(files => files.filter(x => x.id !== f.id));
+                          }}
+                        >
+                          Remove
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {/* ————— Upload PDFs ————— */}
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-white mb-1">
+                  Upload Scripts
+                </label>
+                <input
+                  type="file"
+                  accept="application/pdf"
+                  multiple
+                  onChange={e => {
+                    const picked = Array.from(e.target.files);
+                    setNewFiles(prev => [...prev, ...picked]);
+                    e.target.value = null; // reset so you can pick again
+                  }}
+                  className="text-sm text-gray-300"
+                />
+                {newFiles.length > 0 && (
+                  <ul className="mt-2 text-sm text-gray-200 space-y-1">
+                    {newFiles.map((file, idx) => (
+                      <li key={idx} className="flex justify-between items-center">
+                        {file.name}
+                        <button
+                          type="button"
+                          className="text-red-400 hover:text-red-600"
+                          onClick={() => setNewFiles(prev => prev.filter((_, i) => i !== idx))}
+                        >
+                          ✕
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+
+
 
               <label className="block text-sm font-medium text-white mb-1">Tags</label>
               <div className="flex flex-wrap gap-2">

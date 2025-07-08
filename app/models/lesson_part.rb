@@ -23,10 +23,12 @@ class LessonPart < ApplicationRecord
   validates :level, inclusion: { in: LEVELS, allow_blank: true }
 
   def file_infos
-    files.map do |file|
+    files.map do |attachment|
       {
-        url: Rails.application.routes.url_helpers.rails_blob_url(file, only_path: true),
-        filename: file.filename.to_s
+        id:       attachment.id,                                     # ← expose the attachment ID
+        filename: attachment.filename.to_s,
+        url:      Rails.application.routes.url_helpers
+                   .rails_blob_url(attachment, only_path: true)
       }
     end
   end

@@ -33,7 +33,7 @@ const AVAILABLE_TAGS = [
   'Ensemble Work',
 ]
 
-export default function LessonNotebook({ userId }) {
+export default function LessonNotebook({ userId, onRunLesson }) {
   const [lessons, setLessons] = useState([])
   const [filters, setFilters] = useState({
     section: '',
@@ -258,21 +258,59 @@ export default function LessonNotebook({ userId }) {
                   </div>
 
                   {/* Toggle Details */}
-                  <button onClick={() => toggleOpen(lesson.id)} className="flex items-center text-sm text-sky-300 mb-4 focus:outline-none">
-                    {isOpen ? 'Hide Details' : 'Show Details'} <span className={`ml-2 inline-block transform transition-transform ${isOpen ? 'rotate-180' : ''}`}>▼</span>
-                  </button>
+                    {/* Toggle Details – big gradient button with arrow bounce */}
+                    <button
+                    onClick={() => toggleOpen(lesson.id)}
+                    className="inline-flex items-center px-4 py-2 mb-4 bg-gradient-to-r from-purple-600 to-blue-500 text-white text-sm font-semibold rounded-full shadow-lg hover:shadow-2xl transition transform hover:scale-105 focus:outline-none"
+                    >
+                    {isOpen ? 'Hide Details' : 'Show Details'}
+                    <span
+                        className={`ml-2 inline-block transform transition-transform duration-300 ${
+                        isOpen ? 'rotate-180' : 'animate-bounce'
+                        }`}
+                    >
+                        ▼
+                    </span>
+                    </button>
+
 
                   {/* Favorite & Remove Buttons */}
-                  {isOpen && (
+                    {isOpen && (
                     <div className="absolute bottom-4 right-4 flex gap-2 z-20">
-                      {!isFavorited ? (
-                        <button onClick={() => favoriteLesson(lesson.id)} className="bg-green-600 hover:bg-green-700 text-white text-sm px-3 py-1 rounded">Add to Favorites</button>
-                      ) : (
-                        <button onClick={() => removeFavorite(lesson.id)} className="bg-red-500 hover:bg-red-600 text-white text-sm px-3 py-1 rounded">Remove from Favorites</button>
-                      )}
-                      <button onClick={() => setConfirmRemoveId(lesson.id)} className="bg-red-600 hover:bg-red-700 text-white text-sm px-3 py-1 rounded">Remove</button>
+                        {/* Run Lesson */}
+                        <button
+                        onClick={() => onRunLesson(lesson.id)}
+                        className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-3 py-1 rounded"
+                        >
+                        ▶️ Run Lesson
+                        </button>
+
+                        {/* Favorite / Unfavorite */}
+                        {!isFavorited ? (
+                        <button
+                            onClick={() => favoriteLesson(lesson.id)}
+                            className="bg-green-600 hover:bg-green-700 text-white text-sm px-3 py-1 rounded"
+                        >
+                            Add to Favorites
+                        </button>
+                        ) : (
+                        <button
+                            onClick={() => removeFavorite(lesson.id)}
+                            className="bg-red-500 hover:bg-red-600 text-white text-sm px-3 py-1 rounded"
+                        >
+                            Remove from Favorites
+                        </button>
+                        )}
+
+                        {/* Remove Lesson */}
+                        <button
+                        onClick={() => setConfirmRemoveId(lesson.id)}
+                        className="bg-red-600 hover:bg-red-700 text-white text-sm px-3 py-1 rounded"
+                        >
+                        Remove
+                        </button>
                     </div>
-                  )}
+                    )}
 
                   {/* Details Grid */}
                   {isOpen && lesson.lesson_parts?.length > 0 && (
@@ -299,14 +337,47 @@ export default function LessonNotebook({ userId }) {
                             </div>
                             {p.body && (<p className="text-sm text-gray-300 border-t border-white/10 pt-2">{p.body}</p>)}
                           </div>
-                          {/* Tags */}
-                          {Array.isArray(p.tags) && p.tags.length > 0 && (
-                            <div className="flex flex-wrap gap-2 pt-3 border-t border-white/10 mt-3">
-                              {p.tags.map(tag => (
-                                <span key={tag} className="text-sm px-3 py-1 rounded-full font-medium text-white tracking-wide shadow-sm animate-pulse" style={{background: 'linear-gradient(145deg, #6b21a8, #a21caf, #7e22ce)',backgroundSize: '200% 200%',animation: 'shine 5s ease infinite',border: '1px solid rgba(255,255,255,0.05)',boxShadow: 'inset 0 0 6px rgba(255,255,255,0.05), 0 2px 6px rgba(126,34,206,0.3)',backdropFilter: 'blur(3px)',textTransform: 'none'}}>✨ {tag}</span>
-                              ))}
+                            {/* Scripts */}
+                            {Array.isArray(p.file_infos) && p.file_infos.length > 0 && (
+                            <div className="mt-4 border-t border-white/10 pt-3">
+                                <h4 className="text-xs font-semibold uppercase text-gray-400 mb-2">
+                                Scripts
+                                </h4>
+                                <div className="flex flex-wrap gap-2">
+                                {p.file_infos.map(({ url, filename }) => (
+                                    <a
+                                    key={url}
+                                    href={url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center space-x-1 px-3 py-1 rounded-full bg-gradient-to-r from-yellow-600 to-yellow-400 text-sm font-medium text-gray-900 shadow-sm hover:shadow-md transition"
+                                    >
+                                    <span className="text-lg leading-none">📜</span>
+                                    <span>{filename}</span>
+                                    </a>
+                                ))}
+                                </div>
                             </div>
-                          )}
+                            )}
+
+                            {/* Tags */}
+                            {Array.isArray(p.tags) && p.tags.length > 0 && (
+                            <div className="mt-4 border-t border-white/10 pt-3">
+                                <h4 className="text-xs font-semibold uppercase text-gray-400 mb-2">
+                                Tags
+                                </h4>
+                                <div className="flex flex-wrap gap-2">
+                                {p.tags.map(tag => (
+                                    <span
+                                    key={tag}
+                                    className="inline-flex items-center px-3 py-1 rounded-full bg-gradient-to-r from-purple-600 to-pink-500 text-sm font-medium text-white shadow-sm hover:shadow-md transition"
+                                    >
+                                    {tag}
+                                    </span>
+                                ))}
+                                </div>
+                            </div>
+                            )}
                         </div>
                       ))}
                     </div>

@@ -11,7 +11,8 @@ module Api
           age_group:    p.age_group,
           level:        p.level,
           time:         p.time,
-          tags:         p.tags
+          tags:         p.tags,
+          file_infos:   p.file_infos    # ← add this line
         }
       end
 

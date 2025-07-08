@@ -1278,11 +1278,11 @@ function App() {0
         )}
 
         {activeTab === 'lessonPlanningNew' && (
-          <LessonPlanningNew userId={authState.user.id} />
+          <LessonPlanningNew userId={authState.user.id} onRunLesson={handleViewSavedLesson} />
         )}
 
         {activeTab === 'lessonNotebook' && (
-          <LessonNotebook userId={authState.user.id} />
+          <LessonNotebook userId={authState.user.id} onRunLesson={handleViewSavedLesson} />
         )}
 
         {activeTab === 'activities' && authState.user?.role === 'admin' && (
