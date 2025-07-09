@@ -1,7 +1,7 @@
 # app/controllers/api/lesson_parts_controller.rb
 module Api
   class LessonPartsController < ActionController::API
-    before_action :set_part, only: [:show, :update]
+    before_action :set_part, only: [:show, :update, :destroy]
 
     # GET /api/lesson_parts/:id
     def show
@@ -47,15 +47,30 @@ module Api
       end
     end
 
+    # DELETE /api/lesson_parts/:id
+    def destroy
+      # Step 1: Remove the part from any associated lessons (many-to-many assumed)
+      @part.lessons.clear
+
+      # Step 2: Destroy the part itself
+      if @part.destroy
+        render json: { message: "LessonPart deleted successfully." }, status: :ok
+      else
+        render json: { message: "Deletion failed", errors: @part.errors.full_messages }, status: :unprocessable_entity
+      end
+    end
+
     private
 
     def set_part
       @part = LessonPart.find(params[:id])
     end
 
+
+
     def lesson_part_params
       params.require(:lesson_part).permit(
-        :section_type, :title, :body, :time,
+        :section_type, :title, :body, :time, :admin_created,
         age_group: [],
         level: [],
         tags: [],

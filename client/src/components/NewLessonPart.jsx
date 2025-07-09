@@ -9,7 +9,6 @@ const SECTION_LABELS = {
   end_of_lesson:   'End Of Lesson',
   script:          'Scripts',
 };
-
 const AGE_GROUPS = ['Young', 'Middle', 'Older', 'All'];
 const LEVELS     = ['Toe Tipper', 'Green Horn', 'Semi-Pro', 'Seasoned Veteran(all)'];
 const AVAILABLE_TAGS = [
@@ -27,7 +26,7 @@ const AVAILABLE_TAGS = [
   'Ensemble Work',
 ];
 
-export default function NewLessonPart() {
+export default function NewLessonPart({ admin }) {
   const [showForm, setShowForm]     = useState(false);
   const [sectionType, setSectionType] = useState('');
   const [title, setTitle]           = useState('');
@@ -41,6 +40,7 @@ export default function NewLessonPart() {
   const [editingPart, setEditingPart] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
   const [tags, setTags] = useState([]);
+  console.log('admin', admin);
 
   const resetForm = () => {
     setSectionType('');
@@ -80,8 +80,10 @@ export default function NewLessonPart() {
     form.append('lesson_part[title]', title);
     form.append('lesson_part[body]', body);
     form.append('lesson_part[time]', time);
-    form.append('lesson_part[age_group]', ageGroup);
-    form.append('lesson_part[level]', level);
+    ageGroup.forEach(g => form.append('lesson_part[age_group][]', g))
+    level.forEach(l => form.append('lesson_part[level][]', l))
+    form.append('lesson_part[admin_created]', admin ? 'true' : 'false');
+
     tags.forEach(tag => form.append('lesson_part[tags][]', tag));
 
     pdfFiles.forEach(s => s.file && form.append('lesson_part[files][]', s.file));
@@ -169,7 +171,7 @@ export default function NewLessonPart() {
             </div>
           </div>
         )}
-
+        {/* Back button */}
         {showEditForm && (
           <div className="w-full h-full min-h-screen flex flex-col bg-white dark:bg-dark-900 p-6 space-y-0">
             <div className="mb-0">
@@ -186,11 +188,9 @@ export default function NewLessonPart() {
                 ← Back
               </button>
             </div>
-            <EditLessonPart editingPart={editingPart} setEditingPart={setEditingPart} />
+            <EditLessonPart editingPart={editingPart} setEditingPart={setEditingPart} admin={admin} />
           </div>
         )}
-
-
 
         {/* Form */}
         {showForm && (

@@ -39,7 +39,7 @@ const AVAILABLE_TAGS = [
 export default function LessonPlanningNew({ userId, onAddToPlan, onRunLesson }) {
   const [allParts, setAllParts] = useState([])
   const [filters, setFilters] = useState({
-    section: '', ageGroup: '', level: '', tag: '', search: ''
+    section: '', ageGroup: '', level: '', tag: '', search: '', createdBy: ''
   })
   const [draggingType, setDraggingType] = useState(null)
   const [dragOverlayMessage, setDragOverlayMessage] = useState('')
@@ -77,11 +77,14 @@ export default function LessonPlanningNew({ userId, onAddToPlan, onRunLesson }) 
       if (filters.ageGroup && p.age_group !== filters.ageGroup) return false
       if (filters.level && p.level !== filters.level) return false
       if (filters.tag && (!Array.isArray(p.tags) || !p.tags.includes(filters.tag))) return false
+      if (filters.createdBy === 'admin' && !p.admin_created) return false;
+      if (filters.createdBy === 'user' && p.admin_created) return false;
 
       const text = `${p.title} ${p.body}`.toLowerCase()
       if (filters.search && !text.includes(filters.search.toLowerCase()))
         return false
       return true
+
     })
   }, [allParts, filters, sectionParts])
 
@@ -187,7 +190,6 @@ export default function LessonPlanningNew({ userId, onAddToPlan, onRunLesson }) 
     (acc, arr) => acc + arr.reduce((sum, p) => sum + (p.time || 0), 0), 0
   )
 
-
   return (
     <DragDropContext onDragStart={onDragStart} onDragUpdate={onDragUpdate} onDragEnd={onDragEnd}>
       <div className="flex flex-1 overflow-hidden bg-gray-50 dark:bg-dark-900 transition-colors duration-200">
@@ -273,17 +275,15 @@ export default function LessonPlanningNew({ userId, onAddToPlan, onRunLesson }) 
                             </button>
 
                             {/* Pills row: only time */}
-                            <div className="flex items-center gap-2 mb-0">
+                            <div className="flex flex-col items-start gap-1">
+                              <h4 className="text-base font-extrabold text-white leading-snug">{p.title}</h4>
                               {typeof p.time === 'number' && (
                                 <span className="inline-flex items-center px-2 py-0.5 text-xs rounded-full bg-emerald-700/30 text-emerald-100 font-medium shadow-sm border border-emerald-600/30">
-                                  <span className="mr-1">⏱</span>
-                                  {p.time} min
+                                  ⏱ {p.time} min
                                 </span>
                               )}
-                              <h4 className="text-lg font-extrabold text-white m-0">
-                                {p.title}
-                              </h4>
                             </div>
+
 
                             {/* remove the p.body block entirely */}
 
@@ -316,23 +316,25 @@ export default function LessonPlanningNew({ userId, onAddToPlan, onRunLesson }) 
         {/* Main panel */}
         <div className="flex-1 flex flex-col overflow-hidden">
           {/* Filters */}
-          <div className="flex gap-2 items-center p-4 bg-white dark:bg-dark-800 border-b border-gray-200 dark:border-dark-700">
+          <div className="flex flex-wrap gap-2 items-center p-4 bg-white dark:bg-dark-800 border-b border-gray-200 dark:border-dark-700">
+
             <select
               value={filters.section}
               onChange={e => setFilters(f => ({ ...f, section: e.target.value }))}
               disabled={showPreview}
-              className="block w-1/4 px-3 py-2 bg-white dark:bg-dark-700 border rounded-lg text-gray-700 dark:text-gray-200 disabled:opacity-50"
+              className="w-[14%] min-w-[120px] px-3 py-2 bg-white dark:bg-dark-700 border rounded-lg text-sm text-gray-700 dark:text-gray-200 disabled:opacity-50"
             >
               <option value="">All Sections</option>
               {Object.entries(SECTION_LABELS).map(([k, v]) => (
                 <option key={k} value={k}>{v}</option>
               ))}
             </select>
+
             <select
               value={filters.ageGroup}
               onChange={e => setFilters(f => ({ ...f, ageGroup: e.target.value }))}
               disabled={showPreview}
-              className="block w-1/4 px-3 py-2 bg-white dark:bg-dark-700 border rounded-lg text-gray-700 dark:text-gray-200 disabled:opacity-50"
+              className="w-[12%] min-w-[100px] px-3 py-2 bg-white dark:bg-dark-700 border rounded-lg text-sm text-gray-700 dark:text-gray-200 disabled:opacity-50"
             >
               <option value="">All Ages</option>
               <option value="Young">Young</option>
@@ -340,11 +342,12 @@ export default function LessonPlanningNew({ userId, onAddToPlan, onRunLesson }) 
               <option value="Older">Older</option>
               <option value="All">All</option>
             </select>
+
             <select
               value={filters.level}
               onChange={e => setFilters(f => ({ ...f, level: e.target.value }))}
               disabled={showPreview}
-              className="block w-1/4 px-3 py-2 bg-white dark:bg-dark-700 border rounded-lg text-gray-700 dark:text-gray-200 disabled:opacity-50"
+              className="w-[14%] min-w-[120px] px-3 py-2 bg-white dark:bg-dark-700 border rounded-lg text-sm text-gray-700 dark:text-gray-200 disabled:opacity-50"
             >
               <option value="">All Levels</option>
               <option value="Toe Tipper">Toe Tipper</option>
@@ -357,7 +360,7 @@ export default function LessonPlanningNew({ userId, onAddToPlan, onRunLesson }) 
               value={filters.tag}
               onChange={e => setFilters(f => ({ ...f, tag: e.target.value }))}
               disabled={showPreview}
-              className="block w-1/4 px-3 py-2 bg-white dark:bg-dark-700 border rounded-lg text-gray-700 dark:text-gray-200 disabled:opacity-50"
+              className="w-[14%] min-w-[120px] px-3 py-2 bg-white dark:bg-dark-700 border rounded-lg text-sm text-gray-700 dark:text-gray-200 disabled:opacity-50"
             >
               <option value="">All Tags</option>
               {AVAILABLE_TAGS.map(t => (
@@ -371,11 +374,46 @@ export default function LessonPlanningNew({ userId, onAddToPlan, onRunLesson }) 
               onChange={e => setFilters(f => ({ ...f, search: e.target.value }))}
               placeholder="Search..."
               disabled={showPreview}
-              className="flex-1 px-3 py-2 bg-white dark:bg-dark-700 border rounded-lg text-gray-700 dark:text-gray-200 disabled:opacity-50"
+              className="flex-1 px-3 py-2 bg-white dark:bg-dark-700 border rounded-lg text-sm text-gray-700 dark:text-gray-200 disabled:opacity-50"
             />
+
+            <div className="flex items-center gap-2 ml-auto">
+              <span className="text-sm font-medium text-gray-400">Created By:</span>
+              <button
+                onClick={() =>
+                  setFilters(f => ({
+                    ...f,
+                    createdBy: f.createdBy === 'admin' ? '' : 'admin'
+                  }))
+                }
+                className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium transition ${filters.createdBy === 'admin'
+                  ? 'bg-blue-600 text-white'
+                  : 'bg-gray-700 text-gray-300'
+                  }`}
+              >
+                🛡️ Admin
+              </button>
+
+              <button
+                onClick={() =>
+                  setFilters(f => ({
+                    ...f,
+                    createdBy: f.createdBy === 'user' ? '' : 'user'
+                  }))
+                }
+                className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium transition ${filters.createdBy === 'user'
+                  ? 'bg-purple-600 text-white'
+                  : 'bg-gray-700 text-gray-300'
+                  }`}
+              >
+                🙋 User
+              </button>
+
+            </div>
           </div>
 
-          {/* Preview toolbar or grid */}
+
+          {/* Finalize Lesson */}
           <div className="flex-1 p-4 overflow-auto relative">
             {showPreview && (
               <div className="w-full flex justify-center mt-6">
@@ -501,6 +539,14 @@ export default function LessonPlanningNew({ userId, onAddToPlan, onRunLesson }) 
                                 </div>
                               </div>
                             )}
+                            {p.admin_created && (
+                              <div className="mt-3">
+                                <span className="inline-flex items-center px-2 py-0.5 rounded-full border border-blue-500 text-xs text-blue-300 bg-dark-700">
+                                  🛡️ Admin Created
+                                </span>
+                              </div>
+                            )}
+
                           </div>
                         ))}
                       </div>
@@ -555,7 +601,7 @@ export default function LessonPlanningNew({ userId, onAddToPlan, onRunLesson }) 
 
 
 
-
+            {/* Cards */}
             {!showPreview && (
               <Droppable droppableId="parts">
                 {provided => (
@@ -712,7 +758,11 @@ export default function LessonPlanningNew({ userId, onAddToPlan, onRunLesson }) 
                                   </div>
                                 </div>
                               )}
-
+                              {p.admin_created && (
+                                <div className="inline-flex items-center px-2 py-0.5 rounded-full border border-white/20 bg-white/5 text-xs text-white/60 gap-1 w-max">
+                                  <span className="text-blue-400">🛡</span> Admin Created
+                                </div>
+                              )}
                             </div>
                           </div>
                         )}

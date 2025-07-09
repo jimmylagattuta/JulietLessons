@@ -22,7 +22,7 @@ Rails.application.routes.draw do
     end
 
     # Lesson parts
-    resources :lesson_parts, only: %i[create update]
+    resources :lesson_parts, only: %i[create update destroy]
 
     # ---- Auth endpoints ----
     post   'users/register', to: 'users#create'

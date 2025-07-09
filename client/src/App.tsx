@@ -39,9 +39,9 @@ import { ActivityCard } from './components/ActivityCard';
 import { ScriptCard } from './components/ScriptCard';
 
 // Store
-import { 
-  activeTabAtom, 
-  activitiesAtom, 
+import {
+  activeTabAtom,
+  activitiesAtom,
   scriptsAtom,
   activityFiltersAtom,
   scriptFiltersAtom,
@@ -51,7 +51,7 @@ import {
   scriptsLoadingAtom,
   savedLessonsLoadingAtom,
   usersLoadingAtom,
-  showCreateModalAtom, 
+  showCreateModalAtom,
   showSaveLessonModalAtom,
   showUserModalAtom,
   selectedActivityAtom,
@@ -87,7 +87,7 @@ import LessonNotebook from './components/LessonNotebook';
 import {
   Activity as ActivityType,
   Script,
-  SearchFilters as SearchFiltersType, 
+  SearchFilters as SearchFiltersType,
   LessonFilters,
   SavedLesson,
   LoginCredentials,
@@ -98,7 +98,8 @@ import {
 // Hooks
 import { useTheme } from './hooks/useTheme';
 
-function App() {0
+function App() {
+  0
   // Theme
   useTheme();
 
@@ -135,7 +136,7 @@ function App() {0
   const [authState, setAuthState] = useAtom(authStateAtom);
   const [showAuthModal, setShowAuthModal] = useAtom(showAuthModalAtom);
   const [authMode, setAuthMode] = useAtom(authModeAtom);
-  
+
   const [editingActivity, setEditingActivity] = useState<ActivityType | undefined>();
   const [editingScript, setEditingScript] = useState<Script | undefined>();
   const [editingUser, setEditingUser] = useState<UserType | undefined>();
@@ -351,11 +352,11 @@ function App() {0
       // Search filter
       if (filters.search) {
         const searchLower = filters.search.toLowerCase();
-        const matchesSearch = 
+        const matchesSearch =
           activity.title.toLowerCase().includes(searchLower) ||
           activity.description.toLowerCase().includes(searchLower) ||
           activity.tags.some(tag => tag.toLowerCase().includes(searchLower));
-        
+
         if (!matchesSearch) {
           return false;
         }
@@ -437,7 +438,7 @@ function App() {0
   // Load user stats (admin only)
   const loadUserStats = async () => {
     if (authState.user?.role !== 'admin') return;
-    
+
     try {
       const stats = await AuthService.getUserStats();
       setUserStats(stats);
@@ -483,7 +484,7 @@ function App() {0
     setAuthState(prev => ({ ...prev, isLoading: true, error: null }));
     try {
       const { user } = await AuthService.signIn(credentials);
-      
+
       // Load subscription data
       try {
         const subscription = await StripeService.getUserSubscription(user.id);
@@ -501,7 +502,7 @@ function App() {0
           error: null
         });
       }
-      
+
       setShowAuthModal(false);
     } catch (err) {
       setAuthState(prev => ({
@@ -561,7 +562,7 @@ function App() {0
 
   const handleUpdateProfile = async (updates: Partial<UserType>) => {
     if (!authState.user) return;
-    
+
     try {
       const updatedUser = await AuthService.updateProfile(authState.user.id, updates);
       setAuthState(prev => ({
@@ -577,11 +578,11 @@ function App() {0
   // Subscription handlers
   const handleSubscriptionUpdate = async (subscription: any) => {
     if (!authState.user) return;
-    
+
     try {
       // Get the latest subscription data from the server
       const updatedSubscription = await StripeService.getUserSubscription(authState.user.id);
-      
+
       // Update the auth state with the latest subscription data
       setAuthState(prev => ({
         ...prev,
@@ -728,10 +729,10 @@ function App() {0
   // Lesson planning handlers
   const handleSelectActivity = (activity: ActivityType) => {
     // const { activityType } = activity;
-    
+
     // setCurrentLessonPlan(prev => {
     //   let newPlan = { ...prev };
-      
+
     //   if (activityType === 'warm-up') {
     //     newPlan.warmUp = activity;
     //   } else if (activityType === 'cool-down') {
@@ -742,28 +743,28 @@ function App() {0
     //       newPlan.mainActivities = [...newPlan.mainActivities, activity];
     //     }
     //   }
-      
+
     //   // Recalculate total duration
     //   const warmUpDuration = newPlan.warmUp?.duration || 0;
     //   const mainDuration = newPlan.mainActivities.reduce((sum, a) => sum + a.duration, 0);
     //   const coolDownDuration = newPlan.coolDown?.duration || 0;
     //   newPlan.totalDuration = warmUpDuration + mainDuration + coolDownDuration;
-      
+
     //   return newPlan;
     // });
     setCurrentLessonPlan(prev => {
       const newPlan = { ...prev };
-      
+
       // Check if activity is already selected
-      const isAlreadySelected = 
+      const isAlreadySelected =
         newPlan.warmUp?.id === activity.id ||
         newPlan.mainActivities.some(a => a.id === activity.id) ||
         newPlan.coolDown?.id === activity.id;
-      
+
       if (isAlreadySelected) {
         return prev; // Don't add if already selected
       }
-      
+
       // If a target section is set, add to that specific section
       if (targetSection) {
         if (targetSection === 'warmUp') {
@@ -773,22 +774,22 @@ function App() {0
         } else if (targetSection === 'main') {
           newPlan.mainActivities = [...newPlan.mainActivities, activity];
         }
-        
+
         // Clear the target section after adding
         setTargetSection(null);
       } else {
         // For manual selection without target, add to main activities by default
         newPlan.mainActivities = [...newPlan.mainActivities, activity];
       }
-      
+
       // Update total duration
-      newPlan.totalDuration = 
+      newPlan.totalDuration =
         (newPlan.warmUp?.duration || 0) +
         newPlan.mainActivities.reduce((sum, a) => sum + a.duration, 0) +
         (newPlan.coolDown?.duration || 0);
-      
+
       newPlan.estimatedTime = `${newPlan.totalDuration} min`;
-      
+
       return newPlan;
     });
   };
@@ -796,7 +797,7 @@ function App() {0
   const handleAddActivity = (type: 'warmUp' | 'main' | 'coolDown') => {
     // Set the target section for the next activity selection
     setTargetSection(type);
-    
+
     // Show visual feedback that we're in selection mode
     console.log(`Ready to add activity to ${type} section. Click an activity to add it.`);
   };
@@ -804,7 +805,7 @@ function App() {0
   const handleRemoveActivity = (type: 'warmUp' | 'main' | 'coolDown', index?: number) => {
     setCurrentLessonPlan(prev => {
       const newPlan = { ...prev };
-      
+
       if (type === 'warmUp') {
         newPlan.warmUp = null;
       } else if (type === 'coolDown') {
@@ -812,15 +813,15 @@ function App() {0
       } else if (type === 'main' && index !== undefined) {
         newPlan.mainActivities = newPlan.mainActivities.filter((_, i) => i !== index);
       }
-      
+
       // Update total duration
-      newPlan.totalDuration = 
+      newPlan.totalDuration =
         (newPlan.warmUp?.duration || 0) +
         newPlan.mainActivities.reduce((sum, a) => sum + a.duration, 0) +
         (newPlan.coolDown?.duration || 0);
-      
+
       newPlan.estimatedTime = `${newPlan.totalDuration} min`;
-      
+
       return newPlan;
     });
   };
@@ -836,7 +837,7 @@ function App() {0
   const handleRemoveActivityFromLesson = (type: 'warmUp' | 'main' | 'coolDown', index?: number) => {
     setCurrentLessonPlan(prev => {
       let newPlan = { ...prev };
-      
+
       if (type === 'warmUp') {
         newPlan.warmUp = null;
       } else if (type === 'coolDown') {
@@ -844,13 +845,13 @@ function App() {0
       } else if (type === 'main' && typeof index === 'number') {
         newPlan.mainActivities = newPlan.mainActivities.filter((_, i) => i !== index);
       }
-      
+
       // Recalculate total duration
       const warmUpDuration = newPlan.warmUp?.duration || 0;
       const mainDuration = newPlan.mainActivities.reduce((sum, a) => sum + a.duration, 0);
       const coolDownDuration = newPlan.coolDown?.duration || 0;
       newPlan.totalDuration = warmUpDuration + mainDuration + coolDownDuration;
-      
+
       return newPlan;
     });
   };
@@ -866,18 +867,18 @@ function App() {0
       const accessCheck = await StripeService.checkSubscriptionAccess(authState.user.id);
 
       console.log("aaaaa", accessCheck);
-      
+
       if (!accessCheck.canGenerate) {
         if (!authState.user.subscription) {
           setShowSubscriptionModal(true);
           return;
         }
-        
+
         if (accessCheck.reason === 'Lesson limit reached') {
           setShowSubscriptionModal(true);
           return;
         }
-        
+
         setError(accessCheck.reason || 'Cannot generate lesson at this time');
         return;
       }
@@ -887,11 +888,11 @@ function App() {0
     }
 
     setLessonGenerationState('generating');
-    
+
     try {
       // Increment lesson count
       await StripeService.incrementLessonCount(authState.user.id);
-      
+
       // Update user subscription in state
       const updatedSubscription = await StripeService.getUserSubscription(authState.user.id);
       if (updatedSubscription) {
@@ -907,15 +908,15 @@ function App() {0
         const warmUps = availableActivities.filter(a => a.activityType === 'warm-up');
         const mains = availableActivities.filter(a => a.activityType === 'main' || a.activityType === 'game');
         const coolDowns = availableActivities.filter(a => a.activityType === 'cool-down');
-        
+
         const selectedWarmUp = warmUps[Math.floor(Math.random() * warmUps.length)];
         const selectedMain = mains.slice(0, 2); // Select 2 main activities
         const selectedCoolDown = coolDowns[Math.floor(Math.random() * coolDowns.length)];
-        
-        const totalDuration = (selectedWarmUp?.duration || 0) + 
-                             selectedMain.reduce((sum, a) => sum + a.duration, 0) + 
-                             (selectedCoolDown?.duration || 0);
-        
+
+        const totalDuration = (selectedWarmUp?.duration || 0) +
+          selectedMain.reduce((sum, a) => sum + a.duration, 0) +
+          (selectedCoolDown?.duration || 0);
+
         setCurrentLessonPlan({
           warmUp: selectedWarmUp || null,
           mainActivities: selectedMain,
@@ -923,7 +924,7 @@ function App() {0
           totalDuration,
           estimatedTime: `${totalDuration} min`
         });
-        
+
         setLessonGenerationState('complete');
       }, 2000);
     } catch (err) {
@@ -948,18 +949,18 @@ function App() {0
       // Check subscription access
       try {
         const accessCheck = await StripeService.checkSubscriptionAccess(authState.user.id);
-        
+
         if (!accessCheck.canGenerate) {
           if (!authState.user.subscription) {
             setShowSubscriptionModal(true);
             return;
           }
-          
+
           if (accessCheck.reason === 'Lesson limit reached') {
             setShowSubscriptionModal(true);
             return;
           }
-          
+
           setError(accessCheck.reason || 'Cannot generate lesson at this time');
           return;
         }
@@ -971,7 +972,7 @@ function App() {0
       try {
         // Increment lesson count
         await StripeService.incrementLessonCount(authState.user.id);
-        
+
         // Update user subscription in state
         const updatedSubscription = await StripeService.getUserSubscription(authState.user.id);
         if (updatedSubscription) {
@@ -1094,8 +1095,8 @@ function App() {0
                 <p className="text-sm text-gray-600 dark:text-gray-400">Lesson planning and activity management</p>
               </div>
             </div>
-            
-            <div className="flex items-center gap-4">              
+
+            <div className="flex items-center gap-4">
               <button
                 onClick={() => {
                   setShowCreateModal(true);
@@ -1103,19 +1104,18 @@ function App() {0
                   setEditingScript(undefined);
                   setEditingUser(undefined);
                 }}
-                className={`flex items-center space-x-2 bg-gradient-to-r from-blue-600 to-teal-600 text-white px-6 py-3 rounded-lg hover:from-blue-700 hover:to-teal-700 transition-all duration-200 shadow-md hover:shadow-lg ${
-                  activeTab === 'activities' || activeTab === 'scripts' || activeTab === 'users' ? '' : 'hidden'
-                }`}
+                className={`flex items-center space-x-2 bg-gradient-to-r from-blue-600 to-teal-600 text-white px-6 py-3 rounded-lg hover:from-blue-700 hover:to-teal-700 transition-all duration-200 shadow-md hover:shadow-lg ${activeTab === 'activities' || activeTab === 'scripts' || activeTab === 'users' ? '' : 'hidden'
+                  }`}
               >
                 <Plus className="w-5 h-5" />
                 <span>Add {
-                  activeTab === 'activities' ? 'Activity' : 
-                  activeTab === 'scripts' ? 'Script' : 
-                  activeTab === 'users' ? 'User' : 
-                  'Activity'
+                  activeTab === 'activities' ? 'Activity' :
+                    activeTab === 'scripts' ? 'Script' :
+                      activeTab === 'users' ? 'User' :
+                        'Activity'
                 }</span>
               </button>
-              
+
               <ThemeToggle />
 
               <UserMenu
@@ -1125,18 +1125,17 @@ function App() {0
               />
             </div>
           </div>
-          
+
           {/* Tabs */}
           <div className="flex space-x-8 border-b border-gray-200 dark:border-dark-700">
 
 
             <button
               onClick={() => setActiveTab('generate')}
-              className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors ${
-                activeTab === 'generate'
+              className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === 'generate'
                   ? 'border-pink-500 text-pink-600 dark:text-pink-400'
                   : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
-              }`}
+                }`}
             >
               <div className="flex items-center space-x-2">
                 <Crown className="w-4 h-4" />
@@ -1144,29 +1143,26 @@ function App() {0
               </div>
             </button>
 
-            {['admin', 'superadmin'].includes(authState.user?.role) && (
-              <button
-                onClick={() => setActiveTab('lessonPartBuilder')}
-                className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors ${
-                  activeTab === 'lessonPartBuilder'
-                    ? 'border-pink-500 text-pink-600 dark:text-pink-400'
-                    : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
+            <button
+              onClick={() => setActiveTab('lessonPartBuilder')}
+              className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === 'lessonPartBuilder'
+                  ? 'border-pink-500 text-pink-600 dark:text-pink-400'
+                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
                 }`}
-              >
-                <div className="flex items-center space-x-2">
-                  <Wrench className="w-4 h-4" />
-                  <span>Lesson Part Builder</span>
-                </div>
-              </button>
-            )}
+            >
+              <div className="flex items-center space-x-2">
+                <Wrench className="w-4 h-4" />
+                <span>Lesson Part Builder</span>
+              </div>
+            </button>
+
 
             <button
               onClick={() => setActiveTab('lessonPlanningNew')}
-              className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors ${
-                activeTab === 'lessonPlanningNew'
+              className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === 'lessonPlanningNew'
                   ? 'border-purple-500 text-purple-600 dark:text-purple-400'
                   : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
-              }`}
+                }`}
             >
               <div className="flex items-center space-x-2">
                 <Layout className="w-4 h-4" />
@@ -1176,11 +1172,10 @@ function App() {0
 
             <button
               onClick={() => setActiveTab('lessonNotebook')}
-              className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors ${
-                activeTab === 'lessonNotebook'
+              className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === 'lessonNotebook'
                   ? 'border-purple-500 text-purple-600 dark:text-purple-400'
                   : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
-              }`}
+                }`}
             >
               <div className="flex items-center space-x-2">
                 <BookOpen className="w-4 h-4" />
@@ -1190,11 +1185,10 @@ function App() {0
 
             {authState.user?.role === 'admin' && (<button
               onClick={() => setActiveTab('activities')}
-              className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors ${
-                activeTab === 'activities'
+              className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === 'activities'
                   ? 'border-blue-500 text-blue-600 dark:text-blue-400'
                   : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
-              }`}
+                }`}
             >
               <div className="flex items-center space-x-2">
                 <Activity className="w-4 h-4" />
@@ -1203,11 +1197,10 @@ function App() {0
             </button>)}
             {authState.user?.role === 'admin' && (<button
               onClick={() => setActiveTab('scripts')}
-              className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors ${
-                activeTab === 'scripts'
+              className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === 'scripts'
                   ? 'border-teal-500 text-teal-600 dark:text-teal-400'
                   : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
-              }`}
+                }`}
             >
               <div className="flex items-center space-x-2">
                 <BookOpen className="w-4 h-4" />
@@ -1217,11 +1210,10 @@ function App() {0
             {authState.user?.role === 'admin' && (
               <button
                 onClick={() => setActiveTab('users')}
-                className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors ${
-                  activeTab === 'users'
+                className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === 'users'
                     ? 'border-orange-500 text-orange-600 dark:text-orange-400'
                     : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
-                }`}
+                  }`}
               >
                 <div className="flex items-center space-x-2">
                   <Users className="w-4 h-4" />
@@ -1271,10 +1263,11 @@ function App() {0
         )}
 
         {activeTab === 'lessonPartBuilder' && (
-            <NewLessonPart
-              onSwitch={setActiveTab}
-              onSaveAndView={handleViewSavedLesson}
-            />
+          <NewLessonPart
+            onSwitch={setActiveTab}
+            onSaveAndView={handleViewSavedLesson}
+            admin={authState.user.role === 'admin'}
+          />
         )}
 
         {activeTab === 'lessonPlanningNew' && (
@@ -1303,7 +1296,7 @@ function App() {0
               showLevel={true}
               showPlayOrCraft={true}
             />
-            
+
             {activitiesLoading ? (
               <div className="text-center py-12">
                 <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
@@ -1312,7 +1305,7 @@ function App() {0
             ) : (
               <ActivityGrid
                 activities={activities}
-                onSelectActivity={() => {}} // Not used in activities tab
+                onSelectActivity={() => { }} // Not used in activities tab
                 selectedActivities={[]}
                 loading={activitiesLoading}
                 scripts={scripts}
@@ -1360,7 +1353,7 @@ function App() {0
               onViewModeChange={setScriptViewMode}
               showViewToggle={true}
             />
-            
+
             {/* {scriptsLoading ? (
               <div className="text-center py-12">
                 <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-teal-600"></div>
@@ -1412,7 +1405,7 @@ function App() {0
             )}
 
             <UserStatsPanel stats={userStats} loading={usersLoading} />
-            
+
             <UserManagementPanel
               users={users}
               filters={userFilters}
