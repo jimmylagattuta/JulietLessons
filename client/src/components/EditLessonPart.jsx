@@ -40,7 +40,7 @@ export default function EditLessonPart({ editingPart, setEditingPart }) {
     tag: '',
     search: ''
   })
-  const [editFields, setEditFields] = useState({ title: '', body: '', age_group: '', level: '', time: '' })
+  const [editFields, setEditFields] = useState({ title: '', body: '', age_group: [], level: [], time: '' })
   const [loading, setLoading] = useState(false)
   const [successMessage, setSuccessMessage] = useState('')
   const [tags, setTags] = useState([]);
@@ -50,7 +50,7 @@ export default function EditLessonPart({ editingPart, setEditingPart }) {
 
     useEffect(() => {
     console.log("🔄 useEffect triggered with editingPart:", editingPart)
-
+    
     if (editingPart) {
       setEditFields({
         title: editingPart.title,
@@ -71,67 +71,107 @@ export default function EditLessonPart({ editingPart, setEditingPart }) {
       .then(res => res.json())
       .then(data => setAllParts(data.parts || []))
       .catch(console.error)
-  }, [editingPart])
+    }, [editingPart])
+    console.log('allParts', allParts);
 
-  const handleSave = () => {
-    setLoading(true)
-    const fd = new FormData()
-    // scalar fields
-    Object.entries(editFields).forEach(([k, v]) =>
-      fd.append(`lesson_part[${k}]`, v)
-    )
-    // tags array
-    tags.forEach(tag => fd.append('lesson_part[tags][]', tag))
-    // new files
-    // append new uploads
-    newFiles.forEach(file =>
-      fd.append('lesson_part[files][]', file)
-    );
+    const handleSave = () => {
+      setLoading(true)
 
-    // append deletions
-    removeFileIds.forEach(id =>
-      fd.append('remove_file_ids[]', id)
-    );
+      const fd = new FormData()
 
+      // 1) scalar fields (everything except age_group & level)
+      Object.entries(editFields)
+        .filter(([k]) => !['age_group', 'level'].includes(k))
+        .forEach(([k, v]) => {
+          fd.append(`lesson_part[${k}]`, v)
+        })
 
-    fetch(`/api/lesson_parts/${editingPart.id}`, {
-      method: 'PUT',
-      body: fd,
-    })
-      .then(res => res.json())
-      .then(data => {
-        setSuccessMessage(data.message || 'Update completed')
-        setTimeout(() => setSuccessMessage(''), 3000)
-        fetch('/api/lesson_planning')
-          .then(res => res.json())
-          .then(data => {
-            setAllParts(data.parts || [])
-            setEditingPart(null)
-            setLoading(false)
-          })
+      // 2) age_group array
+      if (Array.isArray(editFields.age_group)) {
+        editFields.age_group.forEach(g =>
+          fd.append('lesson_part[age_group][]', g)
+        )
+      }
+
+      // 3) level array
+      if (Array.isArray(editFields.level)) {
+        editFields.level.forEach(l =>
+          fd.append('lesson_part[level][]', l)
+        )
+      }
+
+      // 4) tags array
+      tags.forEach(tag =>
+        fd.append('lesson_part[tags][]', tag)
+      )
+
+      // 5) newly-uploaded files
+      newFiles.forEach(file =>
+        fd.append('lesson_part[files][]', file)
+      )
+
+      // 6) removals
+      removeFileIds.forEach(id =>
+        fd.append('remove_file_ids[]', id)
+      )
+
+      fetch(`/api/lesson_parts/${editingPart.id}`, {
+        method: 'PUT',
+        body: fd,
       })
-      .catch(err => {
-        console.error(err)
-        setSuccessMessage('❌ Update failed. Please try again.')
-        setTimeout(() => setSuccessMessage(''), 3000)
-        setLoading(false)
-      })
-  }
+        .then(res => res.json())
+        .then(data => {
+          setSuccessMessage(data.message || 'Update completed')
+          setTimeout(() => setSuccessMessage(''), 3000)
+
+          // refresh list & close editor
+          return fetch('/api/lesson_planning')
+            .then(r => r.json())
+            .then(d => {
+              setAllParts(d.parts || [])
+              setEditingPart(null)
+              setLoading(false)
+            })
+        })
+        .catch(err => {
+          console.error(err)
+          setSuccessMessage('❌ Update failed. Please try again.')
+          setTimeout(() => setSuccessMessage(''), 3000)
+          setLoading(false)
+        })
+    }
 
 
 
 
-  const filteredParts = useMemo(() => {
-    return allParts.filter(p => {
-      if (filters.section && p.section_type !== filters.section) return false
-      if (filters.ageGroup && p.age_group !== filters.ageGroup) return false
-      if (filters.level && p.level !== filters.level) return false
-      if (filters.tag      && ! (p.tags||[]).includes(filters.tag)) return false 
-      const text = `${p.title} ${p.body}`.toLowerCase()
-      if (filters.search && !text.includes(filters.search.toLowerCase())) return false
-      return true
-    })
-  }, [allParts, filters])
+const filteredParts = useMemo(() => {
+  return allParts.filter(p => {
+    // section_type stays the same
+    if (filters.section && p.section_type !== filters.section) return false
+
+    // ageGroup must be in the array
+    if (filters.ageGroup && (
+      !Array.isArray(p.age_group) ||
+      !p.age_group.includes(filters.ageGroup)
+    )) return false
+
+    // level must be in the array
+    if (filters.level && (
+      !Array.isArray(p.level) ||
+      !p.level.includes(filters.level)
+    )) return false
+
+    // tags unchanged
+    if (filters.tag && (!Array.isArray(p.tags) || !p.tags.includes(filters.tag))) return false
+
+    // text search
+    const text = `${p.title} ${p.body}`.toLowerCase()
+    if (filters.search && !text.includes(filters.search.toLowerCase())) return false
+
+    return true
+  })
+}, [allParts, filters])
+
 
   const handleEditClick = part => {
     setEditingPart(part)
@@ -260,14 +300,62 @@ export default function EditLessonPart({ editingPart, setEditingPart }) {
                 <h3 className="text-xl font-extrabold text-white tracking-tight leading-tight">{p.title}</h3>
 
                 <div className="space-y-1 text-sm">
-                  <p className="text-gray-300">
-                    <span className="inline-block w-20 text-white/70 font-semibold">Age:</span>
-                    <span className="text-gray-100">{p.age_group}</span>
-                  </p>
-                  <p className="text-gray-300">
-                    <span className="inline-block w-20 text-white/70 font-semibold">Level:</span>
-                    <span className="text-gray-100">{p.level}</span>
-                  </p>
+                  
+                  {/* Age Group */}
+                  <div className="flex items-center">
+                    <span className="inline-block w-20 text-white/70 font-semibold">
+                      Age:
+                    </span>
+                    <div className="flex space-x-1 ml-0">
+                      {Array.isArray(p.age_group) &&
+                        p.age_group.map(age => (
+                          <span
+                            key={age}
+                            className="inline-block px-2 py-0.5 text-xs leading-none rounded-full font-medium text-white shadow-sm"
+                            style={{
+                              background: 'linear-gradient(135deg, #1e3a8a, #10b981)',
+                              backgroundSize: '160% 160%',
+                              boxShadow:
+                                'inset 0 0 6px rgba(255,255,255,0.05), 0 2px 6px rgba(16,185,129,0.4)',
+                              backdropFilter: 'blur(3px)',
+                              border: 'none',
+                            }}
+                          >
+                            {age}
+                          </span>
+                        ))
+                      }
+                    </div>
+                  </div>
+
+                  {/* Level */}
+                  <div className="flex items-center">
+                    <span className="inline-block w-20 text-white/70 font-semibold">
+                      Level:
+                    </span>
+                    <div className="flex space-x-1 ml-0">
+                      {Array.isArray(p.level) &&
+                        p.level.map(lvl => (
+                          <span
+                            key={lvl}
+                            className="inline-block px-2 py-0.5 text-xs leading-none rounded-full font-medium text-white shadow-sm"
+                            style={{
+                              background: 'linear-gradient(135deg, #3b82f6, #f97316)',
+                              backgroundSize: '160% 160%',
+                              boxShadow:
+                                'inset 0 0 6px rgba(255,255,255,0.05), 0 2px 6px rgba(59,130,246,0.4)',
+                              backdropFilter: 'blur(3px)',
+                              border: 'none',
+                            }}
+                          >
+                            {lvl}
+                          </span>
+                        ))
+                      }
+                    </div>
+                  </div>
+
+
                   {typeof p.time === 'number' && (
                     <p className="text-gray-300">
                       <span className="inline-block w-20 text-white/70 font-semibold">Time:</span>
@@ -363,38 +451,99 @@ export default function EditLessonPart({ editingPart, setEditingPart }) {
                 />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-                <div>
-                <label className="block text-sm font-medium text-white mb-1">Age Group</label>
-                <select
-                    name="age_group"
-                    value={editFields.age_group}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 rounded bg-dark-700 text-white border border-dark-500"
-                >
-                    <option value="">Select Age Group</option>
-                    <option value="Young">Young</option>
-                    <option value="Middle">Middle</option>
-                    <option value="Older">Older</option>
-                    <option value="All">All</option>
-                </select>
-                </div>
+            {/* Age Group (pill–style multi-select) */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-white mb-1">
+                Age Group
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {['Young','Middle','Older','All'].map(group => {
+                  const isSelected = editFields.age_group.includes(group)
+                  return (
+                    <button
+                      key={group}
+                      type="button"
+                      onClick={() =>
+                        setEditFields(f => ({
+                          ...f,
+                          age_group: isSelected
+                            ? f.age_group.filter(g => g !== group)
+                            : [...f.age_group, group]
+                        }))
+                      }
+                      className={`px-3 py-1 text-xs rounded-full font-medium transition-shadow shadow-sm ${
+                        isSelected
+                          ? 'text-white'
+                          : 'text-gray-300 border border-gray-500 bg-dark-700 hover:bg-dark-600'
+                      }`}
+                      style={
+                        isSelected
+                          ? {
+                              background: 'linear-gradient(135deg, #1e3a8a, #10b981)',
+                              backgroundSize: '160% 160%',
+                              boxShadow:
+                                'inset 0 0 6px rgba(255,255,255,0.05), 0 2px 6px rgba(16,185,129,0.4)',
+                              backdropFilter: 'blur(3px)',
+                              border: 'none',
+                            }
+                          : {}
+                      }
+                    >
+                      {group}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
 
-                <div>
-                <label className="block text-sm font-medium text-white mb-1">Level</label>
-                <select
-                    name="level"
-                    value={editFields.level}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 rounded bg-dark-700 text-white border border-dark-500"
-                >
-                    <option value="">Select Level</option>
-                    <option value="Toe Tipper">Toe Tipper</option>
-                    <option value="Green Horn">Green Horn</option>
-                    <option value="Semi-Pro">Semi-Pro</option>
-                    <option value="Seasoned Veteran(all)">Seasoned Veteran(all)</option>
-                </select>
-                </div>
+            {/* Level (pill–style multi-select) */}
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-white mb-1">
+                Level
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {[
+                  'Toe Tipper',
+                  'Green Horn',
+                  'Semi-Pro',
+                  'Seasoned Veteran(all)'
+                ].map(lvl => {
+                  const isSelected = editFields.level.includes(lvl)
+                  return (
+                    <button
+                      key={lvl}
+                      type="button"
+                      onClick={() =>
+                        setEditFields(f => ({
+                          ...f,
+                          level: isSelected
+                            ? f.level.filter(l => l !== lvl)
+                            : [...f.level, lvl]
+                        }))
+                      }
+                      className={`px-3 py-1 text-xs rounded-full font-medium transition-shadow shadow-sm ${
+                        isSelected
+                          ? 'text-white'
+                          : 'text-gray-300 border border-gray-500 bg-dark-700 hover:bg-dark-600'
+                      }`}
+                      style={
+                        isSelected
+                          ? {
+                              background: 'linear-gradient(135deg, #3b82f6, #f97316)',
+                              backgroundSize: '160% 160%',
+                              boxShadow:
+                                'inset 0 0 6px rgba(255,255,255,0.05), 0 2px 6px rgba(59,130,246,0.4)',
+                              backdropFilter: 'blur(3px)',
+                              border: 'none',
+                            }
+                          : {}
+                      }
+                    >
+                      {lvl}
+                    </button>
+                  )
+                })}
+              </div>
             </div>
 
             <div>

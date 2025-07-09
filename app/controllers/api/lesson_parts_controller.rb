@@ -55,10 +55,13 @@ module Api
 
     def lesson_part_params
       params.require(:lesson_part).permit(
-        :section_type, :title, :body, :time, :age_group, :level,
+        :section_type, :title, :body, :time,
+        age_group: [],
+        level: [],
         tags: [],
-        files: []   # for newly-uploaded PDFs
+        files: []
       )
     end
+
   end
 end

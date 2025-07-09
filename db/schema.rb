@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.2].define(version: 2025_07_07_025226) do
+ActiveRecord::Schema[7.2].define(version: 2025_07_09_213635) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -51,8 +51,9 @@ ActiveRecord::Schema[7.2].define(version: 2025_07_07_025226) do
     t.text "tags", default: [], array: true
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "age_group"
-    t.string "level"
+    t.text "age_group", default: [], array: true
+    t.text "level", default: [], array: true
+    t.boolean "admin_created", default: false, null: false
   end
 
   create_table "lesson_parts_lessons", id: false, force: :cascade do |t|

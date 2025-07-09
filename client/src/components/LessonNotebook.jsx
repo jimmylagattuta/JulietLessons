@@ -1,6 +1,5 @@
 // src/components/LessonNotebook.jsx
 import React, { useEffect, useState, useMemo } from 'react'
-
 // Section labels & icons
 const SECTION_LABELS = {
   warm_up: '🔥 Warm Up',
@@ -16,8 +15,6 @@ const SECTION_ICONS = {
   end_of_lesson: '🏁',
   script: '📜'
 }
-
-
 const AVAILABLE_TAGS = [
   'Commedia Principals',
   'Character Dynamics',
@@ -32,7 +29,6 @@ const AVAILABLE_TAGS = [
   'Acting Challenges',
   'Ensemble Work',
 ]
-
 export default function LessonNotebook({ userId, onRunLesson }) {
   const [lessons, setLessons] = useState([])
   const [filters, setFilters] = useState({
@@ -46,7 +42,6 @@ export default function LessonNotebook({ userId, onRunLesson }) {
   const [confirmRemoveId, setConfirmRemoveId] = useState(null)
   const [favoriteIds, setFavoriteIds] = useState(new Set())
   const [notification, setNotification] = useState('')
-
   // Fetch lessons + seed favorites
   useEffect(() => {
     fetch(`/api/lessons?user_id=${userId}`)
@@ -57,7 +52,6 @@ export default function LessonNotebook({ userId, onRunLesson }) {
         setFavoriteIds(new Set(list.filter(l => l.favorite).map(l => l.id)))
       })
   }, [userId])
-
   // Filter logic, honoring favorites toggle
   const filteredLessons = useMemo(() => {
     return lessons.filter(lesson => {
@@ -79,11 +73,9 @@ export default function LessonNotebook({ userId, onRunLesson }) {
       return true
     })
   }, [lessons, filters, showFavorites, favoriteIds])
-
   // Toggle open detail panel
   const toggleOpen = id =>
     setOpenLessons(prev => ({ ...prev, [id]: !prev[id] }))
-
   // Remove lesson
   const removeLesson = async id => {
     try {
@@ -102,7 +94,6 @@ export default function LessonNotebook({ userId, onRunLesson }) {
       })
     }
   }
-
   // Favorite / unfavorite
   const favoriteLesson = async id => {
     try {
@@ -124,11 +115,10 @@ export default function LessonNotebook({ userId, onRunLesson }) {
       console.error('Failed to remove favorite', err)
     }
   }
-
   return (
     <div className="flex w-full min-h-screen bg-dark-900 text-white">
       {/* Sidebar */}
-  <aside className="w-96 bg-white dark:bg-dark-800 border-r border-gray-200 dark:border-dark-700 p-6">
+      <aside className="w-96 bg-white dark:bg-dark-800 border-r border-gray-200 dark:border-dark-700 p-6">
         <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Lesson Notebook</h2>
         <p className="text-sm text-gray-600 dark:text-gray-300">Review and manage your saved lessons here.</p>
         <div className="border-b border-gray-200 dark:border-dark-700 my-6" />
@@ -137,9 +127,8 @@ export default function LessonNotebook({ userId, onRunLesson }) {
         <div className="space-y-4">
           <button
             onClick={() => setShowFavorites(f => !f)}
-            className={`w-full px-3 py-2 rounded-md text-sm font-medium transition ${
-              showFavorites ? 'bg-green-600 text-white' : 'border border-green-600 text-green-600'
-            }`}
+            className={`w-full px-3 py-2 rounded-md text-sm font-medium transition ${showFavorites ? 'bg-green-600 text-white' : 'border border-green-600 text-green-600'
+              }`}
           >
             {showFavorites ? 'Show Only Favorites: On' : 'Show Only Favorites: Off'}
           </button>
@@ -186,22 +175,17 @@ export default function LessonNotebook({ userId, onRunLesson }) {
           />
         </div>
       </aside>
-
       {/* Main Content */}
       <main className="flex-1 flex flex-col w-full px-0 py-6">
         <h2 className="text-2xl font-bold text-white mb-4 px-4">
           📓 Your Lesson Notebook
         </h2>
-
         {/* Notification Banner */}
         {notification && (
           <div className="mx-4 mb-4 px-4 py-2 bg-blue-500 text-white rounded-lg shadow">
             {notification}
           </div>
         )}
-
-
-
         {/* Lesson List */}
         {filteredLessons.length === 0 ? (
           <p className="text-gray-400 px-4">
@@ -211,8 +195,21 @@ export default function LessonNotebook({ userId, onRunLesson }) {
           <div className="flex flex-col gap-6 px-4">
             {filteredLessons.map(lesson => {
               const totalTime = (lesson.lesson_parts || []).reduce((sum, p) => sum + (p.time || 0), 0)
-              const ageGroups = [...new Set(lesson.lesson_parts?.map(p => p.age_group).filter(Boolean))]
-              const levels = [...new Set(lesson.lesson_parts?.map(p => p.level).filter(Boolean))]
+              const ageGroups = [
+                ...new Set(
+                  (lesson.lesson_parts || [])
+                    .flatMap(p => Array.isArray(p.age_group) ? p.age_group : [p.age_group])
+                    .filter(Boolean)
+                )
+              ]
+
+              const levels = [
+                ...new Set(
+                  (lesson.lesson_parts || [])
+                    .flatMap(p => Array.isArray(p.level) ? p.level : [p.level])
+                    .filter(Boolean)
+                )
+              ]
               const lessonAge = ageGroups.length ? ageGroups.join(', ') : '—'
               const lessonLevel = levels.length ? levels.join(', ') : '—'
               const isOpen = !!openLessons[lesson.id]
@@ -221,19 +218,44 @@ export default function LessonNotebook({ userId, onRunLesson }) {
               return (
                 <div
                   key={lesson.id}
-                  className="w-full bg-dark-800 border border-dark-600 p-6 pb-20 rounded-2xl shadow-md hover:shadow-xl transition duration-300 relative"
+                  className="group w-full bg-dark-800 border border-dark-600 p-6 pb-20 rounded-2xl shadow-md hover:shadow-xl transition duration-300 relative"
                 >
-                 {/* Title & favorite badge */}
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className="flex items-center text-2xl font-extrabold text-sky-300">
-                      {lesson.title}
-                      {isFavorited && (
-                        <span className="ml-3 px-2 py-1 bg-green-600 text-white text-xs font-semibold rounded-full">
-                          Favorited
+                  {/* Title with favorited badge and part count on right */}
+                  <div className="flex justify-between items-start mb-2 w-full">
+                    <div className="flex items-center gap-3">
+                      <h3 className="text-2xl font-extrabold text-sky-300">{lesson.title}</h3>
+                      <div
+                        onClick={() =>
+                          isFavorited ? removeFavorite(lesson.id) : favoriteLesson(lesson.id)
+                        }
+                        className={`relative group cursor-pointer text-xs font-semibold px-3 py-1 rounded-full transition-all duration-300 ${isFavorited
+                          ? 'bg-green-600 text-white'
+                          : 'bg-gray-700 text-gray-300 border border-gray-500'
+                          }`}
+                      >
+                        {isFavorited ? 'Favorite' : 'Not Favorite'}
+                        <span
+                          className={`absolute -top-2 -right-6 text-base z-10 transition-opacity duration-200 ${isFavorited
+                              ? 'text-red-500 group-hover:opacity-100 opacity-0'
+                              : 'group-hover:opacity-100 opacity-0'
+                            }`}
+                        >
+                          {isFavorited ? '❌' : (
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              className="w-6 h-6 text-green-600"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              stroke="currentColor"
+                              strokeWidth={3}
+                            >
+                              <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                            </svg>
+                          )}
                         </span>
-                      )}
-                    </h3>
-                    <span className="text-xs text-gray-500">
+                      </div>
+                    </div>
+                    <span className="text-xs text-gray-500 mt-1">
                       {lesson.lesson_parts?.length || 0} parts
                     </span>
                   </div>
@@ -250,144 +272,227 @@ export default function LessonNotebook({ userId, onRunLesson }) {
                     </ul>
                   )}
 
-                  {/* Age / Level / Time */}
-                  <div className="flex flex-wrap gap-6 items-center text-sm text-gray-400 mb-4">
-                    <span className="flex items-center gap-1"><strong>Time:</strong> ⏱️ <span className="text-white">{totalTime} min</span></span>
-                    <span className="flex items-center gap-1"><strong>Age:</strong> 📅 <span className="text-white">{lessonAge}</span></span>
-                    <span className="flex items-center gap-1"><strong>Level:</strong> ✏️ <span className="text-white">{lessonLevel}</span></span>
+                  {/* Time */}
+                  <div className="flex items-center flex-wrap gap-2 text-sm text-gray-400 mb-2">
+                    <span className="font-semibold text-gray-300">Time:</span>
+                    <span className="px-2 py-0.5 text-xs rounded-full bg-emerald-700/30 text-emerald-100 font-medium shadow-sm border border-emerald-600/30">
+                      ⏱️ {totalTime} min
+                    </span>
                   </div>
 
-                  {/* Toggle Details */}
-                    {/* Toggle Details – big gradient button with arrow bounce */}
-                    <button
+                  {/* Age */}
+                  <div className="flex items-center flex-wrap gap-2 text-sm text-gray-400 mb-2">
+                    <span className="font-semibold text-gray-300">Age:</span>
+                    {ageGroups.map(age => (
+                      <span
+                        key={age}
+                        className="inline-block px-2 py-0.5 text-xs leading-none rounded-full font-medium text-white shadow-sm"
+                        style={{
+                          background: 'linear-gradient(135deg, #1e3a8a, #10b981)',
+                          backgroundSize: '160% 160%',
+                          boxShadow: 'inset 0 0 6px rgba(255,255,255,0.05), 0 2px 6px rgba(16,185,129,0.4)',
+                          backdropFilter: 'blur(3px)',
+                          border: 'none',
+                        }}
+                      >
+                        {age}
+                      </span>
+                    ))}
+                  </div>
+
+                  {/* Level */}
+                  <div className="flex items-center flex-wrap gap-2 text-sm text-gray-400 mb-4">
+                    <span className="font-semibold text-gray-300">Level:</span>
+                    {levels.map(lvl => (
+                      <span
+                        key={lvl}
+                        className="inline-block px-2 py-0.5 text-xs leading-none rounded-full font-medium text-white shadow-sm"
+                        style={{
+                          background: 'linear-gradient(135deg, #3b82f6, #f97316)',
+                          backgroundSize: '160% 160%',
+                          boxShadow: 'inset 0 0 6px rgba(255,255,255,0.05), 0 2px 6px rgba(59,130,246,0.4)',
+                          backdropFilter: 'blur(3px)',
+                          border: 'none',
+                        }}
+                      >
+                        {lvl}
+                      </span>
+                    ))}
+                  </div>
+
+                  {/* Toggle Details – big gradient button with arrow bounce */}
+                  <button
                     onClick={() => toggleOpen(lesson.id)}
                     className="inline-flex items-center px-4 py-2 mb-4 bg-gradient-to-r from-purple-600 to-blue-500 text-white text-sm font-semibold rounded-full shadow-lg hover:shadow-2xl transition transform hover:scale-105 focus:outline-none"
-                    >
+                  >
                     {isOpen ? 'Hide Details' : 'Show Details'}
                     <span
-                        className={`ml-2 inline-block transform transition-transform duration-300 ${
-                        isOpen ? 'rotate-180' : 'animate-bounce'
+                      className={`ml-2 inline-block transform transition-transform duration-300 ${isOpen ? 'rotate-180' : 'animate-bounce'
                         }`}
                     >
-                        ▼
+                      ▼
                     </span>
-                    </button>
+                  </button>
 
-
-                  {/* Favorite & Remove Buttons */}
-                    {isOpen && (
+                  {/* Run and Remove buttons */}
+                  {isOpen && (
                     <div className="absolute bottom-4 right-4 flex gap-2 z-20">
-                        {/* Run Lesson */}
-                        <button
+                      <button
                         onClick={() => onRunLesson(lesson.id)}
                         className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-3 py-1 rounded"
-                        >
+                      >
                         ▶️ Run Lesson
-                        </button>
-
-                        {/* Favorite / Unfavorite */}
-                        {!isFavorited ? (
-                        <button
-                            onClick={() => favoriteLesson(lesson.id)}
-                            className="bg-green-600 hover:bg-green-700 text-white text-sm px-3 py-1 rounded"
-                        >
-                            Add to Favorites
-                        </button>
-                        ) : (
-                        <button
-                            onClick={() => removeFavorite(lesson.id)}
-                            className="bg-red-500 hover:bg-red-600 text-white text-sm px-3 py-1 rounded"
-                        >
-                            Remove from Favorites
-                        </button>
-                        )}
-
-                        {/* Remove Lesson */}
-                        <button
+                      </button>
+                      <button
                         onClick={() => setConfirmRemoveId(lesson.id)}
                         className="bg-red-600 hover:bg-red-700 text-white text-sm px-3 py-1 rounded"
-                        >
+                      >
                         Remove
-                        </button>
+                      </button>
                     </div>
-                    )}
+                  )}
 
-                  {/* Details Grid */}
+                  {/* Lesson Parts Grid */}
                   {isOpen && lesson.lesson_parts?.length > 0 && (
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {lesson.lesson_parts.map((p, idx) => (
-                        <div key={idx} className="relative group bg-dark-700 border border-dark-600 p-4 rounded-2xl backdrop-blur-sm shadow-sm hover:shadow-lg transition duration-300">
+                        <div
+                          key={idx}
+                          className="relative group bg-dark-700 border border-dark-600 p-4 rounded-2xl backdrop-blur-sm shadow-sm hover:shadow-lg transition duration-300"
+                        >
                           {/* Section Label */}
-                          <div className={`absolute top-2 left-2 text-[11px] font-bold uppercase tracking-wide px-3 py-0.5 rounded-full border shadow-inner backdrop-blur-sm z-10 ${
-                            p.section_type === 'warm_up' ? 'bg-gradient-to-br from-pink-700/30 to-pink-500/20 text-pink-300 border-pink-500/40' :
-                            p.section_type === 'bridge_activity' ? 'bg-gradient-to-br from-yellow-600/30 to-yellow-500/20 text-yellow-200 border-yellow-400/40' :
-                            p.section_type === 'main_activity' ? 'bg-gradient-to-br from-indigo-600/30 to-indigo-500/20 text-indigo-200 border-indigo-400/40' :
-                            p.section_type === 'end_of_lesson' ? 'bg-gradient-to-br from-teal-600/30 to-teal-500/20 text-teal-200 border-teal-400/40' :
-                            'bg-gradient-to-br from-sky-600/30 to-sky-500/20 text-sky-200 border-sky-400/40'
-                          }`}> {SECTION_LABELS[p.section_type]} </div>
+                          <div
+                            className={`absolute top-2 left-2 text-[11px] font-bold uppercase tracking-wide px-3 py-0.5 rounded-full border shadow-inner backdrop-blur-sm z-10 ${p.section_type === 'warm_up'
+                              ? 'bg-gradient-to-br from-pink-700/30 to-pink-500/20 text-pink-300 border-pink-500/40'
+                              : p.section_type === 'bridge_activity'
+                                ? 'bg-gradient-to-br from-yellow-600/30 to-yellow-500/20 text-yellow-200 border-yellow-400/40'
+                                : p.section_type === 'main_activity'
+                                  ? 'bg-gradient-to-br from-indigo-600/30 to-indigo-500/20 text-indigo-200 border-indigo-400/40'
+                                  : p.section_type === 'end_of_lesson'
+                                    ? 'bg-gradient-to-br from-teal-600/30 to-teal-500/20 text-teal-200 border-teal-400/40'
+                                    : 'bg-gradient-to-br from-sky-600/30 to-sky-500/20 text-sky-200 border-sky-400/40'
+                              }`}
+                          >
+                            {SECTION_LABELS[p.section_type]}
+                          </div>
+
                           {/* Icon */}
-                          <div className="absolute top-2 right-2 text-2xl text-white">{SECTION_ICONS[p.section_type]}</div>
+                          <div className="absolute top-2 right-2 text-2xl text-white">
+                            {SECTION_ICONS[p.section_type]}
+                          </div>
+
                           {/* Part Content */}
                           <div className="mt-6 space-y-2">
                             <h4 className="text-lg font-extrabold text-white">{p.title}</h4>
-                            <div className="text-sm text-gray-300">
-                              <p><strong>Age:</strong> <span className="text-gray-100">{p.age_group}</span></p>
-                              <p><strong>Level:</strong> <span className="text-gray-100">{p.level}</span></p>
-                              {typeof p.time === 'number' && (<p><strong>Time:</strong> <span className="text-gray-100">{p.time} min</span></p>)}
+
+                            {typeof p.time === 'number' && (
+                              <div className="flex items-center gap-2 text-sm">
+                                <span className="inline-block px-2 py-0.5 text-xs rounded-full bg-emerald-700/30 text-emerald-100 font-medium shadow-sm border border-emerald-600/30">
+                                  ⏱ {p.time} min
+                                </span>
+                              </div>
+                            )}
+
+                            <div className="flex items-center flex-wrap gap-2 text-sm mb-2">
+                              <span className="font-semibold text-gray-300">Age:</span>
+                              {Array.isArray(p.age_group) &&
+                                p.age_group.map(age => (
+                                  <span
+                                    key={age}
+                                    className="inline-block px-2 py-0.5 text-xs leading-none rounded-full font-medium text-white shadow-sm"
+                                    style={{
+                                      background: 'linear-gradient(135deg, #1e3a8a, #10b981)',
+                                      backgroundSize: '160% 160%',
+                                      boxShadow:
+                                        'inset 0 0 6px rgba(255,255,255,0.05), 0 2px 6px rgba(16,185,129,0.4)',
+                                      backdropFilter: 'blur(3px)',
+                                      border: 'none',
+                                    }}
+                                  >
+                                    {age}
+                                  </span>
+                                ))}
                             </div>
-                            {p.body && (<p className="text-sm text-gray-300 border-t border-white/10 pt-2">{p.body}</p>)}
+
+                            <div className="flex items-center flex-wrap gap-2 text-sm mb-2">
+                              <span className="font-semibold text-gray-300">Level:</span>
+                              {Array.isArray(p.level) &&
+                                p.level.map(lvl => (
+                                  <span
+                                    key={lvl}
+                                    className="inline-block px-2 py-0.5 text-xs leading-none rounded-full font-medium text-white shadow-sm"
+                                    style={{
+                                      background: 'linear-gradient(135deg, #3b82f6, #f97316)',
+                                      backgroundSize: '160% 160%',
+                                      boxShadow:
+                                        'inset 0 0 6px rgba(255,255,255,0.05), 0 2px 6px rgba(59,130,246,0.4)',
+                                      backdropFilter: 'blur(3px)',
+                                      border: 'none',
+                                    }}
+                                  >
+                                    {lvl}
+                                  </span>
+                                ))}
+                            </div>
+
+                            {p.body && (
+                              <p className="text-sm text-gray-300 border-t border-white/10 pt-2">
+                                {p.body}
+                              </p>
+                            )}
                           </div>
-                            {/* Scripts */}
-                            {Array.isArray(p.file_infos) && p.file_infos.length > 0 && (
+
+                          {/* Scripts */}
+                          {Array.isArray(p.file_infos) && p.file_infos.length > 0 && (
                             <div className="mt-4 border-t border-white/10 pt-3">
-                                <h4 className="text-xs font-semibold uppercase text-gray-400 mb-2">
+                              <h4 className="text-xs font-semibold uppercase text-gray-400 mb-2">
                                 Scripts
-                                </h4>
-                                <div className="flex flex-wrap gap-2">
+                              </h4>
+                              <div className="flex flex-wrap gap-2">
                                 {p.file_infos.map(({ url, filename }) => (
-                                    <a
+                                  <a
                                     key={url}
                                     href={url}
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="inline-flex items-center space-x-1 px-3 py-1 rounded-full bg-gradient-to-r from-yellow-600 to-yellow-400 text-sm font-medium text-gray-900 shadow-sm hover:shadow-md transition"
-                                    >
+                                  >
                                     <span className="text-lg leading-none">📜</span>
                                     <span>{filename}</span>
-                                    </a>
+                                  </a>
                                 ))}
-                                </div>
+                              </div>
                             </div>
-                            )}
+                          )}
 
-                            {/* Tags */}
-                            {Array.isArray(p.tags) && p.tags.length > 0 && (
+                          {/* Tags */}
+                          {Array.isArray(p.tags) && p.tags.length > 0 && (
                             <div className="mt-4 border-t border-white/10 pt-3">
-                                <h4 className="text-xs font-semibold uppercase text-gray-400 mb-2">
+                              <h4 className="text-xs font-semibold uppercase text-gray-400 mb-2">
                                 Tags
-                                </h4>
-                                <div className="flex flex-wrap gap-2">
+                              </h4>
+                              <div className="flex flex-wrap gap-2">
                                 {p.tags.map(tag => (
-                                    <span
+                                  <span
                                     key={tag}
                                     className="inline-flex items-center px-3 py-1 rounded-full bg-gradient-to-r from-purple-600 to-pink-500 text-sm font-medium text-white shadow-sm hover:shadow-md transition"
-                                    >
+                                  >
                                     {tag}
-                                    </span>
+                                  </span>
                                 ))}
-                                </div>
+                              </div>
                             </div>
-                            )}
+                          )}
                         </div>
                       ))}
                     </div>
                   )}
                 </div>
+
               )
             })}
           </div>
         )}
-
         {/* Confirmation Modal */}
         {confirmRemoveId && (
           <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">

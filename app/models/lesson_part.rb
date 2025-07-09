@@ -1,4 +1,3 @@
-# app/models/lesson_part.rb
 class LessonPart < ApplicationRecord
   has_and_belongs_to_many :lessons
   has_many_attached :files
@@ -19,13 +18,25 @@ class LessonPart < ApplicationRecord
     'Seasoned Veteran(all)'
   ].freeze
 
-  validates :age_group, inclusion: { in: AGE_GROUPS, allow_blank: true }
-  validates :level, inclusion: { in: LEVELS, allow_blank: true }
+  validate :age_groups_are_valid
+  validate :levels_are_valid
+
+  def age_groups_are_valid
+    return if age_group.blank?
+    invalid = Array(age_group) - AGE_GROUPS
+    errors.add(:age_group, "contains invalid value(s): #{invalid.join(', ')}") if invalid.any?
+  end
+
+  def levels_are_valid
+    return if level.blank?
+    invalid = Array(level) - LEVELS
+    errors.add(:level, "contains invalid value(s): #{invalid.join(', ')}") if invalid.any?
+  end
 
   def file_infos
     files.map do |attachment|
       {
-        id:       attachment.id,                                     # ← expose the attachment ID
+        id:       attachment.id,
         filename: attachment.filename.to_s,
         url:      Rails.application.routes.url_helpers
                    .rails_blob_url(attachment, only_path: true)

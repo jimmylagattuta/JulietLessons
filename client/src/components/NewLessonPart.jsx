@@ -261,39 +261,94 @@ export default function NewLessonPart() {
                   />
                 </div>
 
-                {/* Age Group */}
+                {/* Age Group (multi-select pill style) */}
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Age Group
                   </label>
-                  <select
-                    value={ageGroup}
-                    onChange={e => setAgeGroup(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-dark-600 rounded-lg bg-white dark:bg-dark-700 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="">Select Age Group…</option>
-                    {AGE_GROUPS.map(g => (
-                      <option key={g} value={g}>{g}</option>
-                    ))}
-                  </select>
+                  <div className="flex flex-wrap gap-2">
+                    {AGE_GROUPS.map(group => {
+                      const isSelected = ageGroup.includes(group);
+                      return (
+                        <button
+                          type="button"
+                          key={group}
+                          onClick={() =>
+                            setAgeGroup(prev =>
+                              isSelected ? prev.filter(g => g !== group) : [...prev, group]
+                            )
+                          }
+                          className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 shadow-sm ${
+                            isSelected
+                              ? 'text-white'
+                              : 'text-gray-300 border border-gray-500 bg-dark-700 hover:bg-dark-600'
+                          }`}
+                          style={
+                            isSelected
+                              ? {
+                                  background: 'linear-gradient(135deg, #1e3a8a, #10b981)',
+                                  backgroundSize: '160% 160%',
+                                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                                  boxShadow:
+                                    'inset 0 0 6px rgba(255, 255, 255, 0.05), 0 2px 6px rgba(16, 185, 129, 0.4)',
+                                  backdropFilter: 'blur(3px)',
+                                }
+                              : {}
+                          }
+                        >
+                          {isSelected ? '✅ ' : ''}
+                          {group}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
 
-                {/* Level */}
+
+                {/* Level (multi-select pill style) */}
                 <div className="mb-4">
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Level
                   </label>
-                  <select
-                    value={level}
-                    onChange={e => setLevel(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-dark-600 rounded-lg bg-white dark:bg-dark-700 text-gray-700 dark:text-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="">Select Level…</option>
-                    {LEVELS.map(l => (
-                      <option key={l} value={l}>{l}</option>
-                    ))}
-                  </select>
+                  <div className="flex flex-wrap gap-2">
+                    {LEVELS.map(lvl => {
+                      const isSelected = level.includes(lvl);
+                      return (
+                        <button
+                          type="button"
+                          key={lvl}
+                          onClick={() =>
+                            setLevel(prev =>
+                              isSelected ? prev.filter(t => t !== lvl) : [...prev, lvl]
+                            )
+                          }
+                          className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 shadow-sm ${
+                            isSelected
+                              ? 'text-white'
+                              : 'text-gray-300 border border-gray-500 bg-dark-700 hover:bg-dark-600'
+                          }`}
+                          style={
+                            isSelected
+                              ? {
+                                  background: 'linear-gradient(135deg, #3b82f6, #f97316)',
+                                  backgroundSize: '160% 160%',
+                                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                                  boxShadow:
+                                    'inset 0 0 6px rgba(255, 255, 255, 0.05), 0 2px 6px rgba(59, 130, 246, 0.4)',
+                                  backdropFilter: 'blur(3px)',
+                                }
+                              : {}
+                          }
+                        >
+                          {isSelected ? '✨ ' : ''}
+                          {lvl}
+                        </button>
+                      );
+                    })}
+                  </div>
                 </div>
+
+
 
                 {/* Tags */}
                 <div className="mb-6">
