@@ -192,16 +192,15 @@ export default function LessonPlanningNew({ userId, onAddToPlan, onRunLesson }) 
 
   return (
     <DragDropContext onDragStart={onDragStart} onDragUpdate={onDragUpdate} onDragEnd={onDragEnd}>
-      <div className="flex flex-1 overflow-hidden bg-gray-50 dark:bg-dark-900 transition-colors duration-200">
-
+      <div className="flex flex-col h-full overflow-hidden bg-gray-50 dark:bg-dark-900 transition-colors duration-200">
         {/* Sidebar */}
-        <aside className="w-96 bg-white dark:bg-dark-800 border-r border-gray-200 dark:border-dark-700 p-6 overflow-auto flex flex-col">
-          <div className="mb-4">
-            <div className="flex justify-between items-center">
-              {/* Left Column: Title, minutes, activities */}
-              <div className="flex flex-col space-y-1">
+        <aside className="w-full bg-white dark:bg-dark-800 border-b border-gray-200 dark:border-dark-700 p-2 overflow-auto grid grid-cols-5 gap-6">
+          <div className="mb-4 col-span-5">
+            <div className="flex justify-between items-start mb-4 px-4">
+              {/* Left Column: Title, minutes, activities, warmups */}
+              <div className="flex flex-col items-start space-y-1">
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Lesson Plan</h2>
-                <div className="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-300">
+                <div className="flex items-start space-x-4 text-sm text-gray-600 dark:text-gray-300">
                   <div className="flex items-center gap-1.5">
                     <span className="text-xs">⏱️</span>
                     <span className="font-medium">{totalMinutes} min</span>
@@ -217,100 +216,455 @@ export default function LessonPlanningNew({ userId, onAddToPlan, onRunLesson }) 
               {totalActivities > 0 && (
                 <button
                   onClick={() => setShowPreview(true)}
-                  className="px-4 py-2 rounded-md text-sm font-semibold text-white bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-400 hover:to-indigo-400 transition-shadow shadow-md"
+                  className="ml-4 mt-2 px-4 py-2 rounded-md text-sm font-semibold text-white bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-400 hover:to-indigo-400 transition-shadow shadow-md"
                 >
                   Preview Lesson
                 </button>
               )}
             </div>
-          </div>
+            <div className="grid grid-flow-col auto-cols-fr gap-6 w-full">
+              {/* Warm Up */}
+              <div>
+                <Droppable droppableId='warm_up' key='warm_up'>
+                  {(provided, snapshot) => {
+                    const isMatchZone = draggingType === 'warm_up'
+                    const hasItems = sectionParts['warm_up']?.length > 0
+                    const highlight = snapshot.isDraggingOver
+                      ? isMatchZone
+                        ? 'border-green-500 dark:border-green-400'
+                        : 'border-red-500 dark:border-red-400'
+                      : hasItems
+                        ? 'border-green-500 dark:border-green-400'
+                        : 'border-gray-300 dark:border-dark-600'
 
-          <div className="border-b border-gray-200 dark:border-dark-700 mb-6" />
-
-          {/* Section dotted line boexs */}
-          <div className="space-y-6 flex-1">
-            {Object.entries(SECTION_LABELS).map(([key, label]) => (
-              <Droppable droppableId={key} key={key}>
-                {(provided, snapshot) => {
-                  const isMatchZone = draggingType === key
-                  const hasItems = sectionParts[key]?.length > 0
-                  const highlight = snapshot.isDraggingOver
-                    ? isMatchZone
-                      ? 'border-green-500 dark:border-green-400'
-                      : 'border-red-500 dark:border-red-400'
-                    : hasItems
-                      ? 'border-green-500 dark:border-green-400'
-                      : 'border-gray-300 dark:border-dark-600'
-
-                  return (
-                    <div
-                      ref={provided.innerRef}
-                      {...provided.droppableProps}
-                      className={`relative border-2 border-dashed rounded-lg p-6 flex flex-col items-center text-center space-y-4 min-h-[14rem] ${highlight}`}
-                    >
-                      <span className="text-5xl">{SECTION_ICONS[key]}</span>
-                      <h3 className="font-semibold text-lg text-gray-900 dark:text-white">Add {label}</h3>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        {key === 'warm_up' ? 'Start with an energizing activity'
-                          : key === 'bridge_activity' ? 'Link warm-up to main'
-                            : key === 'main_activity' ? 'Core learning activities'
-                              : key === 'end_of_lesson' ? 'Wrap up and reflect'
-                                : 'Attach scripts for actors'}
-                      </p>
-
-                      <div className="w-full space-y-2">
-                        {sectionParts[key].map((p, idx) => (
-                          <div
-                            key={p.id}
-                            className="relative w-full rounded-xl border border-green-500 bg-green-600/80 dark:bg-green-900/80 text-left p-5 shadow-lg transition duration-300"
-                          >
-                            <div className="absolute -top-2 -left-2 text-sm p-0.5 bg-green-200 dark:bg-green-800 rounded-full border border-white shadow-sm">
-                              {SECTION_ICONS[p.section_type]}
-                            </div>
-                            <button
-                              onClick={() => handleRemovePart(key, p.id)}
-                              className="absolute top-1 right-2 text-xs text-red-500 hover:text-red-300 transition"
-                            >
-                              Remove
-                            </button>
-
-                            {/* Pills row: only time */}
-                            <div className="flex flex-col items-start gap-1">
-                              <h4 className="text-base font-extrabold text-white leading-snug">{p.title}</h4>
-                              {typeof p.time === 'number' && (
-                                <span className="inline-flex items-center px-2 py-0.5 text-xs rounded-full bg-emerald-700/30 text-emerald-100 font-medium shadow-sm border border-emerald-600/30">
-                                  ⏱ {p.time} min
-                                </span>
-                              )}
-                            </div>
-
-
-                            {/* remove the p.body block entirely */}
-
-                            {/* Scripts & Tags follow as before… */}
+                    return (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.droppableProps}
+                        className={`relative border-2 border-dashed rounded-lg p-6 flex flex-col items-center text-center space-y-4 min-h-[14rem] ${highlight}`}
+                      >
+                        <div className="flex flex-col items-center text-center">
+                          {/* Row: icon + title */}
+                          <div className="flex items-center space-x-2">
+                            <span className="text-2xl">{SECTION_ICONS['warm_up']}</span>
+                            <h3 className="font-semibold text-lg text-gray-900 dark:text-white">
+                              Add Warm Ups
+                            </h3>
                           </div>
-                        ))}
 
+                          {/* Description below */}
+                          <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                            Start with an energizing activity
+                          </p>
+                        </div>
+
+
+                        <div className="w-full space-y-2">
+                          {sectionParts['warm_up'].map((p, idx) => (
+                            <div
+                              key={p.id}
+                              className="relative w-full rounded-xl border border-green-500 bg-green-600/80 dark:bg-green-900/80 text-left p-5 shadow-lg transition duration-300"
+                            >
+                              <div className="absolute -top-2 -left-2 text-sm p-0.5 bg-green-200 dark:bg-green-800 rounded-full border border-white shadow-sm">
+                                {SECTION_ICONS[p.section_type]}
+                              </div>
+                              <button
+                                onClick={() => handleRemovePart('warm_up', p.id)}
+                                className="absolute top-1 right-2 text-xs text-red-500 hover:text-red-300 transition"
+                              >
+                                Remove
+                              </button>
+
+                              {/* Pills row: only time */}
+                              <div className="flex flex-col items-start gap-1">
+                                <h4 className="text-base font-extrabold text-white leading-snug">{p.title}</h4>
+                                {typeof p.time === 'number' && (
+                                  <span className="inline-flex items-center px-2 py-0.5 text-xs rounded-full bg-emerald-700/30 text-emerald-100 font-medium shadow-sm border border-emerald-600/30">
+                                    ⏱ {p.time} min
+                                  </span>
+                                )}
+                              </div>
+
+
+                              {/* remove the p.body block entirely */}
+
+                              {/* Scripts & Tags follow as before… */}
+                            </div>
+                          ))}
+
+                        </div>
+                        {provided.placeholder}
                       </div>
-                      {provided.placeholder}
-                    </div>
-                  )
-                }}
-              </Droppable>
-            ))}
-          </div>
+                    )
+                  }}
+                </Droppable>
+              </div>
+              {/* Bridge Activities */}
+              <div>
+                <Droppable droppableId="bridge_activity" key="bridge_activity">
+                  {(provided, snapshot) => {
+                    const isMatchZone = draggingType === 'bridge_activity';
+                    const hasItems = sectionParts['bridge_activity']?.length > 0;
+                    const highlight = snapshot.isDraggingOver
+                      ? isMatchZone
+                        ? 'border-green-500 dark:border-green-400'
+                        : 'border-red-500 dark:border-red-400'
+                      : hasItems
+                        ? 'border-green-500 dark:border-green-400'
+                        : 'border-gray-300 dark:border-dark-600';
 
-          {/* 🔵 Bottom-centered Preview Button */}
-          {totalActivities > 0 && (
-            <div className="mt-8 flex justify-center">
-              <button
-                onClick={() => setShowPreview(true)}
-                className="px-6 py-2 rounded-md text-sm font-semibold text-white bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-400 hover:to-indigo-400 transition-shadow shadow-md"
-              >
-                Preview Lesson
-              </button>
+                    return (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.droppableProps}
+                        className={`
+                          relative
+                          border-2 border-dashed rounded-lg
+                          p-6 flex flex-col items-center text-center
+                          space-y-4 min-h-[14rem]
+                          ${highlight}
+                        `}
+                      >
+                        <div className="flex flex-col items-center text-center">
+                          {/* Row: icon + title */}
+                          <div className="flex items-center space-x-2">
+                            <span className="text-2xl">{SECTION_ICONS['bridge_activity']}</span>
+                            <h3 className="font-semibold text-lg text-gray-900 dark:text-white">
+                              Add Bridge Activities
+                            </h3>
+                          </div>
+
+                          {/* Description below */}
+                          <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                            Link warm-up to main
+                          </p>
+                        </div>
+
+
+                        <div className="w-full space-y-2">
+                          {sectionParts['bridge_activity'].map((p, idx) => (
+                            <div
+                              key={p.id}
+                              className="
+                                relative w-full rounded-xl
+                                border border-green-500 bg-green-600/80 dark:bg-green-900/80
+                                text-left p-5 shadow-lg transition duration-300
+                              "
+                            >
+                              <div className="
+                                absolute -top-2 -left-2 text-sm p-0.5
+                                bg-green-200 dark:bg-green-800 rounded-full
+                                border border-white shadow-sm
+                              ">
+                                {SECTION_ICONS[p.section_type]}
+                              </div>
+                              <button
+                                onClick={() => handleRemovePart('bridge_activity', p.id)}
+                                className="absolute top-1 right-2 text-xs text-red-500 hover:text-red-300 transition"
+                              >
+                                Remove
+                              </button>
+
+                              {/* Title & Time */}
+                              <div className="flex flex-col items-start gap-1">
+                                <h4 className="text-base font-extrabold text-white leading-snug">
+                                  {p.title}
+                                </h4>
+                                {typeof p.time === 'number' && (
+                                  <span className="
+                                    inline-flex items-center px-2 py-0.5 text-xs
+                                    rounded-full bg-emerald-700/30 text-emerald-100
+                                    font-medium shadow-sm border border-emerald-600/30
+                                  ">
+                                    ⏱ {p.time} min
+                                  </span>
+                                )}
+                              </div>
+
+                              {/* Scripts & Tags would go here if needed */}
+                            </div>
+                          ))}
+                        </div>
+                        {provided.placeholder}
+                      </div>
+                    );
+                  }}
+                </Droppable>
+              </div>
+              {/* Main Activity */}
+              <div>
+                <Droppable droppableId="main_activity" key="main_activity">
+                  {(provided, snapshot) => {
+                    const isMatchZone = draggingType === 'main_activity';
+                    const hasItems = sectionParts['main_activity']?.length > 0;
+                    const highlight = snapshot.isDraggingOver
+                      ? isMatchZone
+                        ? 'border-green-500 dark:border-green-400'
+                        : 'border-red-500 dark:border-red-400'
+                      : hasItems
+                        ? 'border-green-500 dark:border-green-400'
+                        : 'border-gray-300 dark:border-dark-600';
+
+                    return (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.droppableProps}
+                        className={`
+                          relative
+                          border-2 border-dashed rounded-lg
+                          p-6 flex flex-col items-center text-center
+                          space-y-4 min-h-[14rem]
+                          ${highlight}
+                        `}
+                      >
+                        <div className="flex flex-col items-center text-center">
+                          {/* Row: icon + title */}
+                          <div className="flex items-center space-x-2">
+                            <span className="text-2xl">{SECTION_ICONS['main_activity']}</span>
+                            <h3 className="font-semibold text-lg text-gray-900 dark:text-white">
+                              Add Main Activities
+                            </h3>
+                          </div>
+
+                          {/* Description below */}
+                          <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                            Core learning activities
+                          </p>
+                        </div>
+
+
+                        <div className="w-full space-y-2">
+                          {sectionParts['main_activity'].map((p) => (
+                            <div
+                              key={p.id}
+                              className="
+                                relative w-full rounded-xl
+                                border border-green-500 bg-green-600/80 dark:bg-green-900/80
+                                text-left p-5 shadow-lg transition duration-300
+                              "
+                            >
+                              <div className="
+                                absolute -top-2 -left-2 text-sm p-0.5
+                                bg-green-200 dark:bg-green-800 rounded-full
+                                border border-white shadow-sm
+                              ">
+                                {SECTION_ICONS[p.section_type]}
+                              </div>
+                              <button
+                                onClick={() => handleRemovePart('main_activity', p.id)}
+                                className="absolute top-1 right-2 text-xs text-red-500 hover:text-red-300 transition"
+                              >
+                                Remove
+                              </button>
+
+                              {/* Title & Time */}
+                              <div className="flex flex-col items-start gap-1">
+                                <h4 className="text-base font-extrabold text-white leading-snug">
+                                  {p.title}
+                                </h4>
+                                {typeof p.time === 'number' && (
+                                  <span className="
+                                    inline-flex items-center px-2 py-0.5 text-xs
+                                    rounded-full bg-emerald-700/30 text-emerald-100
+                                    font-medium shadow-sm border border-emerald-600/30
+                                  ">
+                                    ⏱ {p.time} min
+                                  </span>
+                                )}
+                              </div>
+
+                              {/* Scripts & Tags would go here if needed */}
+                            </div>
+                          ))}
+                        </div>
+                        {provided.placeholder}
+                      </div>
+                    );
+                  }}
+                </Droppable>
+              </div>
+              {/* End of Lesson */}
+              <div>
+                <Droppable droppableId="end_of_lesson" key="end_of_lesson">
+                  {(provided, snapshot) => {
+                    const isMatchZone = draggingType === 'end_of_lesson';
+                    const hasItems = sectionParts['end_of_lesson']?.length > 0;
+                    const highlight = snapshot.isDraggingOver
+                      ? isMatchZone
+                        ? 'border-green-500 dark:border-green-400'
+                        : 'border-red-500 dark:border-red-400'
+                      : hasItems
+                        ? 'border-green-500 dark:border-green-400'
+                        : 'border-gray-300 dark:border-dark-600';
+
+                    return (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.droppableProps}
+                        className={`
+                          relative
+                          border-2 border-dashed rounded-lg
+                          p-6 flex flex-col items-center text-center
+                          space-y-4 min-h-[14rem]
+                          ${highlight}
+                        `}
+                      >
+                        <div className="flex flex-col items-center text-center">
+                          {/* Row: icon + title */}
+                          <div className="flex items-center space-x-2">
+                            <span className="text-2xl">{SECTION_ICONS['end_of_lesson']}</span>
+                            <h3 className="font-semibold text-lg text-gray-900 dark:text-white">
+                              Add End Of Lesson
+                            </h3>
+                          </div>
+
+                          {/* Description below */}
+                          <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                            Wrap up and reflect
+                          </p>
+                        </div>
+
+
+                        <div className="w-full space-y-2">
+                          {sectionParts['end_of_lesson'].map((p) => (
+                            <div
+                              key={p.id}
+                              className="
+                                relative w-full rounded-xl
+                                border border-green-500 bg-green-600/80 dark:bg-green-900/80
+                                text-left p-5 shadow-lg transition duration-300
+                              "
+                            >
+                              <div className="
+                                absolute -top-2 -left-2 text-sm p-0.5
+                                bg-green-200 dark:bg-green-800 rounded-full
+                                border border-white shadow-sm
+                              ">
+                                {SECTION_ICONS[p.section_type]}
+                              </div>
+                              <button
+                                onClick={() => handleRemovePart('end_of_lesson', p.id)}
+                                className="absolute top-1 right-2 text-xs text-red-500 hover:text-red-300 transition"
+                              >
+                                Remove
+                              </button>
+
+                              {/* Title & Time */}
+                              <div className="flex flex-col items-start gap-1">
+                                <h4 className="text-base font-extrabold text-white leading-snug">
+                                  {p.title}
+                                </h4>
+                                {typeof p.time === 'number' && (
+                                  <span className="
+                                    inline-flex items-center px-2 py-0.5 text-xs
+                                    rounded-full bg-emerald-700/30 text-emerald-100
+                                    font-medium shadow-sm border border-emerald-600/30
+                                  ">
+                                    ⏱ {p.time} min
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                        {provided.placeholder}
+                      </div>
+                    );
+                  }}
+                </Droppable>
+              </div>
+              {/* Scripts */}
+              <div>
+                <Droppable droppableId="script" key="script">
+                  {(provided, snapshot) => {
+                    const isMatchZone = draggingType === 'script';
+                    const hasItems = sectionParts['script']?.length > 0;
+                    const highlight = snapshot.isDraggingOver
+                      ? isMatchZone
+                        ? 'border-green-500 dark:border-green-400'
+                        : 'border-red-500 dark:border-red-400'
+                      : hasItems
+                        ? 'border-green-500 dark:border-green-400'
+                        : 'border-gray-300 dark:border-dark-600';
+
+                    return (
+                      <div
+                        ref={provided.innerRef}
+                        {...provided.droppableProps}
+                        className={`
+                          relative
+                          border-2 border-dashed rounded-lg
+                          p-6 flex flex-col items-center text-center
+                          space-y-4 min-h-[14rem]
+                          ${highlight}
+                        `}
+                      >
+                        <div className="flex flex-col items-center text-center">
+                          {/* Row: icon + title */}
+                          <div className="flex items-center space-x-2">
+                            <span className="text-2xl">{SECTION_ICONS['script']}</span>
+                            <h3 className="font-semibold text-lg text-gray-900 dark:text-white">
+                              Add Scripts
+                            </h3>
+                          </div>
+
+                          {/* Description below */}
+                          <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                            Attach scripts for actors
+                          </p>
+                        </div>
+
+
+                        <div className="w-full space-y-2">
+                          {sectionParts['script'].map((p) => (
+                            <div
+                              key={p.id}
+                              className="
+                                relative w-full rounded-xl
+                                border border-green-500 bg-green-600/80 dark:bg-green-900/80
+                                text-left p-5 shadow-lg transition duration-300
+                              "
+                            >
+                              <div className="
+                                absolute -top-2 -left-2 text-sm p-0.5
+                                bg-green-200 dark:bg-green-800 rounded-full
+                                border border-white shadow-sm
+                              ">
+                                {SECTION_ICONS[p.section_type]}
+                              </div>
+                              <button
+                                onClick={() => handleRemovePart('script', p.id)}
+                                className="absolute top-1 right-2 text-xs text-red-500 hover:text-red-300 transition"
+                              >
+                                Remove
+                              </button>
+
+                              {/* Title & Time */}
+                              <div className="flex flex-col items-start gap-1">
+                                <h4 className="text-base font-extrabold text-white leading-snug">
+                                  {p.title}
+                                </h4>
+                                {typeof p.time === 'number' && (
+                                  <span className="
+                                    inline-flex items-center px-2 py-0.5 text-xs
+                                    rounded-full bg-emerald-700/30 text-emerald-100
+                                    font-medium shadow-sm border border-emerald-600/30
+                                  ">
+                                    ⏱ {p.time} min
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                        {provided.placeholder}
+                      </div>
+                    );
+                  }}
+                </Droppable>
+              </div>
             </div>
-          )}
+          </div>
         </aside>
 
         {/* Main panel */}
@@ -413,8 +767,9 @@ export default function LessonPlanningNew({ userId, onAddToPlan, onRunLesson }) 
           </div>
 
 
-          {/* Finalize Lesson */}
+          {/* Finalize Lesson and Cards */}
           <div className="flex-1 p-4 overflow-auto relative">
+            {/* Finalize Lesson */}
             {showPreview && (
               <div className="w-full flex justify-center mt-6">
                 <div className="flex flex-col gap-6 px-10 py-10 border-2 border-sky-400/40 bg-gradient-to-br from-dark-700 via-dark-800 to-dark-700 rounded-2xl shadow-xl w-full max-w-6xl transition-all duration-300">
@@ -422,7 +777,6 @@ export default function LessonPlanningNew({ userId, onAddToPlan, onRunLesson }) 
                   <h2 className="text-3xl font-extrabold text-white text-center tracking-wide">
                     ✨ Finalize Your Lesson Plan
                   </h2>
-
                   {/* Editable title, objective, and bullets */}
                   <div className="space-y-6">
                     <div>
@@ -446,7 +800,7 @@ export default function LessonPlanningNew({ userId, onAddToPlan, onRunLesson }) 
                         className="w-full px-5 py-3 rounded-lg border border-sky-500 bg-dark-600 text-white placeholder-sky-200 shadow-inner focus:outline-none focus:ring-2 focus:ring-sky-500"
                       />
                     </div>
-
+                    {/* At a Glance */}
                     <div>
                       <label className="block text-sm font-semibold text-white mb-2">At a Glance</label>
                       {previewBullets.map((b, i) => (
@@ -468,7 +822,7 @@ export default function LessonPlanningNew({ userId, onAddToPlan, onRunLesson }) 
                       ))}
                     </div>
                   </div>
-
+                  {/* Lesson Parts */}
                   {Object.entries(sectionParts).map(([sectionType, parts]) => (
                     <div key={sectionType} className="mt-4">
                       <h3 className="text-lg font-bold text-sky-300 uppercase tracking-wide mb-3 border-b border-sky-600 pb-1">
@@ -492,12 +846,10 @@ export default function LessonPlanningNew({ userId, onAddToPlan, onRunLesson }) 
                                 </span>
                               )}
                             </div>
-
                             {/* Description */}
                             {p.body && (
                               <p className="text-sm text-gray-300 leading-relaxed mb-3">{p.body}</p>
                             )}
-
                             {/* Scripts */}
                             {Array.isArray(p.file_infos) && p.file_infos.length > 0 && (
                               <div className="mt-4 border-t border-white/10 pt-3">
@@ -520,7 +872,6 @@ export default function LessonPlanningNew({ userId, onAddToPlan, onRunLesson }) 
                                 </div>
                               </div>
                             )}
-
                             {/* Tags */}
                             {Array.isArray(p.tags) && p.tags.length > 0 && (
                               <div className="mt-4 border-t border-white/10 pt-3">
@@ -539,6 +890,7 @@ export default function LessonPlanningNew({ userId, onAddToPlan, onRunLesson }) 
                                 </div>
                               </div>
                             )}
+                            {/* Admin Created Badge */}
                             {p.admin_created && (
                               <div className="mt-3">
                                 <span className="inline-flex items-center px-2 py-0.5 rounded-full border border-blue-500 text-xs text-blue-300 bg-dark-700">
@@ -553,8 +905,6 @@ export default function LessonPlanningNew({ userId, onAddToPlan, onRunLesson }) 
                     </div>
                   ))}
 
-
-                  {/* Fancy Buttons */}
                   {/* Save • Save & Run • Cancel */}
                   <div className="flex gap-6 mt-10 justify-center">
                     {/* 1) Just Save */}
@@ -593,13 +943,9 @@ export default function LessonPlanningNew({ userId, onAddToPlan, onRunLesson }) 
                       Cancel
                     </button>
                   </div>
-
-
                 </div>
               </div>
             )}
-
-
 
             {/* Cards */}
             {!showPreview && (
@@ -612,160 +958,178 @@ export default function LessonPlanningNew({ userId, onAddToPlan, onRunLesson }) 
                   >
                     {filtered.map((p, idx) => (
                       <Draggable key={p.id} draggableId={String(p.id)} index={idx}>
-                        {(providedDr, snapshotDr) => (
-                          <div
-                            ref={providedDr.innerRef}
-                            {...providedDr.draggableProps}
-                            {...providedDr.dragHandleProps}
-                            className={`relative bg-dark-800 border border-dark-600 rounded-xl p-5 shadow-md hover:shadow-lg transition duration-200 hover:border-blue-500 group`}
-                          >
-                            {snapshotDr.isDragging && invalidDrop && draggingType === p.section_type && (
-                              <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-red-600 text-white text-xs font-semibold px-3 py-1 rounded shadow z-50">
-                                Must be dropped into {invalidSection}
-                              </div>
-                            )}
+                        {(providedDr, snapshotDr) => {
+                          const dndStyle = providedDr.draggableProps.style || {};
 
-                            {/* Section Badge */}
+                          return (
                             <div
-                              className={`absolute top-2 left-2 text-[11px] font-bold uppercase tracking-wide px-3 py-0.5 rounded-full border shadow-inner backdrop-blur-sm z-10 transition-all duration-200 ${p.section_type === 'warm_up'
-                                ? 'bg-gradient-to-br from-pink-700/30 to-pink-500/20 text-pink-300 border-pink-500/40'
-                                : p.section_type === 'bridge_activity'
-                                  ? 'bg-gradient-to-br from-yellow-600/30 to-yellow-500/20 text-yellow-200 border-yellow-400/40'
-                                  : p.section_type === 'main_activity'
-                                    ? 'bg-gradient-to-br from-indigo-600/30 to-indigo-500/20 text-indigo-200 border-indigo-400/40'
-                                    : p.section_type === 'end_of_lesson'
-                                      ? 'bg-gradient-to-br from-teal-600/30 to-teal-500/20 text-teal-200 border-teal-400/40'
-                                      : 'bg-gradient-to-br from-sky-600/30 to-sky-500/20 text-sky-200 border-sky-400/40'
-                                }`}
+                              ref={providedDr.innerRef}
+                              {...providedDr.draggableProps}
+                              {...providedDr.dragHandleProps}
+                              style={{
+                                ...dndStyle,
+                                // keep it on its own layer so it always repaints instantly
+                                willChange: 'transform',
+                                zIndex: snapshotDr.isDragging ? 999 : 'auto',
+                              }}
                             >
-                              {SECTION_LABELS[p.section_type]}
-                            </div>
-
-                            {/* Icon */}
-                            <div
-                              className={`absolute top-2 right-2 text-3xl transition-all duration-300 ${snapshotDr.isDragging
-                                ? 'text-white/80'
-                                : 'text-white/20 group-hover:text-white/80'
-                                }`}
-                            >
-                              {SECTION_ICONS[p.section_type]}
-                            </div>
-
-                            <div className="mt-6 space-y-3">
-                              <h3 className="text-xl font-extrabold text-white tracking-tight leading-tight">
-                                {p.title}
-                              </h3>
-
-                              <div className="space-y-1 text-sm">
-                                {/* Age Group */}
-                                <div className="flex items-center">
-                                  <span className="inline-block w-20 text-white/70 font-semibold">Age:</span>
-                                  <div className="flex space-x-1">
-                                    {Array.isArray(p.age_group) &&
-                                      p.age_group.map(age => (
-                                        <span
-                                          key={age}
-                                          className="inline-block px-2 py-0.5 text-xs leading-none rounded-full font-medium text-white shadow-sm"
-                                          style={{
-                                            background: 'linear-gradient(135deg, #1e3a8a, #10b981)',
-                                            backgroundSize: '160% 160%',
-                                            boxShadow:
-                                              'inset 0 0 6px rgba(255,255,255,0.05), 0 2px 6px rgba(16,185,129,0.4)',
-                                            backdropFilter: 'blur(3px)',
-                                            border: 'none',
-                                          }}
-                                        >
-                                          {age}
-                                        </span>
-                                      ))}
+                              <div
+                                style={{
+                                  transform: snapshotDr.isDragging ? 'scale(0.5)' : 'scale(1)',
+                                  transformOrigin: 'center center',
+                                  transition: snapshotDr.isDragging ? 'none' : 'transform 0.1s ease-out',
+                                }}
+                                className="relative h-full flex flex-col justify-between bg-dark-800 border border-dark-600 rounded-xl p-5 shadow-md hover:shadow-lg hover:border-blue-500 min-h-[380px]"
+                              >
+                                {snapshotDr.isDragging && invalidDrop && draggingType === p.section_type && (
+                                  <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-red-600 text-white text-xs font-semibold px-3 py-1 rounded shadow z-50">
+                                    Must be dropped into {invalidSection}
                                   </div>
-                                </div>
-
-                                {/* Level */}
-                                <div className="flex items-center">
-                                  <span className="inline-block w-20 text-white/70 font-semibold">Level:</span>
-                                  <div className="flex space-x-1">
-                                    {Array.isArray(p.level) &&
-                                      p.level.map(lvl => (
-                                        <span
-                                          key={lvl}
-                                          className="inline-block px-2 py-0.5 text-xs leading-none rounded-full font-medium text-white shadow-sm"
-                                          style={{
-                                            background: 'linear-gradient(135deg, #3b82f6, #f97316)',
-                                            backgroundSize: '160% 160%',
-                                            boxShadow:
-                                              'inset 0 0 6px rgba(255,255,255,0.05), 0 2px 6px rgba(59,130,246,0.4)',
-                                            backdropFilter: 'blur(3px)',
-                                            border: 'none',
-                                          }}
-                                        >
-                                          {lvl}
-                                        </span>
-                                      ))}
-                                  </div>
-                                </div>
-
-                                {typeof p.time === 'number' && (
-                                  <p className="text-gray-300">
-                                    <span className="inline-block w-20 text-white/70 font-semibold">Time:</span>
-                                    <span className="text-gray-100">{p.time} min</span>
-                                  </p>
                                 )}
+
+                                {/* Section Badge */}
+                                <div
+                                  className={`absolute top-2 left-2 text-[11px] font-bold uppercase tracking-wide px-3 py-0.5 rounded-full border shadow-inner backdrop-blur-sm z-10 transition-all duration-200 ${p.section_type === 'warm_up'
+                                    ? 'bg-gradient-to-br from-pink-700/30 to-pink-500/20 text-pink-300 border-pink-500/40'
+                                    : p.section_type === 'bridge_activity'
+                                      ? 'bg-gradient-to-br from-yellow-600/30 to-yellow-500/20 text-yellow-200 border-yellow-400/40'
+                                      : p.section_type === 'main_activity'
+                                        ? 'bg-gradient-to-br from-indigo-600/30 to-indigo-500/20 text-indigo-200 border-indigo-400/40'
+                                        : p.section_type === 'end_of_lesson'
+                                          ? 'bg-gradient-to-br from-teal-600/30 to-teal-500/20 text-teal-200 border-teal-400/40'
+                                          : 'bg-gradient-to-br from-sky-600/30 to-sky-500/20 text-sky-200 border-sky-400/40'
+                                    }`}
+                                >
+                                  {SECTION_LABELS[p.section_type]}
+                                </div>
+
+                                {/* Icon */}
+                                <div
+                                  className={`absolute top-2 right-2 text-3xl transition-all duration-300 ${snapshotDr.isDragging
+                                    ? 'text-white/80'
+                                    : 'text-white/20 group-hover:text-white/80'
+                                    }`}
+                                >
+                                  {SECTION_ICONS[p.section_type]}
+                                </div>
+
+                                <div className="mt-6 space-y-3">
+                                  <h3 className="text-xl font-extrabold text-white tracking-tight leading-tight">
+                                    {p.title}
+                                  </h3>
+
+                                  <div className="space-y-1 text-sm">
+                                    {/* Age Group */}
+                                    <div className="flex items-center">
+                                      <span className="inline-block w-20 text-white/70 font-semibold">Age:</span>
+                                      <div className="flex space-x-1">
+                                        {Array.isArray(p.age_group) &&
+                                          p.age_group.map(age => (
+                                            <span
+                                              key={age}
+                                              className="inline-block px-2 py-0.5 text-xs leading-none rounded-full font-medium text-white shadow-sm"
+                                              style={{
+                                                background: 'linear-gradient(135deg, #1e3a8a, #10b981)',
+                                                backgroundSize: '160% 160%',
+                                                boxShadow:
+                                                  'inset 0 0 6px rgba(255,255,255,0.05), 0 2px 6px rgba(16,185,129,0.4)',
+                                                backdropFilter: 'blur(3px)',
+                                                border: 'none',
+                                              }}
+                                            >
+                                              {age}
+                                            </span>
+                                          ))}
+                                      </div>
+                                    </div>
+
+                                    {/* Level */}
+                                    <div className="flex items-center">
+                                      <span className="inline-block w-20 text-white/70 font-semibold">Level:</span>
+                                      <div className="flex space-x-1">
+                                        {Array.isArray(p.level) &&
+                                          p.level.map(lvl => (
+                                            <span
+                                              key={lvl}
+                                              className="inline-block px-2 py-0.5 text-xs leading-none rounded-full font-medium text-white shadow-sm"
+                                              style={{
+                                                background: 'linear-gradient(135deg, #3b82f6, #f97316)',
+                                                backgroundSize: '160% 160%',
+                                                boxShadow:
+                                                  'inset 0 0 6px rgba(255,255,255,0.05), 0 2px 6px rgba(59,130,246,0.4)',
+                                                backdropFilter: 'blur(3px)',
+                                                border: 'none',
+                                              }}
+                                            >
+                                              {lvl}
+                                            </span>
+                                          ))}
+                                      </div>
+                                    </div>
+
+                                    {typeof p.time === 'number' && (
+                                      <p className="text-gray-300">
+                                        <span className="inline-block w-20 text-white/70 font-semibold">Time:</span>
+                                        <span className="text-gray-100">{p.time} min</span>
+                                      </p>
+                                    )}
+                                  </div>
+
+                                  {p.body && (
+                                    <p className="text-sm text-gray-400 leading-relaxed tracking-wide border-t border-white/10 pt-3">
+                                      {p.body}
+                                    </p>
+                                  )}
+
+                                  {Array.isArray(p.file_infos) && p.file_infos.length > 0 && (
+                                    <div className="mt-3 border-t border-white/10 pt-3">
+                                      <h4 className="text-xs font-semibold uppercase text-gray-400 tracking-wide mb-2">
+                                        Scripts
+                                      </h4>
+                                      <div className="flex flex-wrap gap-2">
+                                        {p.file_infos.map(({ url, filename }) => (
+                                          <a
+                                            key={url}
+                                            href={url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="inline-flex items-center space-x-1 px-3 py-1 rounded-full bg-gradient-to-r from-yellow-600 to-yellow-400 text-sm font-medium text-gray-900 shadow-sm hover:shadow-md transition"
+                                          >
+                                            <span className="text-lg leading-none">📜</span>
+                                            <span>{filename}</span>
+                                          </a>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  )}
+
+                                  {Array.isArray(p.tags) && p.tags.length > 0 && (
+                                    <div className="mt-4 border-t border-white/10 pt-4">
+                                      <h4 className="text-xs font-semibold uppercase text-gray-400 tracking-wide mb-2">
+                                        Tags
+                                      </h4>
+                                      <div className="flex flex-wrap gap-2">
+                                        {p.tags.map(tag => (
+                                          <span
+                                            key={tag}
+                                            className="inline-flex items-center px-3 py-1 rounded-full bg-gradient-to-r from-purple-600 to-pink-500 text-sm font-medium text-white shadow-sm hover:shadow-md transition"
+                                          >
+                                            {tag}
+                                          </span>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  )}
+                                  {p.admin_created && (
+                                    <div className="inline-flex items-center px-2 py-0.5 rounded-full border border-white/20 bg-white/5 text-xs text-white/60 gap-1 w-max">
+                                      <span className="text-blue-400">🛡</span> Admin Created
+                                    </div>
+                                  )}
+                                </div>
                               </div>
-
-                              {p.body && (
-                                <p className="text-sm text-gray-400 leading-relaxed tracking-wide border-t border-white/10 pt-3">
-                                  {p.body}
-                                </p>
-                              )}
-
-                              {Array.isArray(p.file_infos) && p.file_infos.length > 0 && (
-                                <div className="mt-3 border-t border-white/10 pt-3">
-                                  <h4 className="text-xs font-semibold uppercase text-gray-400 tracking-wide mb-2">
-                                    Scripts
-                                  </h4>
-                                  <div className="flex flex-wrap gap-2">
-                                    {p.file_infos.map(({ url, filename }) => (
-                                      <a
-                                        key={url}
-                                        href={url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="inline-flex items-center space-x-1 px-3 py-1 rounded-full bg-gradient-to-r from-yellow-600 to-yellow-400 text-sm font-medium text-gray-900 shadow-sm hover:shadow-md transition"
-                                      >
-                                        <span className="text-lg leading-none">📜</span>
-                                        <span>{filename}</span>
-                                      </a>
-                                    ))}
-                                  </div>
-                                </div>
-                              )}
-
-                              {Array.isArray(p.tags) && p.tags.length > 0 && (
-                                <div className="mt-4 border-t border-white/10 pt-4">
-                                  <h4 className="text-xs font-semibold uppercase text-gray-400 tracking-wide mb-2">
-                                    Tags
-                                  </h4>
-                                  <div className="flex flex-wrap gap-2">
-                                    {p.tags.map(tag => (
-                                      <span
-                                        key={tag}
-                                        className="inline-flex items-center px-3 py-1 rounded-full bg-gradient-to-r from-purple-600 to-pink-500 text-sm font-medium text-white shadow-sm hover:shadow-md transition"
-                                      >
-                                        {tag}
-                                      </span>
-                                    ))}
-                                  </div>
-                                </div>
-                              )}
-                              {p.admin_created && (
-                                <div className="inline-flex items-center px-2 py-0.5 rounded-full border border-white/20 bg-white/5 text-xs text-white/60 gap-1 w-max">
-                                  <span className="text-blue-400">🛡</span> Admin Created
-                                </div>
-                              )}
                             </div>
-                          </div>
-                        )}
+                          )
+                        }}
                       </Draggable>
                     ))}
                     {provided.placeholder}
