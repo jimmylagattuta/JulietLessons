@@ -48,11 +48,9 @@ export default function EditLessonPart({ editingPart, setEditingPart, admin }) {
   const [newFiles, setNewFiles] = useState([]);
   const [existingFiles, setExistingFiles] = useState([]);
   const [removeFileIds, setRemoveFileIds] = useState([]);
-  console.log('admin', admin);
 
   // Set Edit Parts
   useEffect(() => {
-    console.log("🔄 useEffect triggered with editingPart:", editingPart)
 
     if (editingPart) {
       setEditFields({
@@ -62,8 +60,6 @@ export default function EditLessonPart({ editingPart, setEditingPart, admin }) {
         level: editingPart.level,
         time: editingPart.time,
       })
-
-      console.log("📌 Setting tags from editingPart.tags:", editingPart.tags)
       setTags(editingPart.tags || []);
       setExistingFiles(editingPart.file_infos || []);
       setRemoveFileIds([]);
@@ -327,11 +323,8 @@ export default function EditLessonPart({ editingPart, setEditingPart, admin }) {
       {!editingPart && (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
           {filteredParts.filter(p => admin || !p.admin_created).map(p => {
-
             const canEdit = !p.admin_created || admin;
-            console.log('canEdit', canEdit);
-            console.log('admin', admin);
-            console.log('p', p);
+
             return (
               <div
                 key={p.id}

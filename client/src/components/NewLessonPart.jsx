@@ -40,7 +40,6 @@ export default function NewLessonPart({ admin }) {
   const [editingPart, setEditingPart] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
   const [tags, setTags] = useState([]);
-  console.log('admin', admin);
 
   const resetForm = () => {
     setSectionType('');

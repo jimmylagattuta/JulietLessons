@@ -193,6 +193,102 @@ export default function LessonPlanningNew({ userId, onAddToPlan, onRunLesson }) 
   return (
     <DragDropContext onDragStart={onDragStart} onDragUpdate={onDragUpdate} onDragEnd={onDragEnd}>
       <div className="flex flex-col h-full overflow-hidden bg-gray-50 dark:bg-dark-900 transition-colors duration-200">
+        {/* Filters */}
+        <div className="flex flex-wrap gap-2 items-center p-4 bg-white dark:bg-dark-800 border-b border-gray-200 dark:border-dark-700">
+
+          <select
+            value={filters.section}
+            onChange={e => setFilters(f => ({ ...f, section: e.target.value }))}
+            disabled={showPreview}
+            className="w-[14%] min-w-[120px] px-3 py-2 bg-white dark:bg-dark-700 border rounded-lg text-sm text-gray-700 dark:text-gray-200 disabled:opacity-50"
+          >
+            <option value="">All Sections</option>
+            {Object.entries(SECTION_LABELS).map(([k, v]) => (
+              <option key={k} value={k}>{v}</option>
+            ))}
+          </select>
+
+          <select
+            value={filters.ageGroup}
+            onChange={e => setFilters(f => ({ ...f, ageGroup: e.target.value }))}
+            disabled={showPreview}
+            className="w-[12%] min-w-[100px] px-3 py-2 bg-white dark:bg-dark-700 border rounded-lg text-sm text-gray-700 dark:text-gray-200 disabled:opacity-50"
+          >
+            <option value="">All Ages</option>
+            <option value="Young">Young</option>
+            <option value="Middle">Middle</option>
+            <option value="Older">Older</option>
+            <option value="All">All</option>
+          </select>
+
+          <select
+            value={filters.level}
+            onChange={e => setFilters(f => ({ ...f, level: e.target.value }))}
+            disabled={showPreview}
+            className="w-[14%] min-w-[120px] px-3 py-2 bg-white dark:bg-dark-700 border rounded-lg text-sm text-gray-700 dark:text-gray-200 disabled:opacity-50"
+          >
+            <option value="">All Levels</option>
+            <option value="Toe Tipper">Toe Tipper</option>
+            <option value="Green Horn">Green Horn</option>
+            <option value="Semi-Pro">Semi-Pro</option>
+            <option value="Seasoned Veteran(all)">Seasoned Veteran(all)</option>
+          </select>
+
+          <select
+            value={filters.tag}
+            onChange={e => setFilters(f => ({ ...f, tag: e.target.value }))}
+            disabled={showPreview}
+            className="w-[14%] min-w-[120px] px-3 py-2 bg-white dark:bg-dark-700 border rounded-lg text-sm text-gray-700 dark:text-gray-200 disabled:opacity-50"
+          >
+            <option value="">All Tags</option>
+            {AVAILABLE_TAGS.map(t => (
+              <option key={t} value={t}>{t}</option>
+            ))}
+          </select>
+
+          <input
+            type="text"
+            value={filters.search}
+            onChange={e => setFilters(f => ({ ...f, search: e.target.value }))}
+            placeholder="Search..."
+            disabled={showPreview}
+            className="flex-1 px-3 py-2 bg-white dark:bg-dark-700 border rounded-lg text-sm text-gray-700 dark:text-gray-200 disabled:opacity-50"
+          />
+
+          <div className="flex items-center gap-2 ml-auto">
+            <span className="text-sm font-medium text-gray-400">Created By:</span>
+            <button
+              onClick={() =>
+                setFilters(f => ({
+                  ...f,
+                  createdBy: f.createdBy === 'admin' ? '' : 'admin'
+                }))
+              }
+              className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium transition ${filters.createdBy === 'admin'
+                ? 'bg-blue-600 text-white'
+                : 'bg-gray-700 text-gray-300'
+                }`}
+            >
+              🛡️ Admin
+            </button>
+
+            <button
+              onClick={() =>
+                setFilters(f => ({
+                  ...f,
+                  createdBy: f.createdBy === 'user' ? '' : 'user'
+                }))
+              }
+              className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium transition ${filters.createdBy === 'user'
+                ? 'bg-purple-600 text-white'
+                : 'bg-gray-700 text-gray-300'
+                }`}
+            >
+              🙋 User
+            </button>
+
+          </div>
+        </div>
         {/* Sidebar */}
         <aside className="w-full bg-white dark:bg-dark-800 border-b border-gray-200 dark:border-dark-700 p-2 overflow-auto grid grid-cols-5 gap-6">
           <div className="mb-4 col-span-5">
@@ -293,7 +389,17 @@ export default function LessonPlanningNew({ userId, onAddToPlan, onRunLesson }) 
                           ))}
 
                         </div>
-                        {provided.placeholder}
+                        <div
+                          ref={provided.placeholder?.ref}
+                          style={{
+                            position: 'absolute',
+                            height: 0,
+                            pointerEvents: 'none',
+                            top: 0,
+                            left: 0,
+                            width: '100%',
+                          }}
+                        />
                       </div>
                     )
                   }}
@@ -385,7 +491,17 @@ export default function LessonPlanningNew({ userId, onAddToPlan, onRunLesson }) 
                             </div>
                           ))}
                         </div>
-                        {provided.placeholder}
+                        <div
+                          ref={provided.placeholder?.ref}
+                          style={{
+                            position: 'absolute',
+                            height: 0,
+                            pointerEvents: 'none',
+                            top: 0,
+                            left: 0,
+                            width: '100%',
+                          }}
+                        />
                       </div>
                     );
                   }}
@@ -477,7 +593,17 @@ export default function LessonPlanningNew({ userId, onAddToPlan, onRunLesson }) 
                             </div>
                           ))}
                         </div>
-                        {provided.placeholder}
+                        <div
+                          ref={provided.placeholder?.ref}
+                          style={{
+                            position: 'absolute',
+                            height: 0,
+                            pointerEvents: 'none',
+                            top: 0,
+                            left: 0,
+                            width: '100%',
+                          }}
+                        />
                       </div>
                     );
                   }}
@@ -567,7 +693,17 @@ export default function LessonPlanningNew({ userId, onAddToPlan, onRunLesson }) 
                             </div>
                           ))}
                         </div>
-                        {provided.placeholder}
+                        <div
+                          ref={provided.placeholder?.ref}
+                          style={{
+                            position: 'absolute',
+                            height: 0,
+                            pointerEvents: 'none',
+                            top: 0,
+                            left: 0,
+                            width: '100%',
+                          }}
+                        />
                       </div>
                     );
                   }}
@@ -657,7 +793,17 @@ export default function LessonPlanningNew({ userId, onAddToPlan, onRunLesson }) 
                             </div>
                           ))}
                         </div>
-                        {provided.placeholder}
+                        <div
+                          ref={provided.placeholder?.ref}
+                          style={{
+                            position: 'absolute',
+                            height: 0,
+                            pointerEvents: 'none',
+                            top: 0,
+                            left: 0,
+                            width: '100%',
+                          }}
+                        />
                       </div>
                     );
                   }}
@@ -669,106 +815,9 @@ export default function LessonPlanningNew({ userId, onAddToPlan, onRunLesson }) 
 
         {/* Main panel */}
         <div className="flex-1 flex flex-col overflow-hidden">
-          {/* Filters */}
-          <div className="flex flex-wrap gap-2 items-center p-4 bg-white dark:bg-dark-800 border-b border-gray-200 dark:border-dark-700">
-
-            <select
-              value={filters.section}
-              onChange={e => setFilters(f => ({ ...f, section: e.target.value }))}
-              disabled={showPreview}
-              className="w-[14%] min-w-[120px] px-3 py-2 bg-white dark:bg-dark-700 border rounded-lg text-sm text-gray-700 dark:text-gray-200 disabled:opacity-50"
-            >
-              <option value="">All Sections</option>
-              {Object.entries(SECTION_LABELS).map(([k, v]) => (
-                <option key={k} value={k}>{v}</option>
-              ))}
-            </select>
-
-            <select
-              value={filters.ageGroup}
-              onChange={e => setFilters(f => ({ ...f, ageGroup: e.target.value }))}
-              disabled={showPreview}
-              className="w-[12%] min-w-[100px] px-3 py-2 bg-white dark:bg-dark-700 border rounded-lg text-sm text-gray-700 dark:text-gray-200 disabled:opacity-50"
-            >
-              <option value="">All Ages</option>
-              <option value="Young">Young</option>
-              <option value="Middle">Middle</option>
-              <option value="Older">Older</option>
-              <option value="All">All</option>
-            </select>
-
-            <select
-              value={filters.level}
-              onChange={e => setFilters(f => ({ ...f, level: e.target.value }))}
-              disabled={showPreview}
-              className="w-[14%] min-w-[120px] px-3 py-2 bg-white dark:bg-dark-700 border rounded-lg text-sm text-gray-700 dark:text-gray-200 disabled:opacity-50"
-            >
-              <option value="">All Levels</option>
-              <option value="Toe Tipper">Toe Tipper</option>
-              <option value="Green Horn">Green Horn</option>
-              <option value="Semi-Pro">Semi-Pro</option>
-              <option value="Seasoned Veteran(all)">Seasoned Veteran(all)</option>
-            </select>
-
-            <select
-              value={filters.tag}
-              onChange={e => setFilters(f => ({ ...f, tag: e.target.value }))}
-              disabled={showPreview}
-              className="w-[14%] min-w-[120px] px-3 py-2 bg-white dark:bg-dark-700 border rounded-lg text-sm text-gray-700 dark:text-gray-200 disabled:opacity-50"
-            >
-              <option value="">All Tags</option>
-              {AVAILABLE_TAGS.map(t => (
-                <option key={t} value={t}>{t}</option>
-              ))}
-            </select>
-
-            <input
-              type="text"
-              value={filters.search}
-              onChange={e => setFilters(f => ({ ...f, search: e.target.value }))}
-              placeholder="Search..."
-              disabled={showPreview}
-              className="flex-1 px-3 py-2 bg-white dark:bg-dark-700 border rounded-lg text-sm text-gray-700 dark:text-gray-200 disabled:opacity-50"
-            />
-
-            <div className="flex items-center gap-2 ml-auto">
-              <span className="text-sm font-medium text-gray-400">Created By:</span>
-              <button
-                onClick={() =>
-                  setFilters(f => ({
-                    ...f,
-                    createdBy: f.createdBy === 'admin' ? '' : 'admin'
-                  }))
-                }
-                className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium transition ${filters.createdBy === 'admin'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-700 text-gray-300'
-                  }`}
-              >
-                🛡️ Admin
-              </button>
-
-              <button
-                onClick={() =>
-                  setFilters(f => ({
-                    ...f,
-                    createdBy: f.createdBy === 'user' ? '' : 'user'
-                  }))
-                }
-                className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium transition ${filters.createdBy === 'user'
-                  ? 'bg-purple-600 text-white'
-                  : 'bg-gray-700 text-gray-300'
-                  }`}
-              >
-                🙋 User
-              </button>
-
-            </div>
-          </div>
-
-
           {/* Finalize Lesson and Cards */}
           <div className="flex-1 p-4 overflow-auto relative">
+
             {/* Finalize Lesson */}
             {showPreview && (
               <div className="w-full flex justify-center mt-6">
