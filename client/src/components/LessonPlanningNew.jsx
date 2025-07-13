@@ -774,7 +774,16 @@ export default function LessonPlanningNew({ userId, onAddToPlan, onRunLesson }) 
             {/* Finalize Lesson */}
             {showPreview && (
               <div className="fixed inset-0 z-[9999] flex items-start justify-center pt-12 scrollbar-hidden px-6 pb-6 bg-black/70 backdrop-blur-sm overflow-y-auto">
-                <div className="flex flex-col gap-6 px-10 py-10 border-2 border-sky-400/40 bg-gradient-to-br from-dark-700 via-dark-800 to-dark-700 rounded-2xl shadow-xl w-full max-w-6xl transition-all duration-300">
+                <div className="flex flex-col gap-6 px-10 py-10 border-2 border-sky-400/40 bg-gradient-to-br from-dark-700 via-dark-800 to-dark-700 rounded-2xl shadow-xl w-full max-w-6xl transition-all duration-300 relative">
+                  <button
+                    onClick={() => setShowPreview(false)}
+                    className="absolute top-3 right-4 w-10 h-10 flex items-center justify-center rounded-full text-white/40 hover:text-transparent bg-clip-text hover:bg-gradient-to-br hover:from-red-500 hover:via-pink-500 hover:to-yellow-500 text-5xl transition duration-300 z-50"
+                    aria-label="Close Preview"
+                  >
+                    ×
+                  </button>
+
+
 
                   <h2 className="text-3xl font-extrabold text-white text-center tracking-wide">
                     ✨ Finalize Your Lesson Plan

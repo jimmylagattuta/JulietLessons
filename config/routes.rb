@@ -8,7 +8,7 @@ Rails.application.routes.draw do
 
     # Lessons
     resources :lessons, only: %i[index create show update destroy] do
-      get    :random,   on: :collection
+      post   :random,   on: :collection
       post   :favorite, on: :member    # POST   /api/lessons/:id/favorite
       delete :favorite, on: :member    # DELETE /api/lessons/:id/favorite
     end

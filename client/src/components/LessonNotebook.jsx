@@ -210,6 +210,15 @@ export default function LessonNotebook({ userId, onRunLesson }) {
                     .filter(Boolean)
                 )
               ]
+
+              const tags = [
+                ...new Set(
+                  (lesson.lesson_parts || [])
+                    .flatMap(p => Array.isArray(p.tags) ? p.tags : [p.tags])
+                    .filter(Boolean)
+                )
+              ]
+
               const lessonAge = ageGroups.length ? ageGroups.join(', ') : '—'
               const lessonLevel = levels.length ? levels.join(', ') : '—'
               const isOpen = !!openLessons[lesson.id]
@@ -236,8 +245,8 @@ export default function LessonNotebook({ userId, onRunLesson }) {
                         {isFavorited ? 'Favorite' : 'Not Favorite'}
                         <span
                           className={`absolute -top-2 -right-6 text-base z-10 transition-opacity duration-200 ${isFavorited
-                              ? 'text-red-500 group-hover:opacity-100 opacity-0'
-                              : 'group-hover:opacity-100 opacity-0'
+                            ? 'text-red-500 group-hover:opacity-100 opacity-0'
+                            : 'group-hover:opacity-100 opacity-0'
                             }`}
                         >
                           {isFavorited ? '❌' : (
@@ -316,6 +325,26 @@ export default function LessonNotebook({ userId, onRunLesson }) {
                         }}
                       >
                         {lvl}
+                      </span>
+                    ))}
+                  </div>
+
+                  {/* Tags */}
+                  <div className="flex items-center flex-wrap gap-2 text-sm text-gray-400 mb-4">
+                    <span className="font-semibold text-gray-300">Tags:</span>
+                    {tags.map(tag => (
+                      <span
+                        key={tag}
+                        className="inline-block px-2 py-0.5 text-xs leading-none rounded-full font-medium text-white shadow-sm"
+                        style={{
+                          background: 'linear-gradient(135deg, #9333ea, #facc15)', // purple to yellow
+                          backgroundSize: '160% 160%',
+                          boxShadow: 'inset 0 0 6px rgba(255,255,255,0.05), 0 2px 6px rgba(147,51,234,0.4)',
+                          backdropFilter: 'blur(3px)',
+                          border: 'none',
+                        }}
+                      >
+                        {tag}
                       </span>
                     ))}
                   </div>

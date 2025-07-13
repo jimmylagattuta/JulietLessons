@@ -47,9 +47,9 @@
   flex: 1;
   position: relative;
   background: url('https://res.cloudinary.com/djtsuktwb/image/upload/v1751521032/ChatGPT_Image_Jul_2_2025_10_29_03_PM_1_ad024u.jpg')
-    no-repeat center center fixed;
+    no-repeat center right fixed;
   background-size: cover;
-  background-position: center;
+  background-position: center right;
   overflow-y: auto;
   padding: 2rem;
   box-sizing: border-box;
