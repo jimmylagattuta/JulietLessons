@@ -47,6 +47,7 @@ export default function GenerateLesson({ lessonId = null, onClearView }) {
   const [showUnmetModal, setShowUnmetModal] = useState(false)
   const [message, setMessage] = useState(null)
   const [tagResults, setTagResults] = useState({}) // ← Add this line
+  const [usedFilters, setUsedFilters] = useState({})
 
   // If we're viewing a saved lesson by ID, fetch it once.
   useEffect(() => {
@@ -69,9 +70,7 @@ export default function GenerateLesson({ lessonId = null, onClearView }) {
     try {
       const response = await fetch('/api/lessons/random', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           tags: filters.tags,
           ageGroups: filters.ageGroups,
@@ -79,22 +78,22 @@ export default function GenerateLesson({ lessonId = null, onClearView }) {
           search: filters.search,
         }),
       })
-
-      if (!response.ok) throw new Error('Failed to fetch lesson')
       const data = await response.json()
-      console.log('data', data)
+      console.log('data', data);
       setLesson(data.lesson || null)
       setMessage(data.message || null)
       setUnmetFilters(data.unmet || [])
-      setTagResults(data.tag_results || {}) // ← Add this line
-      setShowUnmetModal((data.unmet || []).length > 0)
+      setTagResults(data.tag_results || {})
 
+      // show whenever there's a backend message (partial or best)
+      setShowUnmetModal(!!data.message)
     } catch (err) {
-      console.error('❌ Error fetching lesson:', err)
+      console.error(err)
     } finally {
       setLoading(false)
     }
   }
+
 
 
   // helpers for each section
@@ -115,81 +114,117 @@ export default function GenerateLesson({ lessonId = null, onClearView }) {
   return (
     <div className="lesson-page">
       {showUnmetModal && (
-        <div className="fixed inset-0 z-[9999] flex items-center justify-center px-4 bg-black/60 backdrop-blur-sm">
-          <div className="relative w-full max-w-md p-6 bg-white dark:bg-dark-800 text-gray-800 dark:text-gray-100 rounded-2xl shadow-xl border border-gray-200 dark:border-dark-600">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center px-4 bg-black/70 backdrop-blur-sm">
+          <div className="relative w-full max-w-xl p-8 bg-white dark:bg-dark-800 text-gray-800 dark:text-gray-100 rounded-3xl shadow-2xl border border-gray-300 dark:border-dark-600 transition-all duration-300">
 
-            {/* Close Button */}
+            {/* Close */}
             <button
               onClick={() => setShowUnmetModal(false)}
-              className="absolute top-3 right-3 text-gray-400 hover:text-red-400 text-2xl transition"
+              className="absolute top-4 right-4 text-gray-400 hover:text-red-400 text-2xl transition"
               aria-label="Close Modal"
             >
               &times;
             </button>
 
             {/* Title */}
-            <h2 className="text-2xl font-semibold mb-2 text-center">🎯 Partial Match</h2>
+            <div className="text-center mb-4">
+              <h2 className="text-3xl font-bold text-indigo-600 dark:text-indigo-400">
+                {message?.toLowerCase().includes('partial') ? '🎯 Partial Match'
+                  : message?.toLowerCase().includes('best') ? '📊 Best Match'
+                    : '🔍 No Exact Match'}
+              </h2>
+              {message && (
+                <p className="mt-1 text-sm text-gray-600 dark:text-gray-300">{message}</p>
+              )}
+            </div>
 
-            {/* Message */}
-            {message && (
-              <p className="text-center mb-4 text-sm text-gray-700 dark:text-gray-300">{message}</p>
+            <hr className="border-t border-gray-200 dark:border-gray-700 mb-4" />
+
+            {/* Lesson Selected */}
+            {lesson?.title && (
+              <p className="text-base font-semibold text-indigo-600 dark:text-indigo-300 mb-4">
+                Lesson Selected: <span className="font-bold">{lesson.title}</span>
+              </p>
             )}
 
-            {/* Explanation */}
-            <p className="text-sm mb-2 text-gray-600 dark:text-gray-400">
-              Here's what we found:
-            </p>
+            {/* ONLY show breakdown if we have a lesson (i.e. partial or best)—hide entirely on No Exact Match */}
+            {lesson && (
+              <>
+                {/* Matched Filters */}
+                {['tags', 'levels', 'age_groups', 'search_term']
+                  .filter(key => (tagResults[key]?.matched || []).length > 0)
+                  .length > 0 && (
+                    <div className="mb-6">
+                      <h3 className="text-lg font-semibold text-green-600 dark:text-green-400 mb-2">
+                        ✅ Matched Filters
+                      </h3>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {['tags', 'levels', 'age_groups', 'search_term']
+                          .filter(key => (tagResults[key]?.matched || []).length > 0)
+                          .map(key => (
+                            <div key={key}>
+                              <p className="capitalize text-sm font-semibold text-green-500 mb-1">
+                                {key.replace('_', ' ')}
+                              </p>
+                              <ul className="list-disc list-inside text-sm text-green-700 dark:text-green-300 space-y-0.5">
+                                {tagResults[key].matched.map((item, i) => (
+                                  <li key={i}>{item}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          ))}
+                      </div>
+                    </div>
+                  )}
 
-            {/* Matched Filters */}
-            <div className="mb-3">
-              {['tags', 'levels', 'age_groups', 'search_term'].map((key) => {
-                const result = tagResults?.[key];
-                if (!result) return null;
-                return (
-                  <div key={key} className="mb-2">
-                    <h3 className="text-sm font-semibold capitalize text-green-500 mb-1">{key.replace('_', ' ')} matched:</h3>
-                    {result.matched.length > 0 ? (
-                      <ul className="list-disc list-inside text-sm text-green-700 dark:text-green-300">
-                        {result.matched.map((item, idx) => (
-                          <li key={idx}>{item}</li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <p className="text-sm text-gray-400">None</p>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
+                {/* Missing Filters */}
+                {['tags', 'levels', 'age_groups', 'search_term']
+                  .filter(key => (tagResults[key]?.unmatched || []).length > 0)
+                  .length > 0 && (
+                    <div className="mb-4">
+                      <h3 className="text-lg font-semibold text-red-600 dark:text-red-400 mb-2">
+                        ❌ Missing Filters
+                      </h3>
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {['tags', 'levels', 'age_groups', 'search_term']
+                          .filter(key => (tagResults[key]?.unmatched || []).length > 0)
+                          .map(key => (
+                            <div key={key}>
+                              <p className="capitalize text-sm font-semibold text-red-500 mb-1">
+                                {key.replace('_', ' ')}
+                              </p>
+                              <ul className="list-disc list-inside text-sm text-red-500 dark:text-red-400 space-y-0.5">
+                                {tagResults[key].unmatched.map((item, i) => (
+                                  <li key={i}>{item}</li>
+                                ))}
+                              </ul>
+                            </div>
+                          ))}
+                      </div>
+                    </div>
+                  )}
+              </>
+            )}
 
-            {/* Unmatched Filters */}
-            <div>
-              {['tags', 'levels', 'age_groups', 'search_term'].map((key) => {
-                const result = tagResults?.[key];
-                if (!result) return null;
-                return (
-                  <div key={key} className="mb-2">
-                    <h3 className="text-sm font-semibold capitalize text-red-500 mb-1">{key.replace('_', ' ')} not found:</h3>
-                    {result.unmatched.length > 0 ? (
-                      <ul className="list-disc list-inside text-sm text-red-500 dark:text-red-400">
-                        {result.unmatched.map((item, idx) => (
-                          <li key={idx}>{item}</li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <p className="text-sm text-gray-400">None</p>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
+            {/* Always show a tip if any filter was unmet */}
+            {unmetFilters.length > 0 && (
+              <p className="mt-6 text-center text-sm text-indigo-600 dark:text-indigo-400">
+                💡 Tip: Try adding or adjusting more filters for a closer match.
+              </p>
+            )}
           </div>
         </div>
       )}
 
 
 
-      <aside className="lesson-sidebar p-6 pt-4 bg-white dark:bg-dark-800 border-r border-gray-200 dark:border-dark-700 w-80 space-y-6">
+
+
+
+
+
+      <aside className="lesson-sidebar p-6 pt-4 bg-white dark:bg-dark-800 border-r border-gray-200 dark:border-dark-700 w-80 space-y-6 overflow-y-auto max-h-screen scrollbar-hidden">
+
         <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Juliet's Generator</h2>
         <p className="text-sm text-gray-600 dark:text-gray-300">Choose filters or generate a random lesson.</p>
 
@@ -285,6 +320,23 @@ export default function GenerateLesson({ lessonId = null, onClearView }) {
           placeholder="Search..."
           className="w-full px-3 py-2 bg-white dark:bg-dark-700 border rounded-lg text-gray-700 dark:text-gray-200"
         />
+
+        {/* Clear Filters Button */}
+        <button
+          className="w-full mt-2 px-4 py-2 text-sm font-medium rounded-lg border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-dark-700 dark:to-dark-600 hover:from-gray-200 hover:to-gray-300 dark:hover:from-dark-600 dark:hover:to-dark-500 transition disabled:opacity-50"
+          onClick={() =>
+            setFilters({ tags: [], ageGroups: [], levels: [], search: '' })
+          }
+          disabled={
+            filters.tags.length === 0 &&
+            filters.ageGroups.length === 0 &&
+            filters.levels.length === 0 &&
+            filters.search.trim() === ''
+          }
+        >
+          🔄 Clear Filters
+        </button>
+
 
         {/* Generate Button */}
         <button
