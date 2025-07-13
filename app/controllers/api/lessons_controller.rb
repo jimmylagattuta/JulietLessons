@@ -17,7 +17,6 @@ class Api::LessonsController < ApplicationController
   end
 
 
-
 # POST /api/lessons/random
 def random
   tags        = params[:tags]      || []
@@ -42,18 +41,24 @@ def random
 
   unless search_term.blank?
     st = "%#{search_term}%"
-    q = q.where(
-      "lessons.title ILIKE :st
-       OR lesson_parts.title ILIKE :st
-       OR lesson_parts.body  ILIKE :st",
-      st: st
-    )
+    q = q.where(<<~SQL, st: st)
+      lessons.title ILIKE :st
+      OR lessons.objective ILIKE :st
+      OR EXISTS (
+        SELECT 1 FROM unnest(lessons.at_a_glance) AS glance
+        WHERE glance ILIKE :st
+      )
+      OR lesson_parts.title ILIKE :st
+      OR lesson_parts.body  ILIKE :st
+    SQL
   end
 
   matching_ids = q.pluck("lessons.id")
 
   if matching_ids.any?
-    lesson = Lesson.includes(lesson_parts: { files_attachments: :blob }).find(matching_ids.sample)
+    lesson = Lesson.includes(lesson_parts: { files_attachments: :blob })
+                   .find(matching_ids.sample)
+
     return render json: {
       lesson: full_json(lesson),
       message: nil,
@@ -70,7 +75,6 @@ def random
   # 2) No strict match → return “no match”
   present_filters = original_conditions.select { |_, v| v.present? }.keys
 
-  # Build tag_results showing each provided filter as unmatched
   tag_results = original_conditions.each_with_object({}) do |(k, v), h|
     vals = Array(v)
     h[k] = { matched: [], unmatched: vals }
@@ -83,10 +87,6 @@ def random
     tag_results: tag_results
   }
 end
-
-
-
-
 
 
 
