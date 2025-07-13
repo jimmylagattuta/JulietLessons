@@ -4,6 +4,7 @@ import {
   Droppable,
   Draggable
 } from '@hello-pangea/dnd'
+import './LessonPlanningNew.css';
 
 const SECTION_LABELS = {
   warm_up: 'Warm Ups',
@@ -203,7 +204,7 @@ export default function LessonPlanningNew({ userId, onAddToPlan, onRunLesson }) 
 
   return (
     <DragDropContext onDragStart={onDragStart} onDragUpdate={onDragUpdate} onDragEnd={onDragEnd}>
-      <div className="flex flex-col h-full overflow-hidden bg-gray-50 dark:bg-dark-900 transition-colors duration-200">
+      <div className="flex flex-col h-screen overflow-hidden bg-gray-50 dark:bg-dark-900 transition-colors duration-200">
         {/* Filters */}
         <div className="flex flex-wrap gap-2 items-center p-4 bg-white dark:bg-dark-800 border-b border-gray-200 dark:border-dark-700">
           <select
@@ -769,10 +770,10 @@ export default function LessonPlanningNew({ userId, onAddToPlan, onRunLesson }) 
         <div className="flex-1 flex flex-col overflow-hidden">
 
           {/* Finalize Lesson and Cards */}
-          <div className="flex-1 p-4 overflow-auto relative">
+          <div className="flex-1 p-4 overflow-auto relative scrollbar-hidden">
             {/* Finalize Lesson */}
             {showPreview && (
-              <div className="w-full flex justify-center mt-6">
+              <div className="fixed inset-0 z-[9999] flex items-start justify-center pt-12 scrollbar-hidden px-6 pb-6 bg-black/70 backdrop-blur-sm overflow-y-auto">
                 <div className="flex flex-col gap-6 px-10 py-10 border-2 border-sky-400/40 bg-gradient-to-br from-dark-700 via-dark-800 to-dark-700 rounded-2xl shadow-xl w-full max-w-6xl transition-all duration-300">
 
                   <h2 className="text-3xl font-extrabold text-white text-center tracking-wide">
