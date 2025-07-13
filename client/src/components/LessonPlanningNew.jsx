@@ -74,7 +74,7 @@ export default function LessonPlanningNew({ userId, onAddToPlan, onRunLesson }) 
     droppableRefs.current.forEach(ref => {
       if (ref) ref.style.minHeight = `${maxHeight}px`;
     });
-  }, [sectionParts]); 
+  }, [sectionParts]);
 
   // Filter lesson parts
   const filtered = useMemo(() => {
@@ -302,9 +302,10 @@ export default function LessonPlanningNew({ userId, onAddToPlan, onRunLesson }) 
         {/* Sidebar */}
         <aside className="w-full bg-white dark:bg-dark-800 border-b border-gray-200 dark:border-dark-700 p-2 overflow-hidden">
           <div className="mb-4 col-span-5">
-            <div className="flex justify-between items-start mb-4 px-4">
+            <div className="flex justify-between items-center mb-4 px-4">
+
               {/* Left Column: Title, minutes, activities, warmups */}
-              <div className="flex flex-col items-start space-y-1">
+              <div className="flex flex-row items-start space-y-1 gap-2">
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Lesson Plan</h2>
                 <div className="flex items-start space-x-4 text-sm text-gray-600 dark:text-gray-300">
                   <div className="flex items-center gap-1.5">
@@ -371,34 +372,35 @@ export default function LessonPlanningNew({ userId, onAddToPlan, onRunLesson }) 
                           </div>
 
 
-                          <div className="w-full space-y-2">
-                            {sectionParts['warm_up'].map((p, idx) => (
-                              <div
-                                key={p.id}
-                                className="relative w-full rounded-xl border border-green-500 bg-green-600/80 dark:bg-green-900/80 text-left p-5 shadow-lg transition duration-300"
-                              >
-                                <div className="absolute -top-2 -left-2 text-sm p-0.5 bg-green-200 dark:bg-green-800 rounded-full border border-white shadow-sm">
-                                  {SECTION_ICONS[p.section_type]}
-                                </div>
-                                <button
-                                  onClick={() => handleRemovePart('warm_up', p.id)}
-                                  className="absolute top-1 right-2 text-xs text-red-500 hover:text-red-300 transition"
+                          <div className="min-w-0 max-h-[7rem] overflow-y-auto p-3">
+                            <div className="space-y-3 px-1">
+                              {sectionParts['warm_up'].map((p, idx) => (
+                                <div
+                                  key={p.id}
+                                  className="relative w-full rounded-xl border border-green-500 bg-green-600/80 dark:bg-green-900/80 text-left p-5 shadow-lg transition duration-300"
                                 >
-                                  Remove
-                                </button>
+                                  <div className="absolute -top-2 -left-2 text-sm p-0.5 bg-green-200 dark:bg-green-800 rounded-full border border-white shadow-sm">
+                                    {SECTION_ICONS[p.section_type]}
+                                  </div>
+                                  <button
+                                    onClick={() => handleRemovePart('warm_up', p.id)}
+                                    className="absolute top-1 right-2 text-xs text-red-500 hover:text-red-300 transition"
+                                  >
+                                    Remove
+                                  </button>
 
-                                {/* Pills row: only time */}
-                                <div className="flex flex-col items-start gap-1">
-                                  <h3 className="text-base text-sm font-extrabold text-white leading-snug">{p.title}</h3>
+                                  {/* Pills row: only time */}
+                                  <div className="flex flex-col items-start gap-1">
+                                    <h3 className="text-base text-sm font-extrabold text-white leading-snug">{p.title}</h3>
+                                  </div>
+
+
+                                  {/* remove the p.body block entirely */}
+
+                                  {/* Scripts & Tags follow as before… */}
                                 </div>
-
-
-                                {/* remove the p.body block entirely */}
-
-                                {/* Scripts & Tags follow as before… */}
-                              </div>
-                            ))}
-
+                              ))}
+                            </div>
                           </div>
                           <div className="invisible h-0">{provided.placeholder}</div>
                         </div>
@@ -428,7 +430,7 @@ export default function LessonPlanningNew({ userId, onAddToPlan, onRunLesson }) 
                             provided.innerRef(el);             // required for DnD
                             droppableRefs.current[1] = el; // required for height sync
                           }}
-                        {...provided.droppableProps}
+                          {...provided.droppableProps}
                           className={`
                             relative
                             border-2 border-dashed rounded-lg
@@ -482,7 +484,7 @@ export default function LessonPlanningNew({ userId, onAddToPlan, onRunLesson }) 
                                   <h4 className="text-base text-sm font-extrabold text-white leading-snug">
                                     {p.title}
                                   </h4>
-                                  
+
                                 </div>
 
                                 {/* Scripts & Tags would go here if needed */}
@@ -517,7 +519,7 @@ export default function LessonPlanningNew({ userId, onAddToPlan, onRunLesson }) 
                             provided.innerRef(el);             // required for DnD
                             droppableRefs.current[2] = el; // required for height sync
                           }}
-                        {...provided.droppableProps}
+                          {...provided.droppableProps}
                           className={`
                             relative
                             border-2 border-dashed rounded-lg
@@ -571,7 +573,7 @@ export default function LessonPlanningNew({ userId, onAddToPlan, onRunLesson }) 
                                   <h4 className="text-base text-sm font-extrabold text-white leading-snug">
                                     {p.title}
                                   </h4>
-                                 
+
                                 </div>
 
                                 {/* Scripts & Tags would go here if needed */}
@@ -606,7 +608,7 @@ export default function LessonPlanningNew({ userId, onAddToPlan, onRunLesson }) 
                             provided.innerRef(el);             // required for DnD
                             droppableRefs.current[3] = el; // required for height sync
                           }}
-                        {...provided.droppableProps}
+                          {...provided.droppableProps}
                           className={`
                             relative
                             border-2 border-dashed rounded-lg
@@ -660,7 +662,7 @@ export default function LessonPlanningNew({ userId, onAddToPlan, onRunLesson }) 
                                   <h4 className="text-base text-sm font-extrabold text-white leading-snug">
                                     {p.title}
                                   </h4>
-                                  
+
                                 </div>
                               </div>
                             ))}
@@ -693,7 +695,7 @@ export default function LessonPlanningNew({ userId, onAddToPlan, onRunLesson }) 
                             provided.innerRef(el);             // required for DnD
                             droppableRefs.current[4] = el; // required for height sync
                           }}
-                        {...provided.droppableProps}
+                          {...provided.droppableProps}
                           className={`
                             relative
                             border-2 border-dashed rounded-lg
@@ -747,7 +749,7 @@ export default function LessonPlanningNew({ userId, onAddToPlan, onRunLesson }) 
                                   <h4 className="text-base text-sm font-extrabold text-white leading-snug">
                                     {p.title}
                                   </h4>
-                                 
+
                                 </div>
                               </div>
                             ))}
@@ -982,7 +984,7 @@ export default function LessonPlanningNew({ userId, onAddToPlan, onRunLesson }) 
                               >
                                 {snapshotDr.isDragging && invalidDrop && draggingType === p.section_type && (
                                   <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-red-600 text-white text-xs font-semibold px-3 py-1 rounded shadow z-50">
-                                    Must be dropped into {invalidSection}
+
                                   </div>
                                 )}
 
