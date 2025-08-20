@@ -1176,9 +1176,13 @@ export default function LessonPlanningNew({ userId, onAddToPlan, onRunLesson }) 
                       rounded-t-xl bg-dark-800/95 backdrop-blur
                       border-b border-white/10">
                                               <span className="text-xl">{SECTION_ICONS[p.section_type]}</span>
-                                              <h4 id={`expanded-title-${p.id}`} className="text-base font-bold text-white flex-1">
+                                              <h4
+                                                id={`expanded-title-${p.id}`}
+                                                className="font-bold text-white flex-1 text-base sm:text-[15px] md:text-[14px] truncate"
+                                              >
                                                 {p.title}
                                               </h4>
+
                                               <button
                                                 type="button"
                                                 onClick={() => setExpandedBodyId(null)}
