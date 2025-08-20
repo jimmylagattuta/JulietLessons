@@ -37,12 +37,25 @@ const LandingPage = ({ onSignIn, onSignUp, onShowLessons }: LandingPageProps) =>
       </div>
 
       {/* Hero Background */}
-      <div
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{
-          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.8)), url('juliet.png')`
-        }}
-      />
+<div
+  className="absolute inset-0 bg-no-repeat"
+  style={{
+    backgroundImage: `
+      linear-gradient(
+        rgba(0, 0, 0, 0.25),   // lighter overlay
+        rgba(0, 0, 0, 0.45)
+      ), 
+      url('https://res.cloudinary.com/djtsuktwb/image/upload/v1751521032/ChatGPT_Image_Jul_2_2025_10_29_03_PM_1_ad024u.jpg')
+    `,
+    backgroundSize: "cover",
+    backgroundRepeat: "no-repeat",
+    backgroundAttachment: "fixed",
+    backgroundPosition: "20% center"
+  }}
+>
+  <div className="absolute inset-0 bg-black/10" /> {/* much lighter overlay */}
+</div>
+
 
       {/* Content Overlay */}
       <div className="relative z-10 min-h-screen flex flex-col">
