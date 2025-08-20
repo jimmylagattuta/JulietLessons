@@ -31,19 +31,19 @@ const LandingPage = ({ onSignIn, onSignUp, onShowLessons }: LandingPageProps) =>
     <div className="min-h-screen relative overflow-hidden">
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-purple-500/20 rounded-full mix-blend-multiply filter blur-xl animate-float" style={{animationDelay: '0s'}}></div>
-        <div className="absolute top-40 right-10 w-72 h-72 bg-pink-500/20 rounded-full mix-blend-multiply filter blur-xl animate-float" style={{animationDelay: '2s'}}></div>
-        <div className="absolute -top-8 left-1/2 w-72 h-72 bg-yellow-500/20 rounded-full mix-blend-multiply filter blur-xl animate-float" style={{animationDelay: '4s'}}></div>
+        <div className="absolute top-20 left-10 w-72 h-72 bg-purple-500/20 rounded-full mix-blend-multiply filter blur-xl animate-float" style={{ animationDelay: '0s' }}></div>
+        <div className="absolute top-40 right-10 w-72 h-72 bg-pink-500/20 rounded-full mix-blend-multiply filter blur-xl animate-float" style={{ animationDelay: '2s' }}></div>
+        <div className="absolute -top-8 left-1/2 w-72 h-72 bg-yellow-500/20 rounded-full mix-blend-multiply filter blur-xl animate-float" style={{ animationDelay: '4s' }}></div>
       </div>
 
       {/* Hero Background */}
-      <div 
+      <div
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{
           backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.8)), url('juliet.png')`
         }}
       />
-      
+
       {/* Content Overlay */}
       <div className="relative z-10 min-h-screen flex flex-col">
         {/* Header */}
@@ -55,16 +55,16 @@ const LandingPage = ({ onSignIn, onSignUp, onShowLessons }: LandingPageProps) =>
             </div>
             <span className="text-2xl font-bold text-white group-hover:text-purple-100 transition-colors duration-300">JulietLessons</span>
           </div>
-          
+
           <div className="flex gap-3">
-            <Button 
-              variant="ghost" 
+            <Button
+              variant="ghost"
               onClick={onSignIn}
               className="text-white hover:bg-white/10 border border-white/20 hover:border-white/40 transition-all duration-300 hover:scale-105 backdrop-blur-sm"
             >
               Sign In
             </Button>
-            <Button 
+            <Button
               onClick={onSignUp}
               className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-lg hover:shadow-purple-500/25 transition-all duration-300 hover:scale-105"
             >
@@ -88,7 +88,7 @@ const LandingPage = ({ onSignIn, onSignUp, onShowLessons }: LandingPageProps) =>
                   <div className="absolute inset-0 bg-yellow-400/30 blur-md rounded-full animate-ping"></div>
                 </div>
               </div>
-              
+
               <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight">
                 <span className="inline-block hover:scale-105 transition-transform duration-300">Craft</span>{' '}
                 <span className="inline-block hover:scale-105 transition-transform duration-300">Perfect</span>
@@ -96,16 +96,16 @@ const LandingPage = ({ onSignIn, onSignUp, onShowLessons }: LandingPageProps) =>
                   Drama Lessons
                 </span>
               </h1>
-              
+
               <p className="text-xl md:text-2xl text-gray-200 mb-8 leading-relaxed max-w-3xl mx-auto hover:text-white transition-colors duration-300">
-                Generate engaging, structured drama lessons tailored to your students' experience level. 
+                Generate engaging, structured drama lessons tailored to your students' experience level.
                 From warm-ups to cool-downs, create the perfect theatrical learning experience.
               </p>
             </div>
 
             {/* CTA Button */}
             <div className="animate-fade-in mb-16" style={{ animationDelay: '0.3s' }}>
-              <Button 
+              <Button
                 onClick={onShowLessons}
                 size="lg"
                 className="relative bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white text-lg px-12 py-4 h-auto font-semibold shadow-2xl transform hover:scale-110 transition-all duration-300 overflow-hidden group"
@@ -127,7 +127,7 @@ const LandingPage = ({ onSignIn, onSignUp, onShowLessons }: LandingPageProps) =>
                 <h3 className="text-white font-semibold mb-2 group-hover:text-purple-200 transition-colors">Level-Based</h3>
                 <p className="text-gray-300 text-sm group-hover:text-white transition-colors">Activities matched to your students' experience level</p>
               </div>
-              
+
               <div className="group glass-effect p-6 rounded-lg border border-white/10 hover:border-pink-400/50 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-pink-500/20">
                 <div className="w-12 h-12 bg-pink-500/20 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-pink-500/40 transition-all duration-300 group-hover:scale-110">
                   <Theater className="w-6 h-6 text-pink-400 group-hover:text-pink-300" />
@@ -135,7 +135,7 @@ const LandingPage = ({ onSignIn, onSignUp, onShowLessons }: LandingPageProps) =>
                 <h3 className="text-white font-semibold mb-2 group-hover:text-pink-200 transition-colors">Structured Flow</h3>
                 <p className="text-gray-300 text-sm group-hover:text-white transition-colors">Warm-up, main activity, and cool-down sequences</p>
               </div>
-              
+
               <div className="group glass-effect p-6 rounded-lg border border-white/10 hover:border-yellow-400/50 transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-yellow-500/20">
                 <div className="w-12 h-12 bg-yellow-500/20 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-yellow-500/40 transition-all duration-300 group-hover:scale-110">
                   <Sparkles className="w-6 h-6 text-yellow-400 group-hover:text-yellow-300" />
@@ -164,17 +164,17 @@ const LandingPage = ({ onSignIn, onSignUp, onShowLessons }: LandingPageProps) =>
               </CardHeader>
               <CardContent className="space-y-6 text-lg leading-relaxed">
                 <p className="text-gray-300 hover:text-purple-100 transition-colors duration-300">
-                  Born from the collaboration between seasoned drama educators and innovative technologists, 
-                  our platform addresses a critical need in the creative education space: the time-consuming 
+                  Born from the collaboration between seasoned drama educators and innovative technologists,
+                  our platform addresses a critical need in the creative education space: the time-consuming
                   process of developing structured, engaging drama lessons.
                 </p>
                 <p className="text-gray-300 hover:text-purple-100 transition-colors duration-300">
-                  We recognized that while drama teachers are incredibly creative and passionate, they often 
-                  struggle with the administrative burden of lesson planning, especially when trying to adapt 
+                  We recognized that while drama teachers are incredibly creative and passionate, they often
+                  struggle with the administrative burden of lesson planning, especially when trying to adapt
                   content for different age groups and skill levels.
                 </p>
                 <p className="text-gray-300 hover:text-purple-100 transition-colors duration-300">
-                  Our AI-powered lesson generator doesn't replace the educator's creativity—it amplifies it, 
+                  Our AI-powered lesson generator doesn't replace the educator's creativity—it amplifies it,
                   providing a structured foundation that teachers can build upon and customize for their unique classroom needs.
                 </p>
               </CardContent>
@@ -189,13 +189,13 @@ const LandingPage = ({ onSignIn, onSignUp, onShowLessons }: LandingPageProps) =>
             <h2 className="text-4xl md:text-5xl font-bold text-white mb-8 text-center">
               Our <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Values</span>
             </h2>
-            
+
             <div className="grid md:grid-cols-3 gap-8">
               {values.map((value, index) => (
-                <Card 
-                  key={index} 
+                <Card
+                  key={index}
                   className="group glass-effect border-purple-500/30 text-center hover:border-purple-400/50 transition-all duration-500 hover:scale-105 hover:shadow-2xl hover:shadow-purple-500/20"
-                  style={{animationDelay: `${index * 0.2}s`}}
+                  style={{ animationDelay: `${index * 0.2}s` }}
                 >
                   <CardHeader>
                     <div className="w-16 h-16 bg-purple-500/20 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-purple-500/40 transition-all duration-300 group-hover:scale-110 group-hover:rotate-12">
@@ -217,18 +217,18 @@ const LandingPage = ({ onSignIn, onSignUp, onShowLessons }: LandingPageProps) =>
           {/* Magical Background Effects */}
           <div className="absolute inset-0">
             <div className="absolute top-0 left-1/4 w-96 h-96 bg-gradient-to-r from-purple-500/20 to-blue-500/20 rounded-full mix-blend-multiply filter blur-3xl animate-pulse-slow"></div>
-            <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-gradient-to-r from-pink-500/20 to-violet-500/20 rounded-full mix-blend-multiply filter blur-3xl animate-pulse-slow" style={{animationDelay: '2s'}}></div>
+            <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-gradient-to-r from-pink-500/20 to-violet-500/20 rounded-full mix-blend-multiply filter blur-3xl animate-pulse-slow" style={{ animationDelay: '2s' }}></div>
             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-gradient-to-r from-yellow-500/10 to-orange-500/10 rounded-full mix-blend-multiply filter blur-2xl animate-bounce-slow"></div>
           </div>
-          
+
           {/* Animated Grid Background */}
           <div className="absolute inset-0 opacity-10">
             <div className="grid grid-cols-12 gap-4 h-full">
               {Array.from({ length: 144 }).map((_, i) => (
-                <div 
-                  key={i} 
-                  className="bg-white/5 rounded animate-shimmer" 
-                  style={{animationDelay: `${(i % 12) * 0.1}s`}}
+                <div
+                  key={i}
+                  className="bg-white/5 rounded animate-shimmer"
+                  style={{ animationDelay: `${(i % 12) * 0.1}s` }}
                 ></div>
               ))}
             </div>
@@ -247,37 +247,37 @@ const LandingPage = ({ onSignIn, onSignUp, onShowLessons }: LandingPageProps) =>
                   </span>
                 </h2>
                 <div className="absolute -top-4 -right-4">
-                  <Sparkles className="w-8 h-8 text-yellow-400 animate-spin" style={{animationDuration: '3s'}} />
+                  <Sparkles className="w-8 h-8 text-yellow-400 animate-spin" style={{ animationDuration: '3s' }} />
                 </div>
                 <div className="absolute -bottom-2 -left-6">
                   <Zap className="w-6 h-6 text-purple-400 animate-bounce" />
                 </div>
               </div>
-              <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed animate-fade-in" style={{animationDelay: '0.3s'}}>
+              <p className="text-xl text-gray-300 max-w-3xl mx-auto leading-relaxed animate-fade-in" style={{ animationDelay: '0.3s' }}>
                 Creating professional drama lessons has never been easier. Follow these simple steps to transform your teaching experience.
               </p>
             </div>
 
             <div className="grid md:grid-cols-3 gap-16">
               {/* Step 1 - Enhanced with magical effects */}
-              <div className="text-center group animate-fade-in relative" style={{animationDelay: '0.4s'}}>
+              <div className="text-center group animate-fade-in relative" style={{ animationDelay: '0.4s' }}>
                 <div className="relative mb-8">
                   {/* Magical circle background */}
                   <div className="absolute inset-0 bg-gradient-to-r from-purple-500/20 to-purple-600/20 rounded-full blur-2xl group-hover:blur-xl transition-all duration-500 animate-pulse"></div>
                   <div className="absolute inset-2 bg-gradient-to-r from-purple-400/10 to-purple-500/10 rounded-full blur-xl group-hover:blur-lg transition-all duration-500"></div>
-                  
+
                   {/* Main number circle */}
                   <div className="relative w-24 h-24 bg-gradient-to-br from-purple-600 via-purple-700 to-purple-800 rounded-full flex items-center justify-center mx-auto group-hover:scale-125 transition-all duration-500 shadow-2xl group-hover:shadow-purple-500/50 border-2 border-purple-400/30 group-hover:border-purple-300/60">
                     <span className="text-3xl font-bold text-white relative z-10 group-hover:scale-110 transition-transform duration-300">1</span>
                     <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent rounded-full"></div>
                   </div>
-                  
+
                   {/* Floating particles */}
                   <div className="absolute -top-2 -right-2 w-3 h-3 bg-purple-400 rounded-full animate-ping"></div>
                   <div className="absolute -bottom-1 -left-3 w-2 h-2 bg-pink-400 rounded-full animate-pulse"></div>
                   <div className="absolute top-1/2 -right-4 w-1 h-1 bg-yellow-400 rounded-full animate-bounce"></div>
                 </div>
-                
+
                 <h3 className="text-2xl font-semibold text-white mb-6 group-hover:text-purple-200 transition-colors duration-300 relative">
                   Choose Your Settings
                   <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-gradient-to-r from-purple-400 to-pink-400 group-hover:w-full transition-all duration-500"></div>
@@ -288,24 +288,24 @@ const LandingPage = ({ onSignIn, onSignUp, onShowLessons }: LandingPageProps) =>
               </div>
 
               {/* Step 2 - Enhanced with magical effects */}
-              <div className="text-center group animate-fade-in relative" style={{animationDelay: '0.6s'}}>
+              <div className="text-center group animate-fade-in relative" style={{ animationDelay: '0.6s' }}>
                 <div className="relative mb-8">
                   {/* Magical circle background */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-pink-500/20 to-pink-600/20 rounded-full blur-2xl group-hover:blur-xl transition-all duration-500 animate-pulse" style={{animationDelay: '1s'}}></div>
+                  <div className="absolute inset-0 bg-gradient-to-r from-pink-500/20 to-pink-600/20 rounded-full blur-2xl group-hover:blur-xl transition-all duration-500 animate-pulse" style={{ animationDelay: '1s' }}></div>
                   <div className="absolute inset-2 bg-gradient-to-r from-pink-400/10 to-pink-500/10 rounded-full blur-xl group-hover:blur-lg transition-all duration-500"></div>
-                  
+
                   {/* Main number circle */}
                   <div className="relative w-24 h-24 bg-gradient-to-br from-pink-600 via-pink-700 to-pink-800 rounded-full flex items-center justify-center mx-auto group-hover:scale-125 transition-all duration-500 shadow-2xl group-hover:shadow-pink-500/50 border-2 border-pink-400/30 group-hover:border-pink-300/60">
                     <span className="text-3xl font-bold text-white relative z-10 group-hover:scale-110 transition-transform duration-300">2</span>
                     <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent rounded-full"></div>
                   </div>
-                  
+
                   {/* Floating particles */}
-                  <div className="absolute -top-3 -left-2 w-3 h-3 bg-pink-400 rounded-full animate-ping" style={{animationDelay: '0.5s'}}></div>
-                  <div className="absolute -bottom-2 -right-2 w-2 h-2 bg-purple-400 rounded-full animate-pulse" style={{animationDelay: '1s'}}></div>
-                  <div className="absolute top-0 right-0 w-1 h-1 bg-yellow-400 rounded-full animate-bounce" style={{animationDelay: '1.5s'}}></div>
+                  <div className="absolute -top-3 -left-2 w-3 h-3 bg-pink-400 rounded-full animate-ping" style={{ animationDelay: '0.5s' }}></div>
+                  <div className="absolute -bottom-2 -right-2 w-2 h-2 bg-purple-400 rounded-full animate-pulse" style={{ animationDelay: '1s' }}></div>
+                  <div className="absolute top-0 right-0 w-1 h-1 bg-yellow-400 rounded-full animate-bounce" style={{ animationDelay: '1.5s' }}></div>
                 </div>
-                
+
                 <h3 className="text-2xl font-semibold text-white mb-6 group-hover:text-pink-200 transition-colors duration-300 relative">
                   Generate Instantly
                   <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-gradient-to-r from-pink-400 to-yellow-400 group-hover:w-full transition-all duration-500"></div>
@@ -316,24 +316,24 @@ const LandingPage = ({ onSignIn, onSignUp, onShowLessons }: LandingPageProps) =>
               </div>
 
               {/* Step 3 - Enhanced with magical effects */}
-              <div className="text-center group animate-fade-in relative" style={{animationDelay: '0.8s'}}>
+              <div className="text-center group animate-fade-in relative" style={{ animationDelay: '0.8s' }}>
                 <div className="relative mb-8">
                   {/* Magical circle background */}
-                  <div className="absolute inset-0 bg-gradient-to-r from-yellow-500/20 to-yellow-600/20 rounded-full blur-2xl group-hover:blur-xl transition-all duration-500 animate-pulse" style={{animationDelay: '2s'}}></div>
+                  <div className="absolute inset-0 bg-gradient-to-r from-yellow-500/20 to-yellow-600/20 rounded-full blur-2xl group-hover:blur-xl transition-all duration-500 animate-pulse" style={{ animationDelay: '2s' }}></div>
                   <div className="absolute inset-2 bg-gradient-to-r from-yellow-400/10 to-yellow-500/10 rounded-full blur-xl group-hover:blur-lg transition-all duration-500"></div>
-                  
+
                   {/* Main number circle */}
                   <div className="relative w-24 h-24 bg-gradient-to-br from-yellow-600 via-yellow-700 to-yellow-800 rounded-full flex items-center justify-center mx-auto group-hover:scale-125 transition-all duration-500 shadow-2xl group-hover:shadow-yellow-500/50 border-2 border-yellow-400/30 group-hover:border-yellow-300/60">
                     <span className="text-3xl font-bold text-white relative z-10 group-hover:scale-110 transition-transform duration-300">3</span>
                     <div className="absolute inset-0 bg-gradient-to-br from-white/20 to-transparent rounded-full"></div>
                   </div>
-                  
+
                   {/* Floating particles */}
-                  <div className="absolute -top-1 -right-3 w-3 h-3 bg-yellow-400 rounded-full animate-ping" style={{animationDelay: '1s'}}></div>
-                  <div className="absolute -bottom-3 -left-1 w-2 h-2 bg-orange-400 rounded-full animate-pulse" style={{animationDelay: '1.5s'}}></div>
-                  <div className="absolute top-1/4 -left-4 w-1 h-1 bg-pink-400 rounded-full animate-bounce" style={{animationDelay: '2s'}}></div>
+                  <div className="absolute -top-1 -right-3 w-3 h-3 bg-yellow-400 rounded-full animate-ping" style={{ animationDelay: '1s' }}></div>
+                  <div className="absolute -bottom-3 -left-1 w-2 h-2 bg-orange-400 rounded-full animate-pulse" style={{ animationDelay: '1.5s' }}></div>
+                  <div className="absolute top-1/4 -left-4 w-1 h-1 bg-pink-400 rounded-full animate-bounce" style={{ animationDelay: '2s' }}></div>
                 </div>
-                
+
                 <h3 className="text-2xl font-semibold text-white mb-6 group-hover:text-yellow-200 transition-colors duration-300 relative">
                   Teach & Engage
                   <div className="absolute -bottom-1 left-1/2 transform -translate-x-1/2 w-0 h-0.5 bg-gradient-to-r from-yellow-400 to-orange-400 group-hover:w-full transition-all duration-500"></div>
@@ -348,7 +348,7 @@ const LandingPage = ({ onSignIn, onSignUp, onShowLessons }: LandingPageProps) =>
             <div className="hidden md:block absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-full max-w-4xl">
               <div className="relative">
                 <div className="absolute top-0 left-1/6 w-1/3 h-0.5 bg-gradient-to-r from-purple-400/50 to-pink-400/50 animate-shimmer"></div>
-                <div className="absolute top-0 right-1/6 w-1/3 h-0.5 bg-gradient-to-r from-pink-400/50 to-yellow-400/50 animate-shimmer" style={{animationDelay: '1s'}}></div>
+                <div className="absolute top-0 right-1/6 w-1/3 h-0.5 bg-gradient-to-r from-pink-400/50 to-yellow-400/50 animate-shimmer" style={{ animationDelay: '1s' }}></div>
               </div>
             </div>
           </div>
@@ -359,10 +359,12 @@ const LandingPage = ({ onSignIn, onSignUp, onShowLessons }: LandingPageProps) =>
           <div className="absolute inset-0 backdrop-blur-sm"></div>
           <div className="max-w-6xl mx-auto relative z-10">
             <div className="grid lg:grid-cols-2 gap-16 items-center">
+              {/* Left column: reasons */}
               <div className="animate-fade-in">
                 <h2 className="text-4xl md:text-5xl font-bold text-white mb-8">
                   Why Choose <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">JulietLessons?</span>
                 </h2>
+
                 <div className="space-y-6">
                   <div className="flex items-start gap-4 group">
                     <CheckCircle className="w-6 h-6 text-green-400 mt-1 flex-shrink-0 group-hover:scale-110 transition-transform duration-300" />
@@ -371,64 +373,111 @@ const LandingPage = ({ onSignIn, onSignUp, onShowLessons }: LandingPageProps) =>
                       <p className="text-gray-300 group-hover:text-white transition-colors">Generate complete lesson plans in seconds instead of spending hours researching and planning.</p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-start gap-4 group">
                     <CheckCircle className="w-6 h-6 text-green-400 mt-1 flex-shrink-0 group-hover:scale-110 transition-transform duration-300" />
                     <div>
                       <h3 className="text-xl font-semibold text-white mb-2 group-hover:text-green-200 transition-colors">Age-Appropriate Content</h3>
-                      <p className="text-gray-300 group-hover:text-white transition-colors">Every activity is carefully tailored to your students' age group and experience level.</p>
+                      <p className="text-gray-300 group-hover:text-white transition-colors">Activities match your students’ age group and experience level.</p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-start gap-4 group">
                     <CheckCircle className="w-6 h-6 text-green-400 mt-1 flex-shrink-0 group-hover:scale-110 transition-transform duration-300" />
                     <div>
                       <h3 className="text-xl font-semibold text-white mb-2 group-hover:text-green-200 transition-colors">Professional Structure</h3>
-                      <p className="text-gray-300 group-hover:text-white transition-colors">Each lesson follows proven pedagogical principles with clear warm-up, main, and cool-down phases.</p>
+                      <p className="text-gray-300 group-hover:text-white transition-colors">Clear warm-up, main activity, and cool-down sequences built on proven pedagogy.</p>
                     </div>
                   </div>
-                  
+
                   <div className="flex items-start gap-4 group">
                     <CheckCircle className="w-6 h-6 text-green-400 mt-1 flex-shrink-0 group-hover:scale-110 transition-transform duration-300" />
                     <div>
-                      <h3 className="text-xl font-semibold text-white mb-2 group-hover:text-green-200 transition-colors">Endless Variety</h3>
-                      <p className="text-gray-300 group-hover:text-white transition-colors">Never run out of fresh ideas with our vast database of drama activities and exercises.</p>
+                      <h3 className="text-xl font-semibold text-white mb-2 group-hover:text-green-200 transition-colors">Always Fresh</h3>
+                      <p className="text-gray-300 group-hover:text-white transition-colors">A growing library of activities and scripts keeps lessons from going stale.</p>
                     </div>
                   </div>
                 </div>
               </div>
 
+              {/* Right column: stat-style cards (now honest) */}
               <div className="grid grid-cols-2 gap-6">
                 <div className="group glass-effect p-6 rounded-lg border border-white/10 hover:border-purple-400/50 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-purple-500/20">
                   <Clock className="w-10 h-10 text-purple-400 mb-4 group-hover:scale-110 transition-transform duration-300" />
-                  <h3 className="text-2xl font-bold text-white mb-2 group-hover:text-purple-200 transition-colors">Immediately</h3>
-                  <p className="text-gray-300 group-hover:text-white transition-colors">Create a complete lesson using auto generation</p>
+                  <h3 className="text-2xl font-bold text-white mb-2 group-hover:text-purple-200 transition-colors">Immidiate</h3>
+                  <p className="text-gray-300 group-hover:text-white transition-colors">Create a complete lesson with Auto-Generate.</p>
                 </div>
-                
+
                 <div className="group glass-effect p-6 rounded-lg border border-white/10 hover:border-pink-400/50 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-pink-500/20">
                   <Users className="w-10 h-10 text-pink-400 mb-4 group-hover:scale-110 transition-transform duration-300" />
-                  <h3 className="text-2xl font-bold text-white mb-2 group-hover:text-pink-200 transition-colors">10K+</h3>
-                  <p className="text-gray-300 group-hover:text-white transition-colors">Educators using our platform</p>
+                  <h3 className="text-2xl font-bold text-white mb-2 group-hover:text-pink-200 transition-colors">Early Access</h3>
+                  <p className="text-gray-300 group-hover:text-white transition-colors">Be among the first educators shaping Juliet.</p>
                 </div>
-                
+
                 <div className="group glass-effect p-6 rounded-lg border border-white/10 hover:border-yellow-400/50 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-yellow-500/20">
                   <BookOpen className="w-10 h-10 text-yellow-400 mb-4 group-hover:scale-110 transition-transform duration-300" />
-                  <h3 className="text-2xl font-bold text-white mb-2 group-hover:text-yellow-200 transition-colors">500+</h3>
-                  <p className="text-gray-300 group-hover:text-white transition-colors">Unique drama activities</p>
+                  <h3 className="text-2xl font-bold text-white mb-2 group-hover:text-yellow-200 transition-colors">Growing Library</h3>
+                  <p className="text-gray-300 group-hover:text-white transition-colors">New activities and scripts added over time.</p>
                 </div>
-                
+
                 <div className="group glass-effect p-6 rounded-lg border border-white/10 hover:border-green-400/50 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-green-500/20">
                   <Star className="w-10 h-10 text-green-400 mb-4 group-hover:scale-110 transition-transform duration-300" />
-                  <h3 className="text-2xl font-bold text-white mb-2 group-hover:text-green-200 transition-colors">4.9/5</h3>
-                  <p className="text-gray-300 group-hover:text-white transition-colors">Average user rating</p>
+                  <h3 className="text-2xl font-bold text-white mb-2 group-hover:text-green-200 transition-colors">Educator-Crafted</h3>
+                  <p className="text-gray-300 group-hover:text-white transition-colors">Designed with experienced drama teachers.</p>
                 </div>
               </div>
             </div>
           </div>
         </section>
 
+        {/* Pricing Section */}
+        <section className="py-24 px-6 bg-gradient-to-r from-purple-900/20 to-pink-900/20 relative">
+          <div className="absolute inset-0 backdrop-blur-sm"></div>
+          <div className="max-w-6xl mx-auto relative z-10 text-center">
+            <h2 className="text-4xl md:text-5xl font-bold text-white mb-6">
+              Simple <span className="bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent">Pricing</span>
+            </h2>
+            <p className="text-xl text-gray-300 mb-16 max-w-2xl mx-auto">
+              Become a founding member and lock in your price for life.
+            </p>
+
+            <div className="grid md:grid-cols-2 gap-10">
+              {/* Teacher Tier */}
+              <div className="group glass-effect p-10 rounded-2xl border border-white/10 hover:border-purple-400/50 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-purple-500/20 flex flex-col">
+                <h3 className="text-3xl font-bold text-white mb-4">Teacher</h3>
+                <p className="text-gray-300 mb-6">One account, full access to JulietLessons.</p>
+                <div className="text-5xl font-extrabold text-white mb-6">$25<span className="text-xl font-medium">/mo</span></div>
+                <ul className="space-y-3 text-left text-gray-300 flex-1">
+                  <li className="flex items-center gap-2"><CheckCircle className="w-5 h-5 text-green-400" /> Full access</li>
+                  <li className="flex items-center gap-2"><CheckCircle className="w-5 h-5 text-green-400" /> Save & run lessons</li>
+                  <li className="flex items-center gap-2"><CheckCircle className="w-5 h-5 text-green-400" /> Lifetime founding member rate</li>
+                </ul>
+                <button onClick={onSignUp} className="mt-8 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white text-lg px-8 py-4 rounded-lg font-semibold shadow-lg transition-transform transform hover:scale-105">
+                  Get Started
+                </button>
+              </div>
+
+              {/* Department Tier */}
+              <div className="group glass-effect p-10 rounded-2xl border border-white/10 hover:border-pink-400/50 transition-all duration-300 hover:scale-105 hover:shadow-xl hover:shadow-pink-500/20 flex flex-col">
+                <h3 className="text-3xl font-bold text-white mb-4">School / Department</h3>
+                <p className="text-gray-300 mb-6">Multiple teachers, each with full access to JulietLessons.</p>
+                <div className="text-5xl font-extrabold text-white mb-6">$100<span className="text-xl font-medium">/mo</span></div>
+                <ul className="space-y-3 text-left text-gray-300 flex-1">
+                  <li className="flex items-center gap-2"><CheckCircle className="w-5 h-5 text-green-400" /> Full access for your department</li>
+                  <li className="flex items-center gap-2"><CheckCircle className="w-5 h-5 text-green-400" /> Save & run lessons</li>
+                  <li className="flex items-center gap-2"><CheckCircle className="w-5 h-5 text-green-400" /> Lifetime founding member rate</li>
+                </ul>
+                <button onClick={onSignUp} className="mt-8 bg-gradient-to-r from-pink-600 to-purple-600 hover:from-pink-700 hover:to-purple-700 text-white text-lg px-8 py-4 rounded-lg font-semibold shadow-lg transition-transform transform hover:scale-105">
+                  Get Started
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+
         {/* Testimonials Section */}
-        <section className="py-24 px-6 relative">
+        {/* <section className="py-24 px-6 relative">
           <div className="absolute inset-0 bg-gradient-to-br from-purple-900/10 to-pink-900/10"></div>
           <div className="max-w-6xl mx-auto relative z-10">
             <div className="text-center mb-16">
@@ -502,24 +551,24 @@ const LandingPage = ({ onSignIn, onSignUp, onShowLessons }: LandingPageProps) =>
               </div>
             </div>
           </div>
-        </section>
+        </section> */}
 
         {/* Final CTA Section */}
         <section className="py-24 px-6 bg-gradient-to-r from-purple-900/40 to-pink-900/40 relative">
           <div className="absolute inset-0 backdrop-blur-sm"></div>
           <div className="max-w-4xl mx-auto text-center relative z-10">
-            <h2 className="text-4xl md:text-6xl font-bold text-white mb-6 animate-fade-in">
-              Ready to Transform Your
-              <span className="block bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent animate-pulse">
+            <h2 className="text-4xl md:text-6xl font-bold text-white mb-6 animate-fade-in leading-snug">
+              Ready to Transform Your{" "}
+              <span className="inline bg-gradient-to-r from-purple-400 to-pink-400 bg-clip-text text-transparent animate-pulse">
                 Drama Teaching?
               </span>
             </h2>
             <p className="text-xl text-gray-300 mb-12 max-w-2xl mx-auto">
-              Join thousands of educators who are already creating amazing drama lessons with our AI-powered platform.
+              Create engaging, structured drama lessons in seconds—built to save you time and spark creativity.
             </p>
-            
+
             <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-              <Button 
+              <Button
                 onClick={onShowLessons}
                 size="lg"
                 className="relative bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white text-xl px-12 py-6 h-auto font-semibold shadow-2xl transform hover:scale-110 transition-all duration-300 overflow-hidden group"
@@ -534,6 +583,7 @@ const LandingPage = ({ onSignIn, onSignUp, onShowLessons }: LandingPageProps) =>
             </div>
           </div>
         </section>
+
 
         {/* Footer */}
         <footer className="p-6 text-center border-t border-white/10 backdrop-blur-sm bg-white/5">
