@@ -341,7 +341,7 @@ export default function LessonPlanningNew({ userId, onAddToPlan, onRunLesson }) 
           </div>
         </div>
         {/* Sidebar */}
-        <aside className="w-full bg-white dark:bg-dark-800 border-b border-gray-200 dark:border-dark-700 p-2 overflow-hidden">
+        <aside className="w-full bg-white dark:bg-dark-800 border-b-2 border-blue-500 dark:border-blue-500 p-2 overflow-hidden">
           <div className="mb-4 col-span-5">
             <div className="flex justify-between items-center mb-4 px-4">
 
