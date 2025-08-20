@@ -42,7 +42,7 @@ const LandingPage = ({ onSignIn, onSignUp, onShowLessons }: LandingPageProps) =>
         style={{
           backgroundImage: `
       linear-gradient(
-        rgba(0, 0, 0, 0.25),   // lighter overlay
+        rgba(0, 0, 0, 0.25),
         rgba(0, 0, 0, 0.45)
       ), 
       url('https://res.cloudinary.com/djtsuktwb/image/upload/v1751521032/ChatGPT_Image_Jul_2_2025_10_29_03_PM_1_ad024u.jpg')
