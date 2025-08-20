@@ -29,6 +29,27 @@ const AVAILABLE_TAGS = [
   'Playmaking',
   'Acting Challenges',
   'Ensemble Work',
+  'Chapter 1: Circuits',
+  'Chapter 2: The Collective Hive Mind',
+  'Chapter 3: Mirror, Mirror',
+  'Chapter 4: Building Blocks Of Playmaking',
+  'Chapter 5: Walks & Races',
+  'Chapter 6: Showdown, Duels, & Battles',
+  'Chapter 7: Vocal Acrobatics',
+  'Chapter 8: Pantomime',
+  'Chapter 9: Rhythm & Orchestra',
+  'Chapter 10: Contraption',
+  'Chapter 11: Ritual, Endowment, & Ceremony',
+  'Chapter 12: Relationship & Status',
+  'Chapter 13: Core Action - To Get, To Tag, To Possess',
+  'Chapter 14: Core Action - The Salesman',
+  'Chapter 15: Expert Hot Seat & Character',
+  'Chapter 16: Detective',
+  'Chapter 17: Character',
+  'Chapter 18: Masks',
+  'Chapter 19: Lazzi & Clowning',
+  'Chapter 20: Improv Structures',
+  'Chapter 21: Impros, Projects, & Productions'
 ];
 
 export default function EditLessonPart({ editingPart, setEditingPart, admin }) {
@@ -48,6 +69,7 @@ export default function EditLessonPart({ editingPart, setEditingPart, admin }) {
   const [newFiles, setNewFiles] = useState([]);
   const [existingFiles, setExistingFiles] = useState([]);
   const [removeFileIds, setRemoveFileIds] = useState([]);
+  const [showChapters, setShowChapters] = useState(false);
 
   // Set Edit Parts
   useEffect(() => {
@@ -294,10 +316,12 @@ export default function EditLessonPart({ editingPart, setEditingPart, admin }) {
 
           {admin && (
             <button
-              onClick={() => setFilters(f => ({ ...f, onlyAdminCreated: !f.onlyAdminCreated }))}
+              onClick={() =>
+                setFilters(f => ({ ...f, onlyAdminCreated: !f.onlyAdminCreated }))
+              }
               className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 shadow-sm ${filters.onlyAdminCreated
-                  ? 'text-white'
-                  : 'text-gray-300 border border-gray-500 bg-dark-700 hover:bg-dark-600'
+                ? 'text-white'
+                : 'text-gray-300 border border-gray-500 bg-dark-700 hover:bg-dark-600'
                 }`}
               style={
                 filters.onlyAdminCreated
@@ -312,9 +336,10 @@ export default function EditLessonPart({ editingPart, setEditingPart, admin }) {
                   : {}
               }
             >
-              🛡️ Only Admin-Created
+              🛡️ {filters.onlyAdminCreated ? 'Admin Created On' : 'Admin Created Off'}
             </button>
           )}
+
 
         </div>
       )}
@@ -695,42 +720,100 @@ export default function EditLessonPart({ editingPart, setEditingPart, admin }) {
             </div>
 
             {/* Tags */}
-            <label className="block text-sm font-medium text-white mb-1">Tags</label>
-            <div className="flex flex-wrap gap-2">
-              {AVAILABLE_TAGS.map(tag => {
-                const isSelected = tags.includes(tag);
-                return (
-                  <button
-                    type="button"
-                    key={tag}
-                    onClick={() => {
-                      setTags(prev =>
-                        isSelected ? prev.filter(t => t !== tag) : [...prev, tag]
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-white mb-1">Tags</label>
+
+              {/* Core tags (non-chapter) */}
+              <div className="flex flex-wrap gap-2">
+                {AVAILABLE_TAGS.filter(t => !t.startsWith('Chapter')).map(tag => {
+                  const isSelected = tags.includes(tag);
+                  return (
+                    <button
+                      type="button"
+                      key={tag}
+                      onClick={() =>
+                        setTags(prev => (isSelected ? prev.filter(t => t !== tag) : [...prev, tag]))
+                      }
+                      className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 shadow-sm ${isSelected
+                          ? 'text-white'
+                          : 'text-gray-300 border border-gray-500 bg-dark-700 hover:bg-dark-600'
+                        }`}
+                      style={
+                        isSelected
+                          ? {
+                            background: 'linear-gradient(135deg, #6b21a8, #9d174d)',
+                            backgroundSize: '160% 160%',
+                            border: '1px solid rgba(255, 255, 255, 0.08)',
+                            boxShadow:
+                              'inset 0 0 6px rgba(255,255,255,.05), 0 2px 6px rgba(109,40,217,.4)',
+                            backdropFilter: 'blur(3px)',
+                          }
+                          : {}
+                      }
+                    >
+                      {isSelected ? '✨ ' : ''}
+                      {tag}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Toggle (its own row, below the core tags) */}
+              <div className="mt-3">
+                <button
+                  type="button"
+                  onClick={() => setShowChapters(v => !v)}
+                  className="px-4 py-1.5 rounded-full text-sm font-medium text-gray-100 bg-dark-700/70 hover:bg-dark-900/80 border border-dark-700 shadow-sm transition"
+                >
+                  {showChapters ? 'Hide chapters' : 'Show chapters'} (
+                  {AVAILABLE_TAGS.filter(t => t.startsWith('Chapter')).length})
+                </button>
+              </div>
+
+              {/* Chapter tags (collapsed by default) */}
+              <div
+                className={`mt-3 overflow-hidden transition-[max-height] duration-300 ${showChapters ? 'max-h-[1200px]' : 'max-h-0'
+                  }`}
+              >
+                <div className="rounded-xl p-3">
+                  <div className="flex flex-wrap gap-2">
+                    {AVAILABLE_TAGS.filter(t => t.startsWith('Chapter')).map(tag => {
+                      const isSelected = tags.includes(tag);
+                      return (
+                        <button
+                          type="button"
+                          key={tag}
+                          onClick={() =>
+                            setTags(prev => (isSelected ? prev.filter(t => t !== tag) : [...prev, tag]))
+                          }
+                          className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 shadow-sm ${isSelected
+                              ? 'text-white'
+                              : 'text-gray-300 border border-gray-500 bg-dark-700 hover:bg-dark-600'
+                            }`}
+                          style={
+                            isSelected
+                              ? {
+                                background: 'linear-gradient(135deg, #6b21a8, #9d174d)',
+                                backgroundSize: '160% 160%',
+                                border: '1px solid rgba(255, 255, 255, 0.08)',
+                                boxShadow:
+                                  'inset 0 0 6px rgba(255,255,255,.05), 0 2px 6px rgba(109,40,217,.4)',
+                                backdropFilter: 'blur(3px)',
+                              }
+                              : {}
+                          }
+                        >
+                          {isSelected ? '✨ ' : ''}
+                          {tag}
+                        </button>
                       );
-                    }}
-                    className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 shadow-sm ${isSelected
-                      ? 'text-white'
-                      : 'text-gray-300 border border-gray-500 bg-dark-700 hover:bg-dark-600'
-                      }`}
-                    style={
-                      isSelected
-                        ? {
-                          background: 'linear-gradient(135deg, #6b21a8, #9d174d)',
-                          backgroundSize: '160% 160%',
-                          border: '1px solid rgba(255, 255, 255, 0.08)',
-                          boxShadow:
-                            'inset 0 0 6px rgba(255, 255, 255, 0.05), 0 2px 6px rgba(109, 40, 217, 0.4)',
-                          backdropFilter: 'blur(3px)',
-                        }
-                        : {}
-                    }
-                  >
-                    {isSelected ? '✨ ' : ''}
-                    {tag}
-                  </button>
-                );
-              })}
+                    })}
+                  </div>
+                </div>
+              </div>
             </div>
+
+
 
           </div>
 

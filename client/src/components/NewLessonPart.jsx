@@ -3,14 +3,14 @@ import React, { useState } from 'react';
 import EditLessonPart from './EditLessonPart';
 
 const SECTION_LABELS = {
-  warm_up:         'Warm Ups',
+  warm_up: 'Warm Ups',
   bridge_activity: 'Bridge Activities',
-  main_activity:   'Main Activities',
-  end_of_lesson:   'End Of Lesson',
-  script:          'Scripts',
+  main_activity: 'Main Activities',
+  end_of_lesson: 'End Of Lesson',
+  script: 'Scripts',
 };
 const AGE_GROUPS = ['Young', 'Middle', 'Older', 'All'];
-const LEVELS     = ['Toe Tipper', 'Green Horn', 'Semi-Pro', 'Seasoned Veteran(all)'];
+const LEVELS = ['Toe Tipper', 'Green Horn', 'Semi-Pro', 'Seasoned Veteran(all)'];
 const AVAILABLE_TAGS = [
   'Commedia Principals',
   'Character Dynamics',
@@ -24,22 +24,44 @@ const AVAILABLE_TAGS = [
   'Playmaking',
   'Acting Challenges',
   'Ensemble Work',
+  'Chapter 1: Circuits',
+  'Chapter 2: The Collective Hive Mind',
+  'Chapter 3: Mirror, Mirror',
+  'Chapter 4: Building Blocks Of Playmaking',
+  'Chapter 5: Walks & Races',
+  'Chapter 6: Showdown, Duels, & Battles',
+  'Chapter 7: Vocal Acrobatics',
+  'Chapter 8: Pantomime',
+  'Chapter 9: Rhythm & Orchestra',
+  'Chapter 10: Contraption',
+  'Chapter 11: Ritual, Endowment, & Ceremony',
+  'Chapter 12: Relationship & Status',
+  'Chapter 13: Core Action - To Get, To Tag, To Possess',
+  'Chapter 14: Core Action - The Salesman',
+  'Chapter 15: Expert Hot Seat & Character',
+  'Chapter 16: Detective',
+  'Chapter 17: Character',
+  'Chapter 18: Masks',
+  'Chapter 19: Lazzi & Clowning',
+  'Chapter 20: Improv Structures',
+  'Chapter 21: Impros, Projects, & Productions'
 ];
 
 export default function NewLessonPart({ admin }) {
-  const [showForm, setShowForm]     = useState(false);
+  const [showForm, setShowForm] = useState(false);
   const [sectionType, setSectionType] = useState('');
-  const [title, setTitle]           = useState('');
-  const [body, setBody]             = useState('');
-  const [time, setTime]             = useState('');
-  const [ageGroup, setAgeGroup]     = useState('');
-  const [level, setLevel]           = useState('');
-  const [pdfFiles, setPdfFiles]     = useState([{ file: null }]);
-  const [saving, setSaving]         = useState(false);
+  const [title, setTitle] = useState('');
+  const [body, setBody] = useState('');
+  const [time, setTime] = useState('');
+  const [ageGroup, setAgeGroup] = useState('');
+  const [level, setLevel] = useState('');
+  const [pdfFiles, setPdfFiles] = useState([{ file: null }]);
+  const [saving, setSaving] = useState(false);
   const [showEditForm, setShowEditForm] = useState(false);
   const [editingPart, setEditingPart] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
   const [tags, setTags] = useState([]);
+  const [showChapters, setShowChapters] = useState(false);
 
   const resetForm = () => {
     setSectionType('');
@@ -277,21 +299,20 @@ export default function NewLessonPart({ admin }) {
                               isSelected ? prev.filter(g => g !== group) : [...prev, group]
                             )
                           }
-                          className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 shadow-sm ${
-                            isSelected
+                          className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 shadow-sm ${isSelected
                               ? 'text-white'
                               : 'text-gray-300 border border-gray-500 bg-dark-700 hover:bg-dark-600'
-                          }`}
+                            }`}
                           style={
                             isSelected
                               ? {
-                                  background: 'linear-gradient(135deg, #1e3a8a, #10b981)',
-                                  backgroundSize: '160% 160%',
-                                  border: '1px solid rgba(255, 255, 255, 0.08)',
-                                  boxShadow:
-                                    'inset 0 0 6px rgba(255, 255, 255, 0.05), 0 2px 6px rgba(16, 185, 129, 0.4)',
-                                  backdropFilter: 'blur(3px)',
-                                }
+                                background: 'linear-gradient(135deg, #1e3a8a, #10b981)',
+                                backgroundSize: '160% 160%',
+                                border: '1px solid rgba(255, 255, 255, 0.08)',
+                                boxShadow:
+                                  'inset 0 0 6px rgba(255, 255, 255, 0.05), 0 2px 6px rgba(16, 185, 129, 0.4)',
+                                backdropFilter: 'blur(3px)',
+                              }
                               : {}
                           }
                         >
@@ -321,21 +342,20 @@ export default function NewLessonPart({ admin }) {
                               isSelected ? prev.filter(t => t !== lvl) : [...prev, lvl]
                             )
                           }
-                          className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 shadow-sm ${
-                            isSelected
+                          className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 shadow-sm ${isSelected
                               ? 'text-white'
                               : 'text-gray-300 border border-gray-500 bg-dark-700 hover:bg-dark-600'
-                          }`}
+                            }`}
                           style={
                             isSelected
                               ? {
-                                  background: 'linear-gradient(135deg, #3b82f6, #f97316)',
-                                  backgroundSize: '160% 160%',
-                                  border: '1px solid rgba(255, 255, 255, 0.08)',
-                                  boxShadow:
-                                    'inset 0 0 6px rgba(255, 255, 255, 0.05), 0 2px 6px rgba(59, 130, 246, 0.4)',
-                                  backdropFilter: 'blur(3px)',
-                                }
+                                background: 'linear-gradient(135deg, #3b82f6, #f97316)',
+                                backgroundSize: '160% 160%',
+                                border: '1px solid rgba(255, 255, 255, 0.08)',
+                                boxShadow:
+                                  'inset 0 0 6px rgba(255, 255, 255, 0.05), 0 2px 6px rgba(59, 130, 246, 0.4)',
+                                backdropFilter: 'blur(3px)',
+                              }
                               : {}
                           }
                         >
@@ -354,33 +374,32 @@ export default function NewLessonPart({ admin }) {
                   <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                     Tags
                   </label>
+
+                  {/* Core tags (non-chapter) */}
                   <div className="flex flex-wrap gap-2">
-                    {AVAILABLE_TAGS.map(tag => {
+                    {AVAILABLE_TAGS.filter(t => !t.startsWith('Chapter')).map(tag => {
                       const isSelected = tags.includes(tag);
                       return (
                         <button
                           type="button"
                           key={tag}
-                          onClick={() => {
-                            setTags(prev =>
-                              isSelected ? prev.filter(t => t !== tag) : [...prev, tag]
-                            );
-                          }}
-                          className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 shadow-sm ${
-                            isSelected
+                          onClick={() =>
+                            setTags(prev => (isSelected ? prev.filter(t => t !== tag) : [...prev, tag]))
+                          }
+                          className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 shadow-sm ${isSelected
                               ? 'text-white'
                               : 'text-gray-300 border border-gray-500 bg-dark-700 hover:bg-dark-600'
-                          }`}
+                            }`}
                           style={
                             isSelected
                               ? {
-                                  background: 'linear-gradient(135deg, #6b21a8, #9d174d)',
-                                  backgroundSize: '160% 160%',
-                                  border: '1px solid rgba(255, 255, 255, 0.08)',
-                                  boxShadow:
-                                    'inset 0 0 6px rgba(255, 255, 255, 0.05), 0 2px 6px rgba(109, 40, 217, 0.4)',
-                                  backdropFilter: 'blur(3px)',
-                                }
+                                background: 'linear-gradient(135deg, #6b21a8, #9d174d)',
+                                backgroundSize: '160% 160%',
+                                border: '1px solid rgba(255, 255, 255, 0.08)',
+                                boxShadow:
+                                  'inset 0 0 6px rgba(255, 255, 255, 0.05), 0 2px 6px rgba(109, 40, 217, 0.4)',
+                                backdropFilter: 'blur(3px)',
+                              }
                               : {}
                           }
                         >
@@ -389,8 +408,59 @@ export default function NewLessonPart({ admin }) {
                         </button>
                       );
                     })}
+
+                    {/* Toggle button (reveals chapter tags inline) */}
+                    <button
+                      type="button"
+                      onClick={() => setShowChapters(v => !v)}
+                      className="px-4 py-1.5 rounded-full text-sm font-medium bg-white/10 hover:bg-white/15 text-white border border-white/15 shadow-sm transition"
+                    >
+                      {showChapters ? 'Hide chapters' : 'Show chapters'} (
+                      {AVAILABLE_TAGS.filter(t => t.startsWith('Chapter')).length})
+                    </button>
+                  </div>
+
+                  {/* Chapter tags (collapsed by default) */}
+                  <div
+                    className={`mt-3 overflow-hidden transition-[max-height] duration-300 ${showChapters ? 'max-h-[1200px]' : 'max-h-0'
+                      }`}
+                  >
+                    <div className="flex flex-wrap gap-2">
+                      {AVAILABLE_TAGS.filter(t => t.startsWith('Chapter')).map(tag => {
+                        const isSelected = tags.includes(tag);
+                        return (
+                          <button
+                            type="button"
+                            key={tag}
+                            onClick={() =>
+                              setTags(prev => (isSelected ? prev.filter(t => t !== tag) : [...prev, tag]))
+                            }
+                            className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 shadow-sm ${isSelected
+                                ? 'text-white'
+                                : 'text-gray-300 border border-gray-500 bg-dark-700 hover:bg-dark-600'
+                              }`}
+                            style={
+                              isSelected
+                                ? {
+                                  background: 'linear-gradient(135deg, #6b21a8, #9d174d)',
+                                  backgroundSize: '160% 160%',
+                                  border: '1px solid rgba(255, 255, 255, 0.08)',
+                                  boxShadow:
+                                    'inset 0 0 6px rgba(255, 255, 255, 0.05), 0 2px 6px rgba(109, 40, 217, 0.4)',
+                                  backdropFilter: 'blur(3px)',
+                                }
+                                : {}
+                            }
+                          >
+                            {isSelected ? '✨ ' : ''}
+                            {tag}
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
                 </div>
+
 
                 {/* PDF slots */}
                 <div className="mb-6">

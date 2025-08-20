@@ -34,10 +34,19 @@ def random
   Rails.logger.info "🔍 Starting strict match: #{original_conditions.inspect}"
 
   # 1) Strict match: all provided filters must match
-  q = Lesson.joins(:lesson_parts).distinct
-  q = q.where("lesson_parts.tags @> ?", "{#{tags.join(',')}}" )           unless tags.empty?
-  q = q.where("lesson_parts.level @> ?", "{#{levels.join(',')}}" )       unless levels.empty?
-  q = q.where("lesson_parts.age_group @> ?", "{#{age_groups.join(',')}}" ) unless age_groups.empty?
+# 1) Strict match: the selected filters must be contained in the part's arrays
+q = Lesson.joins(:lesson_parts).distinct
+puts "tags"
+puts tags.inspect
+puts "levels"
+puts levels.inspect
+puts "age_groups"
+puts age_groups.inspect
+q = q.where("lesson_parts.tags && ARRAY[?]::text[]",       tags)       unless tags.empty?
+q = q.where("lesson_parts.level && ARRAY[?]::text[]",      levels)     unless levels.empty?
+q = q.where("lesson_parts.age_group && ARRAY[?]::text[]",  age_groups) unless age_groups.empty?
+
+
 
   unless search_term.blank?
     st = "%#{search_term}%"
@@ -90,7 +99,6 @@ end
 
 
 
-  private
 
   def full_json(lesson)
     lesson.as_json(include: { lesson_parts: { methods: :file_infos } })

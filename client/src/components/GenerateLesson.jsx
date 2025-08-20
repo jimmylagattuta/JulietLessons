@@ -16,6 +16,27 @@ const AVAILABLE_TAGS = [
   'Playmaking',
   'Acting Challenges',
   'Ensemble Work',
+  'Chapter 1: Circuits',
+  'Chapter 2: The Collective Hive Mind',
+  'Chapter 3: Mirror, Mirror',
+  'Chapter 4: Building Blocks Of Playmaking',
+  'Chapter 5: Walks & Races',
+  'Chapter 6: Showdown, Duels, & Battles',
+  'Chapter 7: Vocal Acrobatics',
+  'Chapter 8: Pantomime',
+  'Chapter 9: Rhythm & Orchestra',
+  'Chapter 10: Contraption',
+  'Chapter 11: Ritual, Endowment, & Ceremony',
+  'Chapter 12: Relationship & Status',
+  'Chapter 13: Core Action - To Get, To Tag, To Possess',
+  'Chapter 14: Core Action - The Salesman',
+  'Chapter 15: Expert Hot Seat & Character',
+  'Chapter 16: Detective',
+  'Chapter 17: Character',
+  'Chapter 18: Masks',
+  'Chapter 19: Lazzi & Clowning',
+  'Chapter 20: Improv Structures',
+  'Chapter 21: Impros, Projects, & Productions'
 ];
 
 /**
@@ -107,6 +128,7 @@ export default function GenerateLesson({ lessonId = null, onClearView }) {
   const totalBridgeTime = bridgeParts.reduce((sum, lp) => sum + (lp.time || 0), 0)
   const totalMainTime = mainActivities.reduce((sum, lp) => sum + (lp.time || 0), 0)
   const totalEndTime = endActivities.reduce((sum, lp) => sum + (lp.time || 0), 0)
+  const [showChapters, setShowChapters] = useState(false);
 
   const sortByPosition = arr =>
     arr.slice().sort((a, b) => (a.position || 0) - (b.position || 0))
@@ -229,32 +251,105 @@ export default function GenerateLesson({ lessonId = null, onClearView }) {
         <p className="text-sm text-gray-600 dark:text-gray-300">Choose filters or generate a random lesson.</p>
 
         {/* Tags */}
-        <div className="w-full flex flex-wrap items-center gap-x-2 gap-y-3">
-          <span className="text-base font-bold text-gray-700 dark:text-gray-300 mb-2">Tags:</span>
-          {AVAILABLE_TAGS.map(tag => {
-            const isSelected = filters.tags.includes(tag)
-            return (
-              <button
-                key={tag}
-                onClick={() =>
-                  setFilters(prev => ({
-                    ...prev,
-                    tags: isSelected
-                      ? prev.tags.filter(t => t !== tag)
-                      : [...prev.tags, tag]
-                  }))
-                }
-                className={`px-3 py-1 rounded-full text-xs font-semibold shadow-inner transition transform duration-150 ease-in-out
-        ${isSelected
-                    ? 'text-white bg-gradient-to-br from-orange-300 via-pink-500 to-violet-600 shadow-lg ring-2 ring-white/40 dark:ring-white/10 scale-105'
-                    : 'text-gray-700 dark:text-gray-300 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-dark-700 dark:to-dark-600 border border-gray-300 dark:border-gray-600 hover:scale-105 hover:shadow-md'}
-      `}
-              >
-                {tag}
-              </button>
-            )
-          })}
+        <div className="mb-4">
+          <label className="block text-sm font-medium text-white mb-1">Tags</label>
+
+          {/* Core tags (non-chapter) */}
+          <div className="flex flex-wrap gap-2">
+            {AVAILABLE_TAGS.filter(t => !t.startsWith('Chapter')).map(tag => {
+              const isSelected = filters.tags.includes(tag);
+              return (
+                <button
+                  key={tag}
+                  type="button"
+                  onClick={() =>
+                    setFilters(prev => ({
+                      ...prev,
+                      tags: isSelected ? prev.tags.filter(tg => tg !== tag) : [...prev.tags, tag],
+                    }))
+                  }
+                  className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 shadow-sm ${isSelected
+                      ? 'text-white'
+                      : 'text-gray-300 border border-gray-500 bg-dark-700 hover:bg-dark-600'
+                    }`}
+                  style={
+                    isSelected
+                      ? {
+                        background: 'linear-gradient(135deg, #6b21a8, #9d174d)',
+                        backgroundSize: '160% 160%',
+                        border: '1px solid rgba(255, 255, 255, 0.08)',
+                        boxShadow:
+                          'inset 0 0 6px rgba(255,255,255,.05), 0 2px 6px rgba(109,40,217,.4)',
+                        backdropFilter: 'blur(3px)',
+                      }
+                      : {}
+                  }
+                >
+                  {isSelected ? '✨ ' : ''}
+                  {tag}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Toggle (own row, under the core tags) */}
+          <div className="mt-3">
+            <button
+              type="button"
+              onClick={() => setShowChapters(v => !v)}
+              className="px-2 py-1.5 rounded-full text-sm font-medium text-gray-100 bg-dark-700/70 hover:bg-dark-900/80 border border-dark-700 shadow-sm transition"
+            >
+              {showChapters ? 'Hide chapters' : 'Show chapters'} (
+              {AVAILABLE_TAGS.filter(t => t.startsWith('Chapter')).length})
+            </button>
+          </div>
+
+          {/* Chapter tags (collapsed by default) */}
+          <div
+            className={`mt-3 overflow-hidden transition-[max-height] duration-300 ${showChapters ? 'max-h-[1200px]' : 'max-h-0'
+              }`}
+          >
+            <div className="rounded-xl">
+              <div className="flex flex-wrap gap-2">
+                {AVAILABLE_TAGS.filter(t => t.startsWith('Chapter')).map(tag => {
+                  const isSelected = filters.tags.includes(tag);
+                  return (
+                    <button
+                      key={tag}
+                      type="button"
+                      onClick={() =>
+                        setFilters(prev => ({
+                          ...prev,
+                          tags: isSelected ? prev.tags.filter(tg => tg !== tag) : [...prev.tags, tag],
+                        }))
+                      }
+                      className={`px-2 py-1.5 rounded-full text-xs font-medium transition-all duration-200 shadow-sm ${isSelected
+                          ? 'text-white'
+                          : 'text-gray-300 border border-gray-500 bg-dark-700 hover:bg-dark-600'
+                        }`}
+                      style={
+                        isSelected
+                          ? {
+                            background: 'linear-gradient(135deg, #6b21a8, #9d174d)',
+                            backgroundSize: '160% 160%',
+                            border: '1px solid rgba(255, 255, 255, 0.08)',
+                            boxShadow:
+                              'inset 0 0 6px rgba(255,255,255,.05), 0 2px 6px rgba(109,40,217,.4)',
+                            backdropFilter: 'blur(3px)',
+                          }
+                          : {}
+                      }
+                    >
+                      {isSelected ? '✨ ' : ''}
+                      {tag}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
         </div>
+
 
         {/* Age Groups */}
         <div className="w-full flex flex-wrap items-center gap-x-2 gap-y-3">

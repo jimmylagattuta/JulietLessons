@@ -35,6 +35,27 @@ const AVAILABLE_TAGS = [
   'Playmaking',
   'Acting Challenges',
   'Ensemble Work',
+  'Chapter 1: Circuits',
+  'Chapter 2: The Collective Hive Mind',
+  'Chapter 3: Mirror, Mirror',
+  'Chapter 4: Building Blocks Of Playmaking',
+  'Chapter 5: Walks & Races',
+  'Chapter 6: Showdown, Duels, & Battles',
+  'Chapter 7: Vocal Acrobatics',
+  'Chapter 8: Pantomime',
+  'Chapter 9: Rhythm & Orchestra',
+  'Chapter 10: Contraption',
+  'Chapter 11: Ritual, Endowment, & Ceremony',
+  'Chapter 12: Relationship & Status',
+  'Chapter 13: Core Action - To Get, To Tag, To Possess',
+  'Chapter 14: Core Action - The Salesman',
+  'Chapter 15: Expert Hot Seat & Character',
+  'Chapter 16: Detective',
+  'Chapter 17: Character',
+  'Chapter 18: Masks',
+  'Chapter 19: Lazzi & Clowning',
+  'Chapter 20: Improv Structures',
+  'Chapter 21: Impros, Projects, & Productions'
 ];
 
 export default function LessonPlanningNew({ userId, onAddToPlan, onRunLesson }) {
@@ -61,6 +82,49 @@ export default function LessonPlanningNew({ userId, onAddToPlan, onRunLesson }) 
   const cardsScrollerRef = useRef(null);
   const cardsAnchorRef = useRef(null);
   const [cardsTopY, setCardsTopY] = useState(0);
+  // === TAGS overflow detection ===
+  const [clampedTags, setClampedTags] = useState({});   // { [id]: boolean }
+  const tagsLineRefs = useRef({});                      // { [id]: HTMLElement }
+  const roMap = useRef({});                             // { [id]: ResizeObserver }
+
+  const measureOne = (id) => {
+    const el = tagsLineRefs.current[id];
+    if (!el) return;
+    requestAnimationFrame(() => {
+      const overflow = el.scrollWidth > el.clientWidth + 0.5; // tolerate rounding
+      setClampedTags(prev =>
+        prev[id] === overflow ? prev : { ...prev, [id]: overflow }
+      );
+    });
+  };
+
+
+  const attachObserver = (id, el) => {
+    tagsLineRefs.current[id] = el;
+
+    // clean up old observer if any
+    if (roMap.current[id]) {
+      roMap.current[id].disconnect();
+      delete roMap.current[id];
+    }
+    if (!el) return;
+
+    // initial measure
+    measureOne(id);
+
+    // observe size changes
+    const ro = new ResizeObserver(() => measureOne(id));
+    ro.observe(el);
+    roMap.current[id] = ro;
+  };
+
+  // global cleanup
+  useEffect(() => {
+    return () => {
+      Object.values(roMap.current).forEach(ro => ro.disconnect());
+      roMap.current = {};
+    };
+  }, []);
 
   useEffect(() => {
     const measure = () => {
@@ -139,6 +203,11 @@ export default function LessonPlanningNew({ userId, onAddToPlan, onRunLesson }) 
 
     })
   }, [allParts, filters, sectionParts])
+
+  // re-measure when layout-affecting state changes
+  useEffect(() => {
+    Object.keys(tagsLineRefs.current).forEach(measureOne);
+  }, [compact, filtered.length]);
 
   function onDragStart(start) {
     const part = allParts.find(p => String(p.id) === start.draggableId)
@@ -1320,13 +1389,57 @@ export default function LessonPlanningNew({ userId, onAddToPlan, onRunLesson }) 
                                         </div>
                                       )}
 
-                                      {/* Compact summary */}
+                                      {/* Compact summary (either collapsed OR expanded, never both) */}
                                       {compact && (
-                                        <div className="mt-2 text-[11px] text-purple-300/90 truncate">
-                                          🎭 {p.tags.slice(0, 2).join(', ')}
-                                          {p.tags.length > 2 && ` +${p.tags.length - 2} more`}
+                                        <div className="mt-2 text-[11px] text-purple-300/90 min-w-0">
+                                          {expandedBodyId === `tags-${p.id}` ? (
+                                            // EXPANDED
+                                            <span>
+                                              🎭 {p.tags.join(', ')}
+                                              <button
+                                                type="button"
+                                                onClick={(e) => { e.stopPropagation(); setExpandedBodyId(null); }}
+                                                className="ml-1 underline underline-offset-2 font-semibold text-sky-300 hover:text-sky-200"
+                                              >
+                                                show less
+                                              </button>
+                                            </span>
+                                          ) : (
+                                            // COLLAPSED
+                                            <>
+                                              <span
+                                                ref={(el) => attachObserver(p.id, el)}
+                                                className="inline-block max-w-full align-bottom whitespace-nowrap overflow-hidden text-ellipsis"
+                                              >
+                                                🎭 {p.tags.slice(0, 2).join(', ')}
+                                              </span>
+
+                                              {(() => {
+                                                const extra =
+                                                  p.tags.length > 2 ? (p.tags.length - 2) : (clampedTags[p.id] ? 1 : 0);
+                                                return extra > 0 ? (
+                                                  <button
+                                                    type="button"
+                                                    onClick={(e) => {
+                                                      e.stopPropagation();
+                                                      setExpandedBodyId(`tags-${p.id}`);
+                                                    }}
+                                                    className="ml-1 underline underline-offset-2 font-semibold text-sky-300 hover:text-sky-200"
+                                                  >
+                                                    show {extra} more
+                                                  </button>
+                                                ) : null;
+                                              })()}
+                                            </>
+                                          )}
                                         </div>
                                       )}
+
+
+
+
+
+
                                     </>
                                   )}
 

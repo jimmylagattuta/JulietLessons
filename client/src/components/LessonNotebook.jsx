@@ -28,6 +28,27 @@ const AVAILABLE_TAGS = [
   'Playmaking',
   'Acting Challenges',
   'Ensemble Work',
+  'Chapter 1: Circuits',
+  'Chapter 2: The Collective Hive Mind',
+  'Chapter 3: Mirror, Mirror',
+  'Chapter 4: Building Blocks Of Playmaking',
+  'Chapter 5: Walks & Races',
+  'Chapter 6: Showdown, Duels, & Battles',
+  'Chapter 7: Vocal Acrobatics',
+  'Chapter 8: Pantomime',
+  'Chapter 9: Rhythm & Orchestra',
+  'Chapter 10: Contraption',
+  'Chapter 11: Ritual, Endowment, & Ceremony',
+  'Chapter 12: Relationship & Status',
+  'Chapter 13: Core Action - To Get, To Tag, To Possess',
+  'Chapter 14: Core Action - The Salesman',
+  'Chapter 15: Expert Hot Seat & Character',
+  'Chapter 16: Detective',
+  'Chapter 17: Character',
+  'Chapter 18: Masks',
+  'Chapter 19: Lazzi & Clowning',
+  'Chapter 20: Improv Structures',
+  'Chapter 21: Impros, Projects, & Productions'
 ]
 export default function LessonNotebook({ userId, onRunLesson }) {
   const [lessons, setLessons] = useState([])
