@@ -348,7 +348,7 @@ export default function GenerateLesson({ lessonId = null, onClearView }) {
             ? 'Loading…'
             : filters.tags.length || filters.ageGroups.length || filters.levels.length || filters.search
               ? 'Generate Lesson'
-              : 'Generate Random Lesson'}
+              : 'Generate Drama Lesson'}
         </button>
       </aside>
 

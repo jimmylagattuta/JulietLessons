@@ -55,6 +55,10 @@ export default function LessonPlanningNew({ userId, onAddToPlan, onRunLesson }) 
   const [previewBullets, setPreviewBullets] = useState([''])
   const [isSaving, setIsSaving] = useState(false)
   const droppableRefs = useRef([]);
+  const [compact, setCompact] = useState(true); // default ON for small screens
+  const [expandedBodyId, setExpandedBodyId] = useState(null);
+  const [clampedBodies, setClampedBodies] = useState({}); // track per-card clamp
+
 
   // api /lesson_planning
   useEffect(() => {
@@ -319,16 +323,35 @@ export default function LessonPlanningNew({ userId, onAddToPlan, onRunLesson }) 
                   </div>
                 </div>
               </div>
-
-              {/* Top-right preview button (optional, can remove if keeping bottom only) */}
-              {totalActivities > 0 && (
+              {/* Right-side controls: Compact + (conditional) Preview */}
+              <div className="flex items-center gap-2 ml-4 mt-2">
+                {/* Compact view toggle (always shown) */}
                 <button
-                  onClick={() => setShowPreview(true)}
-                  className="ml-4 mt-2 px-4 py-2 rounded-md text-sm font-semibold text-white bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-400 hover:to-indigo-400 transition-shadow shadow-md"
+                  type="button"
+                  onClick={() => setCompact(c => !c)}
+                  aria-pressed={compact}
+                  title="Toggle compact card layout"
+                  className={`px-3 py-2 rounded-md text-sm font-semibold border transition
+                  ${compact
+                      ? 'bg-blue-600 text-white border-blue-500'
+                      : 'bg-dark-700 text-gray-200 border-dark-600 hover:bg-dark-600'}`}
                 >
-                  Preview Lesson
+                  {compact ? 'Compact View On' : 'Compact View Off'}
                 </button>
-              )}
+
+                {/* Preview button (only when there are activities) */}
+                {totalActivities > 0 && (
+                  <button
+                    onClick={() => setShowPreview(true)}
+                    className="px-4 py-2 rounded-md text-sm font-semibold text-white
+                 bg-gradient-to-r from-blue-500 to-indigo-500
+                 hover:from-blue-400 hover:to-indigo-400 transition-shadow shadow-md"
+                  >
+                    Preview Lesson
+                  </button>
+                )}
+              </div>
+
             </div>
             <div className="overflow-hidden w-full">
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6 w-full">
@@ -965,12 +988,28 @@ export default function LessonPlanningNew({ userId, onAddToPlan, onRunLesson }) 
                   <div
                     ref={provided.innerRef}
                     {...provided.droppableProps}
-                    className="relative grid grid-cols-3 gap-4"
+                    className={`relative grid gap-4
+                    ${compact
+                        ? 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6'
+                        : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5'
+                      }`}
                   >
+
                     {filtered.map((p, idx) => (
                       <Draggable key={p.id} draggableId={String(p.id)} index={idx}>
                         {(providedDr, snapshotDr) => {
                           const dndStyle = providedDr.draggableProps.style || {};
+                          const cardPadding = compact ? 'p-3' : 'p-5';
+                          const cardMinH = compact ? 'min-h-[220px]' : 'min-h-[380px]';
+                          const titleClasses = compact ? 'text-base w-40' : 'text-xl';
+                          const pillText = compact ? 'text-[10px] px-1.5 py-0.5' : 'text-xs px-2 py-0.5';
+                          // helpers near top of component
+                          const pillWrap = `flex flex-wrap items-center gap-1`;
+                          const pillBase = compact
+                            ? "inline-flex items-center justify-center px-1.5 text-[10px] h-5 rounded-full ring-1 ring-white/15 bg-white/10"
+                            : "inline-flex items-center justify-center px-2 text-[11px] h-6 rounded-full ring-1 ring-white/15 bg-white/10";
+
+                          const labelW = compact ? "w-16" : "w-20";
 
                           return (
                             <div
@@ -986,11 +1025,14 @@ export default function LessonPlanningNew({ userId, onAddToPlan, onRunLesson }) 
                             >
                               <div
                                 style={{
-                                  transform: snapshotDr.isDragging ? 'scale(0.5)' : 'scale(1)',
+                                  transform: snapshotDr.isDragging
+                                    ? (compact ? 'scale(0.9)' : 'scale(0.95)')
+                                    : 'scale(1)',
                                   transformOrigin: 'center center',
-                                  transition: snapshotDr.isDragging ? 'none' : 'transform 0.1s ease-out',
+                                  transition: snapshotDr.isDragging ? 'none' : 'transform 0.08s ease-out',
                                 }}
-                                className="relative h-full flex flex-col justify-between bg-dark-800 border border-dark-600 rounded-xl p-5 shadow-md hover:shadow-lg hover:border-blue-500 min-h-[380px]"
+                                className={`relative h-full flex flex-col justify-between bg-dark-800 border border-dark-600
+                                rounded-xl shadow-md hover:shadow-lg hover:border-blue-500 ${cardPadding} ${cardMinH}`}
                               >
                                 {snapshotDr.isDragging && invalidDrop && draggingType === p.section_type && (
                                   <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-red-600 text-white text-xs font-semibold px-3 py-1 rounded shadow z-50">
@@ -1025,117 +1067,239 @@ export default function LessonPlanningNew({ userId, onAddToPlan, onRunLesson }) 
                                 </div>
 
                                 <div className="mt-6 space-y-3">
-                                  <h3 className="text-xl font-extrabold text-white tracking-tight leading-tight">
+                                  {/* Tital */}
+                                  <h3 className={`font-extrabold text-white tracking-tight leading-tight ${titleClasses}`}>
                                     {p.title}
                                   </h3>
 
                                   <div className="space-y-1 text-sm">
                                     {/* Age Group */}
-                                    <div className="flex items-center">
-                                      <span className="inline-block w-20 text-white/70 font-semibold">Age:</span>
-                                      <div className="flex space-x-1">
-                                        {Array.isArray(p.age_group) &&
-                                          p.age_group.map(age => (
-                                            <span
-                                              key={age}
-                                              className="inline-block px-2 py-0.5 text-xs leading-none rounded-full font-medium text-white shadow-sm"
-                                              style={{
-                                                background: 'linear-gradient(135deg, #1e3a8a, #10b981)',
-                                                backgroundSize: '160% 160%',
-                                                boxShadow:
-                                                  'inset 0 0 6px rgba(255,255,255,0.05), 0 2px 6px rgba(16,185,129,0.4)',
-                                                backdropFilter: 'blur(3px)',
-                                                border: 'none',
-                                              }}
-                                            >
-                                              {age}
-                                            </span>
-                                          ))}
+                                    <div className="flex items-start">
+                                      <span className={`inline-block ${labelW} text-white/70 font-semibold`}>Age:</span>
+                                      <div className={pillWrap}>
+                                        {(Array.isArray(p.age_group) ? p.age_group : [p.age_group]).filter(Boolean).map(age => (
+                                          <span
+                                            key={age}
+                                            className={`${pillBase} text-white`}
+                                            style={{
+                                              background: 'linear-gradient(135deg, rgba(30,58,138,.35), rgba(16,185,129,.35))'
+                                            }}
+                                          >
+                                            {age}
+                                          </span>
+                                        ))}
                                       </div>
                                     </div>
 
                                     {/* Level */}
-                                    <div className="flex items-center">
-                                      <span className="inline-block w-20 text-white/70 font-semibold">Level:</span>
-                                      <div className="flex space-x-1">
-                                        {Array.isArray(p.level) &&
-                                          p.level.map(lvl => (
-                                            <span
-                                              key={lvl}
-                                              className="inline-block px-2 py-0.5 text-xs leading-none rounded-full font-medium text-white shadow-sm"
-                                              style={{
-                                                background: 'linear-gradient(135deg, #3b82f6, #f97316)',
-                                                backgroundSize: '160% 160%',
-                                                boxShadow:
-                                                  'inset 0 0 6px rgba(255,255,255,0.05), 0 2px 6px rgba(59,130,246,0.4)',
-                                                backdropFilter: 'blur(3px)',
-                                                border: 'none',
-                                              }}
-                                            >
-                                              {lvl}
-                                            </span>
-                                          ))}
+                                    <div className="flex items-start mt-1">
+                                      <span className={`inline-block ${labelW} text-white/70 font-semibold`}>Level:</span>
+                                      <div className={pillWrap}>
+                                        {(Array.isArray(p.level) ? p.level : [p.level]).filter(Boolean).map(lvl => (
+                                          <span
+                                            key={lvl}
+                                            className={`${pillBase} text-white`}
+                                            style={{
+                                              background: 'linear-gradient(135deg, rgba(59,130,246,.35), rgba(249,115,22,.35))'
+                                            }}
+                                          >
+                                            {lvl}
+                                          </span>
+                                        ))}
                                       </div>
                                     </div>
 
+
+                                    {/* Time */}
                                     {typeof p.time === 'number' && (
-                                      <p className="text-gray-300">
+                                      <p className={compact ? 'text-xs text-gray-300' : 'text-gray-300'}>
                                         <span className="inline-block w-20 text-white/70 font-semibold">Time:</span>
                                         <span className="text-gray-100">{p.time} min</span>
                                       </p>
                                     )}
                                   </div>
 
+                                  {/* Body */}
                                   {p.body && (
-                                    <p className="text-sm text-gray-400 leading-relaxed tracking-wide border-t border-white/10 pt-3">
-                                      {p.body}
-                                    </p>
+                                    <>
+                                      <div
+                                        className={`${compact ? "text-[12px] pt-2" : "text-sm pt-3"} 
+                                                           text-gray-400 border-t border-white/10`}
+                                      >
+                                        <p
+                                          ref={(el) => {
+                                            if (el) {
+                                              const clamped =
+                                                el.scrollHeight > el.clientHeight;
+                                              if (clampedBodies[p.id] !== clamped) {
+                                                setClampedBodies((prev) => ({ ...prev, [p.id]: clamped }));
+                                              }
+                                            }
+                                          }}
+                                          className={compact ? "line-clamp-2" : "line-clamp-3"}
+                                        >
+                                          {p.body}
+                                        </p>
+
+                                        {clampedBodies[p.id] && (
+                                          <button
+                                            type="button"
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              setExpandedBodyId(p.id);
+                                            }}
+                                            className="mt-1 text-xs font-semibold text-sky-300 hover:text-sky-200 underline underline-offset-2"
+                                          >
+                                            Read more
+                                          </button>
+                                        )}
+                                      </div>
+
+                                      {/* Inline body expander (inside the same card) */}
+                                      {expandedBodyId === p.id && (
+                                        <div
+                                          className="absolute inset-0 z-50 pointer-events-none"
+                                          onClick={() => setExpandedBodyId(null)}
+                                        >
+                                          <div
+                                            className="absolute left-3 right-3 top-0 bottom-3
+             pointer-events-auto rounded-xl border border-dark-600
+             bg-dark-800 shadow-xl flex flex-col"
+                                            onClick={(e) => e.stopPropagation()}
+                                            role="dialog"
+                                            aria-modal="true"
+                                            aria-labelledby={`expanded-title-${p.id}`}
+                                          >
+
+                                            {/* Header (sticky) */}
+                                            <div className="sticky top-0 z-10 flex items-center gap-2 px-4 py-3
+                      rounded-t-xl bg-dark-800/95 backdrop-blur
+                      border-b border-white/10">
+                                              <span className="text-xl">{SECTION_ICONS[p.section_type]}</span>
+                                              <h4 id={`expanded-title-${p.id}`} className="text-base font-bold text-white flex-1">
+                                                {p.title}
+                                              </h4>
+                                              <button
+                                                type="button"
+                                                onClick={() => setExpandedBodyId(null)}
+                                                aria-label="Close"
+                                                className="ml-2 h-7 w-7 grid place-items-center rounded-full
+                     bg-white/10 hover:bg-white/20 text-white/80 hover:text-white"
+                                              >
+                                                ×
+                                              </button>
+                                            </div>
+
+                                            {/* Body (fills remaining space; scrolls) */}
+                                            <div className="px-4 pb-4 pt-3 overflow-y-auto
+                      h-[calc(100%-48px)]
+                      text-sm text-gray-200 leading-relaxed whitespace-pre-wrap
+                      scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+                                              {p.body}
+                                            </div>
+                                          </div>
+                                        </div>
+                                      )}
+
+
+
+
+
+                                    </>
                                   )}
 
+                                  {/* Scripts */}
                                   {Array.isArray(p.file_infos) && p.file_infos.length > 0 && (
-                                    <div className="mt-3 border-t border-white/10 pt-3">
-                                      <h4 className="text-xs font-semibold uppercase text-gray-400 tracking-wide mb-2">
-                                        Scripts
-                                      </h4>
-                                      <div className="flex flex-wrap gap-2">
-                                        {p.file_infos.map(({ url, filename }) => (
-                                          <a
-                                            key={url}
-                                            href={url}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                            className="inline-flex items-center space-x-1 px-3 py-1 rounded-full bg-gradient-to-r from-yellow-600 to-yellow-400 text-sm font-medium text-gray-900 shadow-sm hover:shadow-md transition"
-                                          >
-                                            <span className="text-lg leading-none">📜</span>
-                                            <span>{filename}</span>
-                                          </a>
-                                        ))}
-                                      </div>
-                                    </div>
+                                    <>
+                                      {/* Full detail (not compact) */}
+                                      {!compact && (
+                                        <div className="mt-3 border-t border-white/10 pt-3">
+                                          <h4 className="text-xs font-semibold uppercase text-gray-400 tracking-wide mb-2">
+                                            Scripts
+                                          </h4>
+                                          <div className="flex flex-wrap gap-2">
+                                            {p.file_infos.map(({ url, filename }) => (
+                                              <a
+                                                key={url}
+                                                href={url}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="inline-flex items-center space-x-1 px-3 py-1 rounded-full
+                                                bg-gradient-to-r from-yellow-600 to-yellow-400
+                                                text-sm font-medium text-gray-900 shadow-sm hover:shadow-md transition"
+                                              >
+                                                <span className="text-lg leading-none">📜</span>
+                                                <span>{filename}</span>
+                                              </a>
+                                            ))}
+                                          </div>
+                                        </div>
+                                      )}
+
+                                      {/* Compact summary */}
+                                      {compact && (
+                                        <div className="mt-2 text-[11px] text-yellow-300/90">
+                                          📜 {p.file_infos.length} script{p.file_infos.length > 1 ? 's' : ''}
+                                        </div>
+                                      )}
+                                    </>
                                   )}
 
+                                  {/* Tags */}
                                   {Array.isArray(p.tags) && p.tags.length > 0 && (
-                                    <div className="mt-4 border-t border-white/10 pt-4">
-                                      <h4 className="text-xs font-semibold uppercase text-gray-400 tracking-wide mb-2">
-                                        Tags
-                                      </h4>
-                                      <div className="flex flex-wrap gap-2">
-                                        {p.tags.map(tag => (
-                                          <span
-                                            key={tag}
-                                            className="inline-flex items-center px-3 py-1 rounded-full bg-gradient-to-r from-purple-600 to-pink-500 text-sm font-medium text-white shadow-sm hover:shadow-md transition"
-                                          >
-                                            {tag}
-                                          </span>
-                                        ))}
-                                      </div>
-                                    </div>
+                                    <>
+                                      {/* Full detail (not compact) */}
+                                      {!compact && (
+                                        <div className="mt-4 border-t border-white/10 pt-4">
+                                          <h4 className="text-xs font-semibold uppercase text-gray-400 tracking-wide mb-2">
+                                            Tags
+                                          </h4>
+                                          <div className="flex flex-wrap gap-2">
+                                            {p.tags.map(tag => (
+                                              <span
+                                                key={tag}
+                                                className="inline-flex items-center px-3 py-1 rounded-full 
+                                                bg-gradient-to-r from-purple-600 to-pink-500 
+                                                text-sm font-medium text-white shadow-sm hover:shadow-md transition"
+                                              >
+                                                {tag}
+                                              </span>
+                                            ))}
+                                          </div>
+                                        </div>
+                                      )}
+
+                                      {/* Compact summary */}
+                                      {compact && (
+                                        <div className="mt-2 text-[11px] text-purple-300/90 truncate">
+                                          🎭 {p.tags.slice(0, 2).join(', ')}
+                                          {p.tags.length > 2 && ` +${p.tags.length - 2} more`}
+                                        </div>
+                                      )}
+                                    </>
                                   )}
+
+                                  {/* Admin Created */}
                                   {p.admin_created && (
-                                    <div className="inline-flex items-center px-2 py-0.5 rounded-full border border-white/20 bg-white/5 text-xs text-white/60 gap-1 w-max">
-                                      <span className="text-blue-400">🛡</span> Admin Created
-                                    </div>
+                                    <>
+                                      {!compact && (
+                                        <div className="inline-flex items-center px-2 py-0.5 rounded-full 
+                      border border-white/20 bg-white/5 
+                      text-xs text-white/60 gap-1 w-max">
+                                          <span className="text-blue-400">🛡</span> Admin Created
+                                        </div>
+                                      )}
+
+                                      {compact && (
+                                        <div className="inline-flex items-center px-1.5 py-0.5 rounded-full 
+                                                        border border-blue-400/40 bg-blue-500/10 
+                                                        text-[10px] text-blue-300 gap-1 w-max">
+                                          🛡 Admin
+                                        </div>
+                                      )}
+                                    </>
                                   )}
+
                                 </div>
                               </div>
                             </div>
