@@ -58,6 +58,42 @@ export default function LessonPlanningNew({ userId, onAddToPlan, onRunLesson }) 
   const [compact, setCompact] = useState(true); // default ON for small screens
   const [expandedBodyId, setExpandedBodyId] = useState(null);
   const [clampedBodies, setClampedBodies] = useState({}); // track per-card clamp
+  const cardsScrollerRef = useRef(null);
+  const cardsAnchorRef = useRef(null);
+  const [cardsTopY, setCardsTopY] = useState(0);
+
+  useEffect(() => {
+    const measure = () => {
+      if (!cardsAnchorRef.current) return;
+      const rect = cardsAnchorRef.current.getBoundingClientRect();
+      setCardsTopY(window.scrollY + rect.top); // absolute Y of the grid
+    };
+    measure();
+    window.addEventListener('resize', measure);
+    window.addEventListener('orientationchange', measure);
+    return () => {
+      window.removeEventListener('resize', measure);
+      window.removeEventListener('orientationchange', measure);
+    };
+  }, []);
+
+  const handleCardsWheel = (e) => {
+    const scroller = cardsScrollerRef.current;
+    if (!scroller) return;
+
+    const dy = e.deltaY;
+    const atTop = scroller.scrollTop <= 0;
+    const atBottom = scroller.scrollTop + scroller.clientHeight >= scroller.scrollHeight - 1;
+
+    // Only when the scroller is at an edge do we manually pass scroll to the page
+    if ((atTop && dy < 0) || (atBottom && dy > 0)) {
+      e.preventDefault();                 // stop the child (because of overscroll-behavior)
+      window.scrollBy({ top: dy, left: 0, behavior: 'auto' });
+    }
+    // Otherwise: do nothing; let the cards scroller handle it natively.
+  };
+
+
 
 
   // api /lesson_planning
@@ -790,10 +826,15 @@ export default function LessonPlanningNew({ userId, onAddToPlan, onRunLesson }) 
         </aside>
 
         {/* Main panel */}
-        <div className="flex-1 flex flex-col overflow-hidden">
+        <div ref={cardsAnchorRef} className="flex-1 flex flex-col overflow-hidden">
 
           {/* Finalize Lesson and Cards */}
-          <div className="flex-1 p-4 overflow-auto relative scrollbar-hidden">
+          <div
+            className="flex-1 p-4 overflow-auto relative scrollbar-hidden"
+            ref={cardsScrollerRef}
+            onWheel={handleCardsWheel}
+          >
+
             {/* Finalize Lesson */}
             {showPreview && (
               <div className="fixed inset-0 z-[9999] flex items-start justify-center pt-12 scrollbar-hidden px-6 pb-6 bg-black/70 backdrop-blur-sm overflow-y-auto">
@@ -990,7 +1031,7 @@ export default function LessonPlanningNew({ userId, onAddToPlan, onRunLesson }) 
                     {...provided.droppableProps}
                     className={`relative grid gap-4
                     ${compact
-                        ? 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-6'
+                        ? 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5'
                         : 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5'
                       }`}
                   >
@@ -1001,7 +1042,7 @@ export default function LessonPlanningNew({ userId, onAddToPlan, onRunLesson }) 
                           const dndStyle = providedDr.draggableProps.style || {};
                           const cardPadding = compact ? 'p-3' : 'p-5';
                           const cardMinH = compact ? 'min-h-[220px]' : 'min-h-[380px]';
-                          const titleClasses = compact ? 'text-base w-40' : 'text-xl';
+                          const titleClasses = compact ? 'text-base w-50' : 'text-xl';
                           const pillText = compact ? 'text-[10px] px-1.5 py-0.5' : 'text-xs px-2 py-0.5';
                           // helpers near top of component
                           const pillWrap = `flex flex-wrap items-center gap-1`;
@@ -1058,7 +1099,7 @@ export default function LessonPlanningNew({ userId, onAddToPlan, onRunLesson }) 
 
                                 {/* Icon */}
                                 <div
-                                  className={`absolute top-2 right-2 text-3xl transition-all duration-300 ${snapshotDr.isDragging
+                                  className={`absolute top-2 right-2 text-2xl transition-all duration-300 ${snapshotDr.isDragging
                                     ? 'text-white/80'
                                     : 'text-white/20 group-hover:text-white/80'
                                     }`}
@@ -1068,9 +1109,15 @@ export default function LessonPlanningNew({ userId, onAddToPlan, onRunLesson }) 
 
                                 <div className="mt-6 space-y-3">
                                   {/* Tital */}
-                                  <h3 className={`font-extrabold text-white tracking-tight leading-tight ${titleClasses}`}>
+                                  <h3
+                                    className={`font-extrabold text-white tracking-tight leading-tight 
+                                            ${titleClasses} 
+                                            ${p.title.length > 40 ? 'text-sm' : ''} 
+                                            ${p.title.length > 70 ? 'text-xs' : ''}`}
+                                  >
                                     {p.title}
                                   </h3>
+
 
                                   <div className="space-y-1 text-sm">
                                     {/* Age Group */}
