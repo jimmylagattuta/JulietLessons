@@ -1144,20 +1144,6 @@ function App() {
             </button>
 
             <button
-              onClick={() => setActiveTab('lessonPartBuilder')}
-              className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === 'lessonPartBuilder'
-                  ? 'border-pink-500 text-pink-600 dark:text-pink-400'
-                  : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
-                }`}
-            >
-              <div className="flex items-center space-x-2">
-                <Wrench className="w-4 h-4" />
-                <span>Lesson Part Builder</span>
-              </div>
-            </button>
-
-
-            <button
               onClick={() => setActiveTab('lessonPlanningNew')}
               className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === 'lessonPlanningNew'
                   ? 'border-purple-500 text-purple-600 dark:text-purple-400'
@@ -1183,18 +1169,19 @@ function App() {
               </div>
             </button>
 
-            {authState.user?.role === 'admin' && (<button
-              onClick={() => setActiveTab('activities')}
-              className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === 'activities'
-                  ? 'border-blue-500 text-blue-600 dark:text-blue-400'
+            <button
+              onClick={() => setActiveTab('lessonPartBuilder')}
+              className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === 'lessonPartBuilder'
+                  ? 'border-pink-500 text-pink-600 dark:text-pink-400'
                   : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
                 }`}
             >
               <div className="flex items-center space-x-2">
-                <Activity className="w-4 h-4" />
-                <span>Activities ({activities.length})</span>
+                <Wrench className="w-4 h-4" />
+                <span>Lesson Part Builder</span>
               </div>
-            </button>)}
+            </button>
+
             {authState.user?.role === 'admin' && (<button
               onClick={() => setActiveTab('scripts')}
               className={`pb-4 px-1 border-b-2 font-medium text-sm transition-colors ${activeTab === 'scripts'

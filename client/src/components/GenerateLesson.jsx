@@ -1,6 +1,7 @@
 // src/components/GenerateLesson.jsx
 
 import React, { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom';
 import './GenerateLesson.css'
 
 const AVAILABLE_TAGS = [
@@ -69,6 +70,89 @@ export default function GenerateLesson({ lessonId = null, onClearView }) {
   const [message, setMessage] = useState(null)
   const [tagResults, setTagResults] = useState({}) // ← Add this line
   const [usedFilters, setUsedFilters] = useState({})
+  const [showAgeDropdown, setShowAgeDropdown] = useState(false);
+  const tagBtnRef = React.useRef(null);
+  const [showTagsDropdown, setShowTagsDropdown] = useState(false);
+  const [showLevelDropdown, setShowLevelDropdown] = useState(false);
+  const [tagMenuPos, setTagMenuPos] = useState({ top: 0, left: 0, width: 320 }); // px
+  const ageBtnRef = React.useRef(null);
+  const ageMenuRef = React.useRef(null);
+  const levelBtnRef = React.useRef(null);
+  const levelMenuRef = React.useRef(null);
+  const AGE_OPTIONS = ['Young', 'Middle', 'Older', 'All'];
+  const LEVEL_OPTIONS = ['Toe Tipper', 'Green Horn', 'Semi-Pro', 'Seasoned Veteran(all)'];
+
+  const TAG_GROUPS = {
+    Core: AVAILABLE_TAGS.filter(t => !t.startsWith('Chapter')),
+    Chapters: AVAILABLE_TAGS.filter(t => t.startsWith('Chapter')),
+  };
+
+  function handleMultiSelect(e, key, setFilters) {
+    const values = Array.from(e.target.selectedOptions).map(o => o.value);
+    setFilters(prev => ({ ...prev, [key]: values }));
+  }
+  function openTags() {
+    const btn = tagBtnRef.current;
+    if (!btn) return;
+    const r = btn.getBoundingClientRect();
+    const width = 320; // desired dropdown width
+    const margin = 8;
+
+    // prefer left aligned, but keep inside viewport
+    let left = Math.max(margin, Math.min(r.left, window.innerWidth - width - margin));
+    let top = r.bottom + 4;
+
+    setTagMenuPos({ top, left, width });
+    setShowTagsDropdown(true);
+  }
+
+  useEffect(() => {
+    if (!showTagsDropdown) return;
+
+    const onScrollOrResize = () => openTags(); // re-position to follow the button
+
+    const onClickAway = (e) => {
+      // If clicking the button, don't close (button handles toggle)
+      if (tagBtnRef.current?.contains(e.target)) return;
+      // If clicking inside the menu, don't close (let item onClick run)
+      if (tagMenuRef.current?.contains(e.target)) return;
+      setShowTagsDropdown(false);
+    };
+
+    window.addEventListener('scroll', onScrollOrResize, true);
+    window.addEventListener('resize', onScrollOrResize);
+    window.addEventListener('click', onClickAway);     // changed from mousedown
+
+    return () => {
+      window.removeEventListener('scroll', onScrollOrResize, true);
+      window.removeEventListener('resize', onScrollOrResize);
+      window.removeEventListener('click', onClickAway);
+    };
+  }, [showTagsDropdown]);
+
+  useEffect(() => {
+    if (!showAgeDropdown) return;
+    const onClickAway = (e) => {
+      if (ageBtnRef.current?.contains(e.target)) return;
+      if (ageMenuRef.current?.contains(e.target)) return;
+      setShowAgeDropdown(false);
+    };
+    window.addEventListener('click', onClickAway);
+    return () => window.removeEventListener('click', onClickAway);
+  }, [showAgeDropdown]);
+
+  // Close Levels on outside click (same idea)
+  useEffect(() => {
+    if (!showLevelDropdown) return;
+    const onClickAway = (e) => {
+      if (levelBtnRef.current?.contains(e.target)) return;
+      if (levelMenuRef.current?.contains(e.target)) return;
+      setShowLevelDropdown(false);
+    };
+    window.addEventListener('click', onClickAway);
+    return () => window.removeEventListener('click', onClickAway);
+  }, [showLevelDropdown]);
+
 
   // If we're viewing a saved lesson by ID, fetch it once.
   useEffect(() => {
@@ -129,6 +213,8 @@ export default function GenerateLesson({ lessonId = null, onClearView }) {
   const totalMainTime = mainActivities.reduce((sum, lp) => sum + (lp.time || 0), 0)
   const totalEndTime = endActivities.reduce((sum, lp) => sum + (lp.time || 0), 0)
   const [showChapters, setShowChapters] = useState(false);
+
+  const tagMenuRef = React.useRef(null);   // NEW
 
   const sortByPosition = arr =>
     arr.slice().sort((a, b) => (a.position || 0) - (b.position || 0))
@@ -245,167 +331,183 @@ export default function GenerateLesson({ lessonId = null, onClearView }) {
 
 
 
-      <aside className="lesson-sidebar p-6 pt-4 bg-white dark:bg-dark-800 border-r border-gray-200 dark:border-dark-700 w-80 space-y-6 overflow-y-auto max-h-screen scrollbar-hidden">
+      <aside className="lesson-sidebar p-6 pt-4 bg-white dark:bg-dark-800 border-r border-gray-200 dark:border-dark-700 w-80 space-y-6 overflow-y-auto overflow-x-visible max-h-screen scrollbar-hidden">
 
         <h2 className="text-xl font-semibold text-gray-900 dark:text-white">Juliet's Generator</h2>
         <p className="text-sm text-gray-600 dark:text-gray-300">Choose filters or generate a random lesson.</p>
 
         {/* Tags */}
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-white mb-1">Tags</label>
+        <div className="mb-4 relative">
 
-          {/* Core tags (non-chapter) */}
-          <div className="flex flex-wrap gap-2">
-            {AVAILABLE_TAGS.filter(t => !t.startsWith('Chapter')).map(tag => {
-              const isSelected = filters.tags.includes(tag);
-              return (
-                <button
-                  key={tag}
-                  type="button"
-                  onClick={() =>
-                    setFilters(prev => ({
-                      ...prev,
-                      tags: isSelected ? prev.tags.filter(tg => tg !== tag) : [...prev.tags, tag],
-                    }))
-                  }
-                  className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all duration-200 shadow-sm ${isSelected
-                      ? 'text-white'
-                      : 'text-gray-300 border border-gray-500 bg-dark-700 hover:bg-dark-600'
-                    }`}
-                  style={
-                    isSelected
-                      ? {
-                        background: 'linear-gradient(135deg, #6b21a8, #9d174d)',
-                        backgroundSize: '160% 160%',
-                        border: '1px solid rgba(255, 255, 255, 0.08)',
-                        boxShadow:
-                          'inset 0 0 6px rgba(255,255,255,.05), 0 2px 6px rgba(109,40,217,.4)',
-                        backdropFilter: 'blur(3px)',
-                      }
-                      : {}
-                  }
-                >
-                  {isSelected ? '✨ ' : ''}
-                  {tag}
-                </button>
-              );
-            })}
-          </div>
+          {/* Tags */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-white mb-1">Tags</label>
 
-          {/* Toggle (own row, under the core tags) */}
-          <div className="mt-3">
             <button
+              ref={tagBtnRef}
               type="button"
-              onClick={() => setShowChapters(v => !v)}
-              className="px-2 py-1.5 rounded-full text-sm font-medium text-gray-100 bg-dark-700/70 hover:bg-dark-900/80 border border-dark-700 shadow-sm transition"
+              onClick={() => (showTagsDropdown ? setShowTagsDropdown(false) : openTags())}
+              className="w-full px-3 py-2 bg-dark-700 text-gray-100 border border-gray-600 rounded-lg text-left"
             >
-              {showChapters ? 'Hide chapters' : 'Show chapters'} (
-              {AVAILABLE_TAGS.filter(t => t.startsWith('Chapter')).length})
+              {filters.tags.length > 0 ? filters.tags.join(', ') : 'Select tags…'}
+              <span className="float-right">{showTagsDropdown ? '▲' : '▼'}</span>
             </button>
+
+            {showTagsDropdown &&
+              createPortal(
+                <div
+                  ref={tagMenuRef}
+                  className="fixed z-[99999] bg-dark-700 border border-gray-600 rounded-lg shadow-xl max-h-80 overflow-y-auto"
+                  style={{ top: tagMenuPos.top, left: tagMenuPos.left, width: tagMenuPos.width }}
+                >
+                  <div className="p-3">
+                    <p className="text-xs uppercase text-gray-400 mb-1">Core</p>
+                    {TAG_GROUPS.Core.map(tag => {
+                      const isSelected = filters.tags.includes(tag);
+                      return (
+                        <div
+                          key={tag}
+                          className={`cursor-pointer px-2 py-1 rounded ${isSelected ? 'bg-indigo-600 text-white' : 'hover:bg-dark-600 text-gray-200'
+                            }`}
+                          onClick={() => {
+                            setFilters(prev => ({
+                              ...prev,
+                              tags: isSelected ? prev.tags.filter(t => t !== tag) : [...prev.tags, tag],
+                            }));
+                          }}
+                        >
+                          {tag}
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div className="p-3 border-t border-gray-600">
+                    <p className="text-xs uppercase text-gray-400 mb-1">Chapters</p>
+                    {TAG_GROUPS.Chapters.map(tag => {
+                      const isSelected = filters.tags.includes(tag);
+                      return (
+                        <div
+                          key={tag}
+                          className={`cursor-pointer px-2 py-1 rounded ${isSelected ? 'bg-indigo-600 text-white' : 'hover:bg-dark-600 text-gray-200'
+                            }`}
+                          onClick={() => {
+                            setFilters(prev => ({
+                              ...prev,
+                              tags: isSelected ? prev.tags.filter(t => t !== tag) : [...prev.tags, tag],
+                            }));
+                          }}
+                        >
+                          {tag}
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>,
+                document.body
+              )}
           </div>
 
-          {/* Chapter tags (collapsed by default) */}
-          <div
-            className={`mt-3 overflow-hidden transition-[max-height] duration-300 ${showChapters ? 'max-h-[1200px]' : 'max-h-0'
-              }`}
-          >
-            <div className="rounded-xl">
-              <div className="flex flex-wrap gap-2">
-                {AVAILABLE_TAGS.filter(t => t.startsWith('Chapter')).map(tag => {
-                  const isSelected = filters.tags.includes(tag);
-                  return (
-                    <button
-                      key={tag}
-                      type="button"
-                      onClick={() =>
-                        setFilters(prev => ({
-                          ...prev,
-                          tags: isSelected ? prev.tags.filter(tg => tg !== tag) : [...prev.tags, tag],
-                        }))
-                      }
-                      className={`px-2 py-1.5 rounded-full text-xs font-medium transition-all duration-200 shadow-sm ${isSelected
-                          ? 'text-white'
-                          : 'text-gray-300 border border-gray-500 bg-dark-700 hover:bg-dark-600'
-                        }`}
-                      style={
-                        isSelected
-                          ? {
-                            background: 'linear-gradient(135deg, #6b21a8, #9d174d)',
-                            backgroundSize: '160% 160%',
-                            border: '1px solid rgba(255, 255, 255, 0.08)',
-                            boxShadow:
-                              'inset 0 0 6px rgba(255,255,255,.05), 0 2px 6px rgba(109,40,217,.4)',
-                            backdropFilter: 'blur(3px)',
-                          }
-                          : {}
-                      }
-                    >
-                      {isSelected ? '✨ ' : ''}
-                      {tag}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
+
+
+
         </div>
+
 
 
         {/* Age Groups */}
-        <div className="w-full flex flex-wrap items-center gap-x-2 gap-y-3">
-          <span className="text-base font-bold text-gray-700 dark:text-gray-300 mb-2">Ages:</span>
-          {['Young', 'Middle', 'Older', 'All'].map(age => {
-            const isSelected = filters.ageGroups.includes(age)
-            return (
-              <button
-                key={age}
-                onClick={() =>
-                  setFilters(prev => ({
-                    ...prev,
-                    ageGroups: isSelected
-                      ? prev.ageGroups.filter(a => a !== age)
-                      : [...prev.ageGroups, age]
-                  }))
-                }
-                className={`px-3 py-1 rounded-full text-xs font-semibold shadow-inner transition transform duration-150 ease-in-out
-        ${isSelected
-                    ? 'text-white bg-gradient-to-br from-blue-300 via-sky-400 to-teal-500 shadow-lg ring-2 ring-white/40 dark:ring-white/10 scale-105'
-                    : 'text-gray-700 dark:text-gray-300 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-dark-700 dark:to-dark-600 border border-gray-300 dark:border-gray-600 hover:scale-105 hover:shadow-md'}
-      `}
-              >
-                {age}
-              </button>
-            )
-          })}
+        <div className="mb-4 relative">
+          <label className="block text-sm font-medium text-white mb-1">Ages</label>
+
+          {/* Dropdown button */}
+          <button
+            ref={ageBtnRef}
+            type="button"
+            onClick={() => setShowAgeDropdown((v) => !v)}
+            className="w-full px-3 py-2 bg-dark-700 text-gray-100 border border-gray-600 rounded-lg text-left"
+          >
+            {filters.ageGroups.length > 0 ? filters.ageGroups.join(', ') : 'Select ages…'}
+            <span className="float-right">{showAgeDropdown ? '▲' : '▼'}</span>
+          </button>
+
+          {showAgeDropdown && (
+            <div
+              ref={ageMenuRef}
+              onMouseDown={(e) => e.stopPropagation()}
+              className="absolute z-50 mt-1 w-full bg-dark-700 border border-gray-600 rounded-lg shadow-lg"
+            >
+              {['Young', 'Middle', 'Older', 'All'].map((age) => {
+                const isSelected = filters.ageGroups.includes(age);
+                return (
+                  <div
+                    key={age}
+                    className={`cursor-pointer px-2 py-1 rounded ${isSelected ? 'bg-blue-500 text-white' : 'hover:bg-dark-600 text-gray-200'
+                      }`}
+                    onClick={() => {
+                      setFilters((prev) => ({
+                        ...prev,
+                        ageGroups: isSelected
+                          ? prev.ageGroups.filter((a) => a !== age)
+                          : [...prev.ageGroups, age],
+                      }));
+                      setShowAgeDropdown(false); // close after choosing
+                    }}
+                  >
+                    {age}
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
         </div>
 
+
         {/* Levels */}
-        <div className="w-full flex flex-wrap items-center gap-x-2 gap-y-3">
-          <span className="text-base font-bold text-gray-700 dark:text-gray-300 mb-2">Level:</span>
-          {['Toe Tipper', 'Green Horn', 'Semi-Pro', 'Seasoned Veteran(all)'].map(level => {
-            const isSelected = filters.levels.includes(level)
-            return (
-              <button
-                key={level}
-                onClick={() =>
-                  setFilters(prev => ({
-                    ...prev,
-                    levels: isSelected
-                      ? prev.levels.filter(l => l !== level)
-                      : [...prev.levels, level]
-                  }))
-                }
-                className={`px-3 py-1 rounded-full text-xs font-semibold shadow-inner transition transform duration-150 ease-in-out
-                  ${isSelected
-                    ? 'text-white bg-gradient-to-br from-yellow-300 via-rose-400 to-red-600 shadow-lg ring-2 ring-white/40 dark:ring-white/10 scale-105'
-                    : 'text-gray-700 dark:text-gray-300 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-dark-700 dark:to-dark-600 border border-gray-300 dark:border-gray-600 hover:scale-105 hover:shadow-md'}
-                  `}
-              >
-                {level}
-              </button>
-            )
-          })}
+        <div className="mb-4 relative">
+          <label className="block text-sm font-medium text-white mb-1">Levels</label>
+
+          <button
+            ref={levelBtnRef}                                   // ← attach the ref
+            type="button"
+            onClick={() => setShowLevelDropdown(v => !v)}
+            className="w-full px-3 py-2 bg-dark-700 text-gray-100 border border-gray-600 rounded-lg text-left"
+          >
+            {filters.levels.length > 0 ? filters.levels.join(', ') : 'Select levels…'}
+            <span className="float-right">{showLevelDropdown ? '▲' : '▼'}</span>
+          </button>
+
+          {showLevelDropdown && (
+            <div
+              ref={levelMenuRef}                                // ← attach the ref
+              onMouseDown={(e) => e.stopPropagation()}          // ← prevent window handler
+              className="absolute z-50 mt-1 w-full bg-dark-700 border border-gray-600 rounded-lg shadow-lg"
+            >
+              {['Toe Tipper', 'Green Horn', 'Semi-Pro', 'Seasoned Veteran(all)'].map(level => {
+                const isSelected = filters.levels.includes(level);
+                return (
+                  <div
+                    key={level}
+                    className={`cursor-pointer px-2 py-1 rounded ${isSelected ? 'bg-red-500 text-white' : 'hover:bg-dark-600 text-gray-200'
+                      }`}
+                    onClick={() => {
+                      setFilters(prev => ({
+                        ...prev,
+                        levels: isSelected
+                          ? prev.levels.filter(l => l !== level)
+                          : [...prev.levels, level],
+                      }));
+                      setShowLevelDropdown(false);               // optional: close after pick
+                    }}
+                  >
+                    {level}
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
+
+
 
         {/* Search Input */}
         <input
