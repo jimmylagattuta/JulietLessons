@@ -8,7 +8,7 @@
     "clean": "rm -rf public",
     "build": "npm install --prefix client && npm run build --prefix client",
     "deploy": "cp -a client/build/. public/",
-    "heroku-postbuild": "set -xe; npm install --legacy-peer-deps --prefix client && npm run build:client --prefix client && ls -lah public | head && ls -lah public/assets | head"
+    "heroku-postbuild": "npm install --legacy-peer-deps --prefix client && npm run build:client --prefix client && rm -rf public && mkdir -p public && if [ -d client/dist ]; then cp -a client/dist/. public/; elif [ -d client/build ]; then cp -a client/build/. public/; else echo '❌ No client build output found (expected client/dist or client/build)'; exit 1; fi && echo '--- public/' && ls -lah public | head && echo '--- public/assets/' && ls -lah public/assets | head"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.6.0",
