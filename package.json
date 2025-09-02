@@ -8,7 +8,7 @@
     "clean": "rm -rf public",
     "build": "npm install --prefix client && npm run build --prefix client",
     "deploy": "cp -a client/build/. public/",
-    "heroku-postbuild": "npm install --legacy-peer-deps --prefix client && npm run build:client --prefix client && bash -lc 'if [ -f public/index.html ]; then echo \"Vite already wrote to /public\"; elif [ -d client/dist ]; then echo \"Copying client/dist -> public\"; rm -rf public && mkdir -p public && cp -a client/dist/. public/; elif [ -d client/build ]; then echo \"Copying client/build -> public\"; rm -rf public && mkdir -p public && cp -a client/build/. public/; else echo \"No client build output found (expected public/, client/dist, or client/build)\"; exit 1; fi; echo \"--- /public\"; ls -lah public | head; echo \"--- /public/assets\"; ls -lah public/assets | head'"
+    "heroku-postbuild": "npm install --legacy-peer-deps --prefix client && npm run build:client --prefix client && bash -lc 'rm -rf public && mkdir -p public && if [ -d client/dist ]; then echo \"Copying client/dist -> public\"; cp -a client/dist/. public/; elif [ -d client/build ]; then echo \"Copying client/build -> public\"; cp -a client/build/. public/; else echo \"No client build output found (expected client/dist or client/build)\"; exit 1; fi; echo \"--- /public\"; ls -lah public | head; echo \"--- /public/assets\"; ls -lah public/assets | head'"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^6.6.0",
