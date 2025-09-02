@@ -135,7 +135,7 @@
   z-index: 1;
   background: #ffffff;
   padding: 1rem;
-  border-radius: 8px;
+  /* border-radius: 8px; */
   font-size: 3rem;
   text-align: center;
   font-weight: 800;
@@ -222,4 +222,135 @@
 .pdf-title {
   margin-right: 0.5rem;
   font-weight: 600;
+}
+
+/* ---------- PRINT: show ONLY the lesson, hide the rest ---------- */
+@media print {
+  /* page setup */
+  @page { size: auto; margin: 0.5in; }
+  html, body { background: #fff !important; }
+
+  /* 1) Hide everything by default */
+  body * { visibility: hidden !important; }
+
+  /* 2) Show only the lesson details subtree */
+  .lesson-details,
+  .lesson-details * {
+    visibility: visible !important;
+  }
+
+  /* 3) Remove app chrome / sidebars / sticky bars */
+  .no-print,
+  .lesson-sidebar,
+  header,
+  nav,
+  .app-header,
+  .topbar,
+  .sidebar,
+  .fixed,
+  .backdrop-blur-sm {
+    display: none !important;
+  }
+
+  /* 4) Make the lesson fill the page cleanly */
+  .lesson-details {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    box-shadow: none !important;
+    border: 0 !important;
+    background: #fff !important;
+    padding: 0 !important;  /* optional: remove if you want inner padding to print */
+  }
+
+  /* 5) Tweak text colors for paper */
+  .lesson-details h1,
+  .lesson-details h2,
+  .lesson-details p,
+  .lesson-details li {
+    color: #000 !important;
+  }
+
+  /* 6) Avoid printing raw URLs after links */
+  a[href]:after { content: "" !important; }
+
+    .lesson-details [style*="display: none"],
+  .lesson-details .hidden {
+    display: block !important;
+    visibility: visible !important;
+    height: auto !important;
+    opacity: 1 !important;
+  }
+@media print {
+  /* Page setup */
+  body {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    background: #111827 !important; /* dark background */
+    color: #f9fafb !important;
+  }
+
+  /* Main lesson container */
+  .lesson-details {
+    background: #111827 !important; /* dark-800 */
+    color: #f9fafb !important;
+    padding: 1in !important; /* margins for nice PDF look */
+    font-size: 12pt !important;
+  }
+
+  /* Title */
+  .lesson-title {
+    display: block !important;
+    font-size: 2rem !important;
+    font-weight: 800 !important;
+    color: #9333ea !important; /* purple */
+    margin-bottom: 1rem !important;
+    text-align: center !important;
+  }
+
+  /* Force open all collapsible sections */
+  .lesson-details [style*="display: none"],
+  .lesson-details .hidden {
+    display: block !important;
+    visibility: visible !important;
+    height: auto !important;
+    opacity: 1 !important;
+  }
+
+  /* Ensure headers and text stay white */
+  .lesson-details h1,
+  .lesson-details h2,
+  .lesson-details h3,
+  .lesson-details h4,
+  .lesson-details p,
+  .lesson-details li,
+  .lesson-details strong {
+    color: #f9fafb !important;
+  }
+
+  /* Remove buttons / controls */
+  button,
+  .no-print {
+    display: none !important;
+  }
+
+  /* Links look like text */
+  a {
+    color: #38bdf8 !important; /* cyan highlight */
+    text-decoration: none !important;
+  }
+
+  /* Lists formatting */
+  ul {
+    margin-left: 1.25rem !important;
+    list-style-type: disc !important;
+  }
+
+  /* Prevent cut-off at page breaks */
+  .lesson-details,
+  .lesson-details > div {
+    page-break-inside: avoid !important;
+  }
+}
 }

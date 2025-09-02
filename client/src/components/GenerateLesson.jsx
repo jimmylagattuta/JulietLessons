@@ -156,17 +156,44 @@ export default function GenerateLesson({ lessonId = null, onClearView }) {
 
   // If we're viewing a saved lesson by ID, fetch it once.
   useEffect(() => {
-    if (!lessonId) return
-    setLoading(true)
-    fetch(`/api/lessons/${lessonId}`)
+    // only skip when null or undefined
+    if (lessonId == null) {
+      return;
+    }
+
+    // clear stale lesson when a new id comes in
+    setLesson(null);
+    setLoading(true);
+
+    const ac = new AbortController();
+    const url = `/api/lessons/${lessonId}`;
+
+    console.log('[GenerateLesson] byId effect firing →', { lessonId, url });
+
+    fetch(url, {
+      method: 'GET',
+      headers: { 'Accept': 'application/json' },
+      credentials: 'same-origin',
+      signal: ac.signal,
+    })
       .then(res => {
-        if (!res.ok) throw new Error(`Status ${res.status}`)
-        return res.json()
+        if (!res.ok) throw new Error(`GET ${url} → ${res.status}`);
+        return res.json();
       })
-      .then(data => setLesson(data))
-      .catch(err => console.error('Error fetching lesson by ID:', err))
-      .finally(() => setLoading(false))
-  }, [lessonId])
+      .then(data => {
+        console.log('[GenerateLesson] byId fetched:', data);
+        setLesson(data);
+      })
+      .catch(err => {
+        if (err.name !== 'AbortError') {
+          console.error('Error fetching lesson by ID:', err);
+        }
+      })
+      .finally(() => setLoading(false));
+
+    return () => ac.abort();
+  }, [lessonId]);
+
 
   // Always fetch a new random lesson when you click
   const handleGenerate = async () => {
@@ -215,6 +242,9 @@ export default function GenerateLesson({ lessonId = null, onClearView }) {
   const [showChapters, setShowChapters] = useState(false);
 
   const tagMenuRef = React.useRef(null);   // NEW
+
+  console.log('lesson', lesson);
+  console.log('lessonId', lessonId);
 
   const sortByPosition = arr =>
     arr.slice().sort((a, b) => (a.position || 0) - (b.position || 0))
@@ -374,6 +404,7 @@ export default function GenerateLesson({ lessonId = null, onClearView }) {
                               ...prev,
                               tags: isSelected ? prev.tags.filter(t => t !== tag) : [...prev.tags, tag],
                             }));
+                            setShowTagsDropdown(false);
                           }}
                         >
                           {tag}
@@ -395,6 +426,7 @@ export default function GenerateLesson({ lessonId = null, onClearView }) {
                               ...prev,
                               tags: isSelected ? prev.tags.filter(t => t !== tag) : [...prev.tags, tag],
                             }));
+                            setShowTagsDropdown(false);
                           }}
                         >
                           {tag}
@@ -556,9 +588,25 @@ export default function GenerateLesson({ lessonId = null, onClearView }) {
         {lesson && (
           <div className="lesson-details">
             {/* -- Title & Objective -- */}
-            <div className="lesson-star-block">
+            {/* Title with right-aligned PDF button */}
+            <div className="lesson-star-block flex items-center justify-between no-print">
               <h1 className="lesson-title showman">{lesson.title}</h1>
+
+              {/* Top-right PDF button */}
+              {/* Top-right: go to share page instead of printing from builder */}
+              <div className="absolute top-4 right-4 no-print z-50">
+                <a
+                  href={`/lessons/${lesson.id}/share`}
+                  className="px-3 py-2 text-sm rounded-md text-white bg-gradient-to-r from-blue-700 to-cyan-700 hover:from-emerald-600 hover:to-cyan-600 shadow"
+                >
+                  🔗 Share / Download
+                </a>
+              </div>
+
+
             </div>
+
+
             <div className="bg-white dark:bg-dark-800 border border-gray-200 dark:border-dark-700 rounded-lg shadow-sm mb-6 p-6">
               <h2 className="text-xl font-bold text-gray-900 dark:text-white mb-2">
                 Lesson Objective

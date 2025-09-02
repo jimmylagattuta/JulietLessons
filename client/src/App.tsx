@@ -82,6 +82,7 @@ import GenerateLesson from './components/GenerateLesson';
 import NewLessonPart from './components/NewLessonPart';
 import LessonPlanningNew from './components/LessonPlanningNew';
 import LessonNotebook from './components/LessonNotebook';
+import LessonShare from './components/LessonShare';
 
 // Types
 import {
@@ -479,6 +480,16 @@ function App() {
     setFilteredActivities(filtered);
   }, [activities, lessonFilters]);
 
+  // ------- lightweight route matcher (no react-router) -------
+  const path = typeof window !== 'undefined' ? window.location.pathname : '';
+  // accepts numeric IDs or UUID-ish
+  const shareMatch = path.match(/^\/lessons\/([A-Za-z0-9-]+)\/share\/?$/);
+
+  if (shareMatch) {
+    const lessonId = shareMatch[1];
+    // render ONLY the share page for this URL
+    return <LessonShare lessonId={lessonId} />;
+  }
   // Authentication handlers
   const handleSignIn = async (credentials: LoginCredentials) => {
     setAuthState(prev => ({ ...prev, isLoading: true, error: null }));

@@ -359,29 +359,33 @@ export default function LessonNotebook({ userId, onRunLesson }) {
                     ))}
                   </div>
 
-                  {/* Toggle Details – big gradient button with arrow bounce */}
-                  <button
-                    onClick={() => toggleOpen(lesson.id)}
-                    className="inline-flex items-center px-4 py-2 mb-4 bg-gradient-to-r from-purple-600 to-blue-500 text-white text-sm font-semibold rounded-full shadow-lg hover:shadow-2xl transition transform hover:scale-105 focus:outline-none"
-                  >
-                    {isOpen ? 'Hide Details' : 'Show Details'}
-                    <span
-                      className={`ml-2 inline-block transform transition-transform duration-300 ${isOpen ? 'rotate-180' : 'animate-bounce'
-                        }`}
+                  {/* Actions: Show Details + Run Lesson (top, side-by-side) */}
+                  <div className="flex items-center gap-3 mb-4">
+                    <button
+                      onClick={() => toggleOpen(lesson.id)}
+                      className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-purple-600 to-blue-500 text-white text-sm font-semibold rounded-full shadow-lg hover:shadow-2xl transition transform hover:scale-105 focus:outline-none"
                     >
-                      ▼
-                    </span>
-                  </button>
+                      {isOpen ? 'Hide Details' : 'Show Details'}
+                      <span
+                        className={`ml-2 inline-block transform transition-transform duration-300 ${isOpen ? 'rotate-180' : 'animate-bounce'}`}
+                      >
+                        ▼
+                      </span>
+                    </button>
+
+                    <button
+                      onClick={() => onRunLesson(lesson.id)}
+                      className="inline-flex items-center px-4 py-2 bg-gradient-to-r from-emerald-600 to-cyan-600 text-white text-sm font-semibold rounded-full shadow-lg hover:shadow-2xl transition transform hover:scale-105 focus:outline-none"
+                      title="Open Run Lesson"
+                    >
+                      ▶ Run Lesson
+                    </button>
+                  </div>
+
 
                   {/* Run and Remove buttons */}
                   {isOpen && (
                     <div className="absolute bottom-4 right-4 flex gap-2 z-20">
-                      <button
-                        onClick={() => onRunLesson(lesson.id)}
-                        className="bg-blue-600 hover:bg-blue-700 text-white text-sm px-3 py-1 rounded"
-                      >
-                        ▶️ Run Lesson
-                      </button>
                       <button
                         onClick={() => setConfirmRemoveId(lesson.id)}
                         className="bg-red-600 hover:bg-red-700 text-white text-sm px-3 py-1 rounded"

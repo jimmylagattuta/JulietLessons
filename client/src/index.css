@@ -50,10 +50,11 @@
   html {
     scrollbar-gutter: stable;
   }
+
   /* * {
     @apply border-border;
   } */
-  
+
   /* body {
     @apply bg-background text-foreground font-inter;
     background: linear-gradient(135deg, #0c0a1a 0%, #1a0f2e 100%);
@@ -65,32 +66,30 @@
   .gradient-bg {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   }
-  
+
   .gradient-text {
     background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
-  
+
   .glass-effect {
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.2);
   }
-  
+
   .glow-effect {
     box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
   }
 
   /* Enhanced animation utilities */
   .animate-shimmer {
-    background: linear-gradient(
-      90deg,
-      transparent 0%,
-      rgba(255, 255, 255, 0.1) 50%,
-      transparent 100%
-    );
+    background: linear-gradient(90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.1) 50%,
+        transparent 100%);
     background-size: 200% 100%;
     animation: shimmer 2s infinite;
   }
@@ -99,6 +98,7 @@
     0% {
       background-position: -200% 0;
     }
+
     100% {
       background-position: 200% 0;
     }
@@ -112,6 +112,7 @@
     from {
       box-shadow: 0 0 20px rgba(147, 51, 234, 0.3);
     }
+
     to {
       box-shadow: 0 0 30px rgba(147, 51, 234, 0.6), 0 0 40px rgba(147, 51, 234, 0.4);
     }
@@ -122,10 +123,13 @@
   }
 
   @keyframes bounce-slow {
-    0%, 100% {
+
+    0%,
+    100% {
       transform: translateY(0);
       animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
     }
+
     50% {
       transform: translateY(-5px);
       animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
@@ -137,11 +141,167 @@
   }
 
   @keyframes pulse-slow {
-    0%, 100% {
+
+    0%,
+    100% {
       opacity: 1;
     }
+
     50% {
       opacity: 0.7;
     }
+  }
+}
+
+/* Print stays clean */
+/* ------- PRINT: bulletproof reset so the title/card always render ------- */
+/* ---------- PRINT: minimal, stable ---------- */
+/* --- HARD PRINT RESET FOR EDGE --- */
+@media print {
+  /* never let fixed/sticky or filters into print */
+  * {
+    position: static !important;   /* neutralize sticky/fixed stacking issues */
+    filter: none !important;
+    -webkit-filter: none !important;
+    animation: none !important;
+    transition: none !important;
+  }
+
+  html, body { background:#fff !important; overflow: visible !important; }
+  .print\:hidden { display: none !important; }
+
+  /* your card prints like a plain page */
+  .lesson-share-width{
+    max-width: none !important;
+    width: 100% !important;
+    margin: 0 !important;
+    background: #fff !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+
+  /* hide watermark & any blur backdrops */
+  .juliet-watermark { display: none !important; }
+  .backdrop-blur, .backdrop-blur-\[.*\] { backdrop-filter: none !important; -webkit-backdrop-filter:none !important; }
+
+  /* colors readable */
+  body, main, section, header, h1, h2, h3, p, li, span, div {
+    color:#111 !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  @page { margin: 0.5in; }
+}
+
+/* When we tag the DOM before calling window.print() */
+.is-printing .juliet-watermark { display: none !important; }
+.is-printing * {
+  position: static !important;
+  filter: none !important;
+  -webkit-filter: none !important;
+  animation: none !important;
+  transition: none !important;
+}
+
+
+/* on screen the spacer isn’t needed */
+@media screen { .print-spacer { display: none; } }
+
+/* screen-only watermark (unchanged) */
+@media screen {
+  .juliet-watermark {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image: var(--juliet-bg-url);
+    background-position: center top;
+    background-repeat: no-repeat;
+    background-size: cover;
+    opacity: 0.18;
+  }
+  .juliet-screen { position: relative; z-index: 1; }
+}
+
+/* export (PDF) tiling (unchanged) */
+.juliet-export .juliet-watermark {
+  position: absolute;
+  inset: 0;
+  background-repeat: repeat-y;
+  background-size: 100% auto;
+  opacity: 0.24;
+}
+
+/* Screen width cap */
+@media screen {
+  .lesson-share-width {
+    max-width: 64rem;
+    margin-inline: auto;
+  }
+}
+
+/* Watermark (screen only) */
+@media screen {
+  .juliet-watermark {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image: var(--juliet-bg-url);
+    background-position: center top;
+    background-repeat: no-repeat;
+    background-size: cover;
+    opacity: 0.18;
+  }
+
+  .juliet-screen {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+/* Export (PDF) tiling */
+.juliet-export .juliet-watermark {
+  position: absolute;
+  inset: 0;
+  background-repeat: repeat-y;
+  background-size: 100% auto;
+  opacity: 0.24;
+}
+
+/* Pills (screen styles) */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  height: 24px;
+  padding: 0 8px;
+  border-radius: 9999px;
+}
+
+/* Remove pill visuals only during export (PDF) */
+.juliet-export .time-pill {
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  height: auto !important;
+  line-height: 1.2 !important;
+  color: #111 !important;
+}
+
+/* spacer ensures header doesn’t collapse */
+@media print {
+  .print-spacer {
+    display: block;
+    height: 12px;
+  }
+}
+
+@media screen {
+  .print-spacer {
+    display: none;
   }
 }
