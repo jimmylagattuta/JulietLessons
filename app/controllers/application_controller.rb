@@ -1,8 +1,12 @@
 class ApplicationController < ActionController::API
     def index
-        render file: Rails.root.join('public', 'index.html'),
-            layout: false,
-            content_type: 'text/html'
+        path = Rails.root.join('public', 'index.html')
+        if File.exist?(path)
+        response.headers['Content-Type'] = 'text/html; charset=utf-8'
+        render plain: File.read(path), content_type: 'text/html'
+        else
+        render plain: 'SPA index.html missing. Check Heroku postbuild.', status: :internal_server_error
+        end
     end
     
     def authenticate_admin!
