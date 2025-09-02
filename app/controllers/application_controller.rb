@@ -1,6 +1,6 @@
 class ApplicationController < ActionController::API
     def index
-        render file: Rails.root.join('public', 'spa', 'index.html'),
+        render file: Rails.root.join('public', 'index.html'),
             layout: false,
             content_type: 'text/html'
     end

@@ -1,15 +1,18 @@
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import { resolve } from 'path'
 
 export default defineConfig({
   plugins: [react()],
-  base: '/',                 // ✅ assets load from /assets/... on deep links
+  base: '/', // ✅ deep-link safe: loads /assets/... from site root
   server: {
     port: 80,
     allowedHosts: ['julietlessons.com', 'www.julietlessons.com'],
     proxy: { '/api': 'http://localhost:3001' },
   },
   optimizeDeps: { exclude: ['lucide-react'] },
-  // ❌ remove the outDir override to ../public (it was wiping/odd paths)
-  // build: { outDir: resolve(__dirname, '../public'), emptyOutDir: true }
-});
+  build: {
+    outDir: resolve(__dirname, '../public'), // ✅ write bundle directly into /public
+    emptyOutDir: true,                        // clears old bundle
+  },
+})
