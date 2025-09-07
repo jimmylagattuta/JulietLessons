@@ -1,5 +1,6 @@
 // src/components/LessonNotebook.jsx
 import React, { useEffect, useState, useMemo } from 'react'
+import EditLesson from './EditLesson'
 // Section labels & icons
 const SECTION_LABELS = {
   warm_up: '🔥 Warm Up',
@@ -15,6 +16,13 @@ const SECTION_ICONS = {
   end_of_lesson: '🏁',
   script: '📜'
 }
+const SECTION_ORDER = {
+  warm_up: 0,
+  bridge_activity: 1,
+  main_activity: 2,
+  end_of_lesson: 3,
+  script: 4,
+};
 const AVAILABLE_TAGS = [
   'Commedia Principals',
   'Character Dynamics',
@@ -63,6 +71,7 @@ export default function LessonNotebook({ userId, onRunLesson }) {
   const [confirmRemoveId, setConfirmRemoveId] = useState(null)
   const [favoriteIds, setFavoriteIds] = useState(new Set())
   const [notification, setNotification] = useState('')
+  const [editingLessonId, setEditingLessonId] = useState(null)
   // Fetch lessons + seed favorites
   useEffect(() => {
     fetch(`/api/lessons?user_id=${userId}`)
@@ -136,6 +145,34 @@ export default function LessonNotebook({ userId, onRunLesson }) {
       console.error('Failed to remove favorite', err)
     }
   }
+  const handleLessonSaved = (updated) => {
+    if (!updated || !updated.id) return;
+
+    setLessons(prev => {
+      const idx = prev.findIndex(l => l.id === updated.id);
+      if (idx === -1) return [...prev, updated];
+      const next = [...prev];
+      next[idx] = { ...next[idx], ...updated }; // keep anything not returned, replace what is
+      return next;
+    });
+
+    // keep favorite pills in sync if backend toggled it
+    setFavoriteIds(prev => {
+      const next = new Set(prev);
+      if (updated.favorite) next.add(updated.id);
+      else next.delete(updated.id);
+      return next;
+    });
+
+    // keep the edited card open and show a toast
+    setOpenLessons(prev => ({ ...prev, [updated.id]: true }));
+    setNotification('Lesson updated');
+    setTimeout(() => setNotification(''), 2000);
+
+    // close editor
+    setEditingLessonId(null);
+  };
+
   return (
     <div className="flex w-full min-h-screen bg-dark-900 text-white">
       {/* Sidebar */}
@@ -244,6 +281,18 @@ export default function LessonNotebook({ userId, onRunLesson }) {
               const lessonLevel = levels.length ? levels.join(', ') : '—'
               const isOpen = !!openLessons[lesson.id]
               const isFavorited = favoriteIds.has(lesson.id)
+              const partsSorted = [...(lesson.lesson_parts || [])].sort((a, b) => {
+                const sa = SECTION_ORDER[a.section_type] ?? 999;
+                const sb = SECTION_ORDER[b.section_type] ?? 999;
+                if (sa !== sb) return sa - sb;
+
+                // optional secondary ordering: by position or title
+                const pa = a.position ?? 0;
+                const pb = b.position ?? 0;
+                if (pa !== pb) return pa - pb;
+
+                return String(a.title).localeCompare(String(b.title));
+              });
 
               return (
                 <div
@@ -387,6 +436,13 @@ export default function LessonNotebook({ userId, onRunLesson }) {
                   {isOpen && (
                     <div className="absolute bottom-4 right-4 flex gap-2 z-20">
                       <button
+                        onClick={() => setEditingLessonId(lesson.id)}
+                        className="bg-amber-600 hover:bg-amber-700 text-white text-sm px-3 py-1 rounded shadow"
+                        title="Edit this lesson"
+                      >
+                        Edit Lesson
+                      </button>
+                      <button
                         onClick={() => setConfirmRemoveId(lesson.id)}
                         className="bg-red-600 hover:bg-red-700 text-white text-sm px-3 py-1 rounded"
                       >
@@ -395,102 +451,122 @@ export default function LessonNotebook({ userId, onRunLesson }) {
                     </div>
                   )}
 
+
+
                   {/* Lesson Parts Grid */}
-                  {isOpen && lesson.lesson_parts?.length > 0 && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      {lesson.lesson_parts.map((p, idx) => (
+                  {/* Lesson Parts – single column of horizontal rows */}
+                  {isOpen && partsSorted.length > 0 && (
+                    <div className="flex flex-col gap-3">
+                      {partsSorted.map((p, idx) => (
                         <div
                           key={idx}
-                          className="relative group bg-dark-700 border border-dark-600 p-4 rounded-2xl backdrop-blur-sm shadow-sm hover:shadow-lg transition duration-300"
+                          className="flex flex-col sm:flex-row sm:items-start gap-4 bg-dark-700 border border-dark-600 rounded-2xl p-4 hover:shadow-lg transition"
                         >
-                          {/* Section Label */}
-                          <div
-                            className={`absolute top-2 left-2 text-[11px] font-bold uppercase tracking-wide px-3 py-0.5 rounded-full border shadow-inner backdrop-blur-sm z-10 ${p.section_type === 'warm_up'
-                              ? 'bg-gradient-to-br from-pink-700/30 to-pink-500/20 text-pink-300 border-pink-500/40'
-                              : p.section_type === 'bridge_activity'
-                                ? 'bg-gradient-to-br from-yellow-600/30 to-yellow-500/20 text-yellow-200 border-yellow-400/40'
-                                : p.section_type === 'main_activity'
-                                  ? 'bg-gradient-to-br from-indigo-600/30 to-indigo-500/20 text-indigo-200 border-indigo-400/40'
-                                  : p.section_type === 'end_of_lesson'
-                                    ? 'bg-gradient-to-br from-teal-600/30 to-teal-500/20 text-teal-200 border-teal-400/40'
-                                    : 'bg-gradient-to-br from-sky-600/30 to-sky-500/20 text-sky-200 border-sky-400/40'
-                              }`}
-                          >
-                            {SECTION_LABELS[p.section_type]}
+                          {/* Left: icon + section chip */}
+                          <div className="flex-shrink-0 flex items-center gap-2">
+                            <span className="text-2xl">{SECTION_ICONS[p.section_type]}</span>
+                            <span
+                              className={
+                                `text-[11px] font-bold uppercase tracking-wide px-3 py-0.5 rounded-full border shadow-inner ` +
+                                (p.section_type === 'warm_up'
+                                  ? 'bg-gradient-to-br from-pink-700/30 to-pink-500/20 text-pink-300 border-pink-500/40'
+                                  : p.section_type === 'bridge_activity'
+                                    ? 'bg-gradient-to-br from-yellow-600/30 to-yellow-500/20 text-yellow-200 border-yellow-400/40'
+                                    : p.section_type === 'main_activity'
+                                      ? 'bg-gradient-to-br from-indigo-600/30 to-indigo-500/20 text-indigo-200 border-indigo-400/40'
+                                      : p.section_type === 'end_of_lesson'
+                                        ? 'bg-gradient-to-br from-teal-600/30 to-teal-500/20 text-teal-200 border-teal-400/40'
+                                        : 'bg-gradient-to-br from-sky-600/30 to-sky-500/20 text-sky-200 border-sky-400/40')
+                              }
+                            >
+                              {SECTION_LABELS[p.section_type]}
+                            </span>
                           </div>
 
-                          {/* Icon */}
-                          <div className="absolute top-2 right-2 text-2xl text-white">
-                            {SECTION_ICONS[p.section_type]}
-                          </div>
-
-                          {/* Part Content */}
-                          <div className="mt-6 space-y-2">
-                            <h4 className="text-lg font-extrabold text-white">{p.title}</h4>
-
-                            {typeof p.time === 'number' && (
-                              <div className="flex items-center gap-2 text-sm">
-                                <span className="inline-block px-2 py-0.5 text-xs rounded-full bg-emerald-700/30 text-emerald-100 font-medium shadow-sm border border-emerald-600/30">
+                          {/* Middle: title + body */}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center gap-3">
+                              <h4 className="text-lg font-extrabold text-white truncate">{p.title}</h4>
+                              {typeof p.time === 'number' && (
+                                <span className="px-2 py-0.5 text-xs rounded-full bg-emerald-700/30 text-emerald-100 font-medium border border-emerald-600/30">
                                   ⏱ {p.time} min
                                 </span>
-                              </div>
-                            )}
-
-                            <div className="flex items-center flex-wrap gap-2 text-sm mb-2">
-                              <span className="font-semibold text-gray-300">Age:</span>
-                              {Array.isArray(p.age_group) &&
-                                p.age_group.map(age => (
-                                  <span
-                                    key={age}
-                                    className="inline-block px-2 py-0.5 text-xs leading-none rounded-full font-medium text-white shadow-sm"
-                                    style={{
-                                      background: 'linear-gradient(135deg, #1e3a8a, #10b981)',
-                                      backgroundSize: '160% 160%',
-                                      boxShadow:
-                                        'inset 0 0 6px rgba(255,255,255,0.05), 0 2px 6px rgba(16,185,129,0.4)',
-                                      backdropFilter: 'blur(3px)',
-                                      border: 'none',
-                                    }}
-                                  >
-                                    {age}
-                                  </span>
-                                ))}
+                              )}
                             </div>
-
-                            <div className="flex items-center flex-wrap gap-2 text-sm mb-2">
-                              <span className="font-semibold text-gray-300">Level:</span>
-                              {Array.isArray(p.level) &&
-                                p.level.map(lvl => (
-                                  <span
-                                    key={lvl}
-                                    className="inline-block px-2 py-0.5 text-xs leading-none rounded-full font-medium text-white shadow-sm"
-                                    style={{
-                                      background: 'linear-gradient(135deg, #3b82f6, #f97316)',
-                                      backgroundSize: '160% 160%',
-                                      boxShadow:
-                                        'inset 0 0 6px rgba(255,255,255,0.05), 0 2px 6px rgba(59,130,246,0.4)',
-                                      backdropFilter: 'blur(3px)',
-                                      border: 'none',
-                                    }}
-                                  >
-                                    {lvl}
-                                  </span>
-                                ))}
-                            </div>
-
                             {p.body && (
-                              <p className="text-sm text-gray-300 border-t border-white/10 pt-2">
+                              <p className="mt-1 text-sm text-gray-300">
                                 {p.body}
                               </p>
                             )}
+
+                            {/* chips (Age / Level / Tags) */}
+                            <div className="mt-2 flex flex-wrap items-center gap-2 text-sm">
+                              {Array.isArray(p.age_group) && p.age_group.length > 0 && (
+                                <>
+                                  <span className="font-semibold text-gray-300">Age:</span>
+                                  {p.age_group.map(age => (
+                                    <span
+                                      key={age}
+                                      className="inline-block px-2 py-0.5 text-xs rounded-full text-white"
+                                      style={{
+                                        background: 'linear-gradient(135deg, #1e3a8a, #10b981)',
+                                        backgroundSize: '160% 160%',
+                                        boxShadow: 'inset 0 0 6px rgba(255,255,255,0.05), 0 2px 6px rgba(16,185,129,0.4)',
+                                        border: 'none',
+                                      }}
+                                    >
+                                      {age}
+                                    </span>
+                                  ))}
+                                </>
+                              )}
+
+                              {Array.isArray(p.level) && p.level.length > 0 && (
+                                <>
+                                  <span className="ml-2 font-semibold text-gray-300">Level:</span>
+                                  {p.level.map(lvl => (
+                                    <span
+                                      key={lvl}
+                                      className="inline-block px-2 py-0.5 text-xs rounded-full text-white"
+                                      style={{
+                                        background: 'linear-gradient(135deg, #3b82f6, #f97316)',
+                                        backgroundSize: '160% 160%',
+                                        boxShadow: 'inset 0 0 6px rgba(255,255,255,0.05), 0 2px 6px rgba(59,130,246,0.4)',
+                                        border: 'none',
+                                      }}
+                                    >
+                                      {lvl}
+                                    </span>
+                                  ))}
+                                </>
+                              )}
+
+                              {Array.isArray(p.tags) && p.tags.length > 0 && (
+                                <>
+                                  <span className="ml-2 font-semibold text-gray-300">Tags:</span>
+                                  {p.tags.map(tag => (
+                                    <span
+                                      key={tag}
+                                      className="inline-flex items-center px-3 py-1 rounded-full text-xs text-white"
+                                      style={{
+                                        background: 'linear-gradient(135deg, #9333ea, #facc15)',
+                                        backgroundSize: '160% 160%',
+                                        boxShadow: 'inset 0 0 6px rgba(255,255,255,0.05), 0 2px 6px rgba(147,51,234,0.4)',
+                                        border: 'none',
+                                      }}
+                                    >
+                                      {tag}
+                                    </span>
+                                  ))}
+                                </>
+                              )}
+                            </div>
                           </div>
 
-                          {/* Scripts */}
+                          {/* Right: script links (wrap nicely) */}
                           {Array.isArray(p.file_infos) && p.file_infos.length > 0 && (
-                            <div className="mt-4 border-t border-white/10 pt-3">
-                              <h4 className="text-xs font-semibold uppercase text-gray-400 mb-2">
-                                Scripts
-                              </h4>
+                            <div className="flex-shrink-0 sm:w-60">
+                              <div className="text-xs font-semibold uppercase text-gray-400 mb-1">Scripts</div>
                               <div className="flex flex-wrap gap-2">
                                 {p.file_infos.map(({ url, filename }) => (
                                   <a
@@ -501,27 +577,8 @@ export default function LessonNotebook({ userId, onRunLesson }) {
                                     className="inline-flex items-center space-x-1 px-3 py-1 rounded-full bg-gradient-to-r from-yellow-600 to-yellow-400 text-sm font-medium text-gray-900 shadow-sm hover:shadow-md transition"
                                   >
                                     <span className="text-lg leading-none">📜</span>
-                                    <span>{filename}</span>
+                                    <span className="truncate max-w-[9rem]">{filename}</span>
                                   </a>
-                                ))}
-                              </div>
-                            </div>
-                          )}
-
-                          {/* Tags */}
-                          {Array.isArray(p.tags) && p.tags.length > 0 && (
-                            <div className="mt-4 border-t border-white/10 pt-3">
-                              <h4 className="text-xs font-semibold uppercase text-gray-400 mb-2">
-                                Tags
-                              </h4>
-                              <div className="flex flex-wrap gap-2">
-                                {p.tags.map(tag => (
-                                  <span
-                                    key={tag}
-                                    className="inline-flex items-center px-3 py-1 rounded-full bg-gradient-to-r from-purple-600 to-pink-500 text-sm font-medium text-white shadow-sm hover:shadow-md transition"
-                                  >
-                                    {tag}
-                                  </span>
                                 ))}
                               </div>
                             </div>
@@ -530,6 +587,7 @@ export default function LessonNotebook({ userId, onRunLesson }) {
                       ))}
                     </div>
                   )}
+
                 </div>
 
               )
@@ -549,6 +607,14 @@ export default function LessonNotebook({ userId, onRunLesson }) {
             </div>
           </div>
         )}
+        {editingLessonId && (
+          <EditLesson
+            lesson={lessons.find(l => l.id === editingLessonId) || null}
+            onClose={() => setEditingLessonId(null)}
+            onSaved={handleLessonSaved}
+          />
+        )}
+
       </main>
     </div>
   )
